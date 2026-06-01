@@ -1,0 +1,25 @@
+const mongoose = require('mongoose');
+
+const boatSchema = new mongoose.Schema(
+  {
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    title: { type: String, required: true, trim: true },
+    type: { type: String, enum: ['sailboat', 'motorboat', 'catamaran', 'rib'], required: true },
+    description: { type: String, required: true },
+    location: { type: String, required: true, trim: true },
+    port: { type: String, trim: true },
+    pricePerDay: { type: Number, required: true, min: 0 },
+    capacity: { type: Number, required: true, min: 1 },
+    length: { type: Number },
+    engine: { type: String },
+    skipperAvailable: { type: Boolean, default: false },
+    equipments: [{ type: String }],
+    images: [{ type: String }],
+    unavailableDates: [{ type: Date }],
+    status: { type: String, enum: ['draft', 'pending', 'approved', 'rejected'], default: 'pending' },
+    averageRating: { type: Number, default: 0, min: 0, max: 5 },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Boat', boatSchema);

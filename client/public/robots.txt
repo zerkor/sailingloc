@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /owner/
+Disallow: /profile
+Disallow: /my-bookings
+Disallow: /api/
+
+Sitemap: http://localhost:5173/sitemap.xml
