@@ -4,6 +4,20 @@ import { login } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorMessage from '../../components/ErrorMessage';
 
+const EyeIcon = ({ open }) => open ? (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+) : (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
 const HERO = 'https://images.unsplash.com/photo-1548793428-9e9e1e37e84c?w=900&q=85&auto=format&fit=crop';
 
 const LoginPage = () => {
@@ -12,9 +26,10 @@ const LoginPage = () => {
   const location  = useLocation();
   const from = location.state?.from?.pathname || '/';
 
-  const [form,    setForm]    = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+  const [form,         setForm]         = useState({ email: '', password: '' });
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -76,20 +91,37 @@ const LoginPage = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
-                  Mot de passe
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider" style={{ color: '#3D4D61' }}>
+                    Mot de passe
+                  </label>
+                  <Link to="/forgot-password" className="text-xs font-semibold hover:underline" style={{ color: '#00C6E0' }}>
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className="input-field pr-10"
+                    placeholder="••••••••"
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute inset-y-0 right-3 flex items-center transition-colors"
+                    style={{ color: '#8896A8' }}
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  >
+                    <EyeIcon open={showPassword} />
+                  </button>
+                </div>
               </div>
 
               <ErrorMessage message={error} />

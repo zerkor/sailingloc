@@ -112,4 +112,8 @@
   .badge-accepted  { @apply bg-teal-100   text-teal-800   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
   .badge-paid      { @apply bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
   .badge-draft     { @apply bg-gray-100   text-gray-600   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+
+  /* ── Scrollbar hide (filter tabs horizontal scroll on mobile) ── */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }

@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import BoatCard from '../components/BoatCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+import BoatGrid from '../components/BoatGrid';
 import { getBoats } from '../services/boatService';
+import { mockBoats } from '../data/boats.mock';
+
+const TABS = [
+  { label: 'Tous',      value: 'all',       icon: '🌊' },
+  { label: 'Voilier',   value: 'sailboat',  icon: '⛵' },
+  { label: 'Moteur',    value: 'motorboat', icon: '🚤' },
+  { label: 'Catamaran', value: 'catamaran', icon: '⛴' },
+  { label: 'Yacht',     value: 'rib',       icon: '🛥' },
+];
 
 const HERO_IMG  = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=1600&q=85&auto=format&fit=crop';
 const SEA_IMG   = 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80&auto=format&fit=crop';
@@ -82,21 +90,22 @@ const HeroSearchBar = () => {
 
 const HomePage = () => {
   const [featuredBoats, setFeaturedBoats] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading,       setLoading]       = useState(true);
+  const [activeTab,     setActiveTab]     = useState('all');
 
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const { data } = await getBoats({ limit: 6 });
-        setFeaturedBoats(data.boats || data || []);
-      } catch {
-        setFeaturedBoats([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFeatured();
+    getBoats({ limit: 12 })
+      .then(({ data }) => {
+        const boats = data.boats || data || [];
+        setFeaturedBoats(boats.length > 0 ? boats : mockBoats);
+      })
+      .catch(() => setFeaturedBoats(mockBoats))
+      .finally(() => setLoading(false));
   }, []);
+
+  const filteredBoats = activeTab === 'all'
+    ? featuredBoats
+    : featuredBoats.filter(b => b.type === activeTab);
 
   return (
     <div style={{ background: '#F7F5F2' }}>
@@ -176,20 +185,29 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {loading ? (
-            <LoadingSpinner text="Chargement des bateaux..." />
-          ) : featuredBoats.length === 0 ? (
-            <div className="text-center py-16" style={{ color: '#8896A8' }}>
-              <p className="text-5xl mb-4">⛵</p>
-              <p className="text-lg">Aucun bateau disponible pour le moment.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredBoats.slice(0, 6).map((boat) => (
-                <BoatCard key={boat._id} boat={boat} />
-              ))}
+          {/* Filter tabs */}
+          {!loading && (
+            <div className="overflow-x-auto scrollbar-hide mb-8 -mx-1 px-1">
+              <div className="flex gap-2 w-max sm:w-auto sm:flex-wrap">
+                {TABS.map(tab => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setActiveTab(tab.value)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200"
+                    style={activeTab === tab.value
+                      ? { background: '#00C6E0', color: '#07192E' }
+                      : { background: 'transparent', color: 'rgba(0,198,224,0.85)', border: '1.5px solid rgba(0,198,224,0.3)' }
+                    }
+                  >
+                    <span>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
+
+          <BoatGrid boats={filteredBoats} loading={loading} />
 
           <div className="text-center mt-10">
             <Link

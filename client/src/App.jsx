@@ -11,8 +11,10 @@ import AdminLayout from './layouts/AdminLayout';
 // Public pages
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
+import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import BoatListPage from './pages/boats/BoatListPage';
 import BoatDetailPage from './pages/boats/BoatDetailPage';
 import LegalPage from './pages/legal/LegalPage';
@@ -42,8 +44,10 @@ function App() {
           {/* Public routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/boats" element={<BoatListPage />} />
             <Route path="/boats/:id" element={<BoatDetailPage />} />
             <Route path="/legal/:slug" element={<LegalPage />} />

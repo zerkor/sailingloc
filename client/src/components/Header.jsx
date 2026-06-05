@@ -41,7 +41,8 @@ const Header = () => {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-9">
-            <NavLink to="/boats" className={navLinkClass}>Bateaux</NavLink>
+            <NavLink to="/boats"   className={navLinkClass}>Bateaux</NavLink>
+            <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
             {user?.role === 'owner' && (
               <NavLink to="/owner/dashboard" className={navLinkClass}>Mon espace</NavLink>
             )}
@@ -120,7 +121,8 @@ const Header = () => {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden pb-5 border-t border-white/10 pt-4 space-y-0.5">
-            <Link to="/boats" className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5" onClick={() => setMenuOpen(false)}>Bateaux</Link>
+            <Link to="/boats"   className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5" onClick={() => setMenuOpen(false)}>Bateaux</Link>
+            <Link to="/contact" className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5" onClick={() => setMenuOpen(false)}>Contact</Link>
             {user?.role === 'owner' && <Link to="/owner/dashboard" className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5" onClick={() => setMenuOpen(false)}>Mon espace</Link>}
             {user?.role === 'admin' && <Link to="/admin/dashboard" className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5" onClick={() => setMenuOpen(false)}>Administration</Link>}
             <div className="pt-2 border-t border-white/10 mt-2">
