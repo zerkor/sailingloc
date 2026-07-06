@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Star } from 'lucide-react';
 import { createReview } from '../services/reviewService';
 import ErrorMessage from './ErrorMessage';
 
@@ -11,7 +12,10 @@ const ReviewForm = ({ boatId, bookingId, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) { setError('Veuillez écrire un commentaire.'); return; }
+    if (!comment.trim()) {
+      setError('Veuillez ecrire un commentaire.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -32,18 +36,23 @@ const ReviewForm = ({ boatId, bookingId, onSuccess }) => {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Note</label>
         <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHoveredStar(star)}
-              onMouseLeave={() => setHoveredStar(0)}
-              className={`text-2xl transition-colors ${star <= (hoveredStar || rating) ? 'text-yellow-400' : 'text-gray-300'}`}
-            >
-              ★
-            </button>
-          ))}
+          {[1, 2, 3, 4, 5].map((star) => {
+            const isActive = star <= (hoveredStar || rating);
+            return (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoveredStar(star)}
+                onMouseLeave={() => setHoveredStar(0)}
+                className="transition-colors"
+                style={{ color: isActive ? '#F4A01A' : '#CBD5E1' }}
+                aria-label={`${star} sur 5`}
+              >
+                <Star size={24} fill={isActive ? 'currentColor' : 'none'} />
+              </button>
+            );
+          })}
         </div>
       </div>
       <div>
@@ -53,7 +62,7 @@ const ReviewForm = ({ boatId, bookingId, onSuccess }) => {
           rows={3}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Partagez votre expérience..."
+          placeholder="Partagez votre experience..."
           className="input-field text-sm"
           required
         />

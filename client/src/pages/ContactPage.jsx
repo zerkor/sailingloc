@@ -1,5 +1,6 @@
 // src/pages/ContactPage.jsx
 import { useState } from 'react';
+import { ArrowRight, Check, Clock, Mail, MapPin, Phone } from 'lucide-react';
 
 const SUBJECTS = [
   { value: '',             label: 'Choisir un sujet…',   disabled: true },
@@ -10,10 +11,10 @@ const SUBJECTS = [
 ];
 
 const INFO_ITEMS = [
-  { icon: '✉️', label: 'Email',    value: 'contact@sailingloc.fr' },
-  { icon: '📞', label: 'Téléphone', value: '+33 1 23 45 67 89' },
-  { icon: '📍', label: 'Adresse',  value: '12 Rue du Port, 75001 Paris' },
-  { icon: '🕐', label: 'Horaires', value: 'Lun–Ven  9h–18h' },
+  { icon: Mail, label: 'Email', value: 'contact@sailingloc.fr' },
+  { icon: Phone, label: 'Téléphone', value: '+33 1 23 45 67 89' },
+  { icon: MapPin, label: 'Adresse', value: '12 Rue du Port, 75001 Paris' },
+  { icon: Clock, label: 'Horaires', value: 'Lun–Ven  9h–18h' },
 ];
 
 const AnchorSVG = () => (
@@ -97,7 +98,7 @@ const ContactPage = () => {
             backdropFilter: 'blur(8px)',
           }}
         >
-          <span>✓</span> Message envoyé ✓
+          <Check size={16} /> Message envoyé
         </div>
       )}
 
@@ -183,7 +184,7 @@ const ContactPage = () => {
                     Envoi en cours…
                   </>
                 ) : (
-                  'Envoyer le message →'
+                  <span className="inline-flex items-center gap-2">Envoyer le message <ArrowRight size={16} /></span>
                 )}
               </button>
             </form>
@@ -200,20 +201,23 @@ const ContactPage = () => {
               </h2>
 
               <div className="space-y-5">
-                {INFO_ITEMS.map(item => (
+                {INFO_ITEMS.map(item => {
+                  const Icon = item.icon;
+                  return (
                   <div key={item.label} className="flex items-start gap-4">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
                       style={{ background: 'rgba(0,198,224,0.1)' }}
                     >
-                      {item.icon}
+                      <Icon size={20} color="#00C6E0" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8896A8' }}>{item.label}</p>
                       <p className="text-sm font-semibold mt-0.5" style={{ color: '#07192E' }}>{item.value}</p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

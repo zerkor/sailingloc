@@ -16,3 +16,20 @@ export const getMinDate = () => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   return tomorrow.toISOString().split('T')[0];
 };
+
+const toDateOnly = (date) => {
+  const value = new Date(date);
+  value.setHours(0, 0, 0, 0);
+  return value;
+};
+
+export const isRangeUnavailable = (startDate, endDate, unavailableDates = []) => {
+  if (!startDate || !endDate || unavailableDates.length === 0) return false;
+  const start = toDateOnly(startDate);
+  const end = toDateOnly(endDate);
+
+  return unavailableDates.some((date) => {
+    const unavailable = toDateOnly(date);
+    return unavailable >= start && unavailable < end;
+  });
+};

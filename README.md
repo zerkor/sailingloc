@@ -4,6 +4,17 @@
 
 SailingLoc est une application web full-stack permettant aux propriétaires de bateaux de publier des annonces de location, et aux locataires de rechercher, réserver et évaluer des bateaux. La plateforme inclut un back-office d'administration complet.
 
+## Dernières améliorations admin et navigation
+
+- Navbar publique enrichie : Accueil, Bateaux, Catégories, Produits, Contact.
+- Nouvelles pages publiques : `/categories`, `/products`, `/contact`.
+- Back-office enrichi : `/admin/documents`, `/admin/payments`, `/admin/reports`, `/admin/action-logs`.
+- Protection admin : impossible de désactiver ou rétrograder son propre compte admin, et impossible de supprimer le dernier admin actif.
+- Remboursement admin cohérent : la réservation et le paiement associé passent ensemble en statut remboursé.
+- Journal admin : validation/rejet, rôles, désactivation, remboursements et signalements sont tracés.
+- Pagination ajoutée aux listes admin principales.
+- Les dashboards affichent une erreur visible si l'API échoue, sans faux chiffres silencieux.
+
 ---
 
 ## Fonctionnalités principales
@@ -266,6 +277,85 @@ Après `npm run seed` :
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
 | Admin | admin@sailingloc.fr | Admin123! |
+
+## Lancer le projet en local
+
+Terminal backend :
+
+```powershell
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\server
+npm install
+npm run seed
+npm run dev
+```
+
+Terminal frontend :
+
+```powershell
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\client
+npm install
+npm run dev
+```
+
+Ouvrir ensuite [http://localhost:5173](http://localhost:5173).
+
+## Tests E2E
+
+Un squelette Playwright est présent dans `client/e2e`.
+
+Installation si Playwright n'est pas encore installé :
+
+```powershell
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\client
+npm install -D @playwright/test
+npx playwright install
+```
+
+Lancer les tests E2E :
+
+```powershell
+npm run test:e2e
+```
+
+Les scénarios couvrent le chargement de l'accueil, les liens navbar, la page login, la connexion admin, le dashboard admin, la page utilisateurs, la liste des bateaux et une page détail.
+
+## Demo data
+
+Le projet contient un seed réaliste pour remplir MongoDB avec des données de démonstration.
+
+Depuis le backend :
+
+```powershell
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\server
+npm run seed
+```
+
+Le seed recrée une base de test complète :
+
+- 35 utilisateurs : 1 admin, 14 propriétaires, 20 locataires.
+- 25 bateaux répartis entre voiliers, bateaux à moteur, catamarans et semi-rigides.
+- 60 réservations avec statuts variés : pending, accepted, confirmed, completed, cancelled, rejected.
+- Paiements liés aux réservations : paid, refunded et unpaid.
+- 25 avis, dont certains en attente de modération.
+- Documents propriétaires, signalements et journal admin.
+
+Comptes de démonstration :
+
+- Admin : `admin@sailingloc.fr` / `Admin123!`
+- Propriétaires : `owner1@sailingloc.fr` à `owner14@sailingloc.fr` / `Owner123!`
+- Locataires : `tenant1@sailingloc.fr` à `tenant20@sailingloc.fr` / `Tenant123!`
+
+Ce jeu de données permet de tester :
+
+- insertion en base MongoDB ;
+- connexion avec chaque rôle ;
+- gestion admin des utilisateurs et changements de rôle ;
+- validation des bateaux ;
+- gestion des réservations et des dates ;
+- supervision des paiements et statistiques budget ;
+- modération des avis ;
+- vérification des documents ;
+- signalements et journal des actions admin.
 | Propriétaire 1 | owner1@sailingloc.fr | Owner123! |
 | Propriétaire 2 | owner2@sailingloc.fr | Owner123! |
 | Locataire 1 | tenant1@sailingloc.fr | Tenant123! |

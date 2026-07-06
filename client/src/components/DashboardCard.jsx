@@ -1,3 +1,5 @@
+import { createElement, isValidElement } from 'react';
+
 const colorMap = {
   navy:   { bg: '#07192E', accent: '#00C6E0' },
   ocean:  { bg: '#155374', accent: '#4DDFF0' },
@@ -9,8 +11,13 @@ const colorMap = {
   gold:   { bg: '#C9A84C', accent: '#07192E' },
 };
 
-const DashboardCard = ({ title, value, icon, color = 'navy', subtitle = '' }) => {
+const DashboardCard = ({ title, value, icon: Icon, color = 'navy', subtitle = '' }) => {
   const c = colorMap[color] || colorMap.navy;
+  const renderedIcon = isValidElement(Icon)
+    ? Icon
+    : Icon && typeof Icon !== 'string'
+      ? createElement(Icon, { size: 24, strokeWidth: 2.2 })
+      : Icon;
 
   return (
     <div
@@ -19,10 +26,10 @@ const DashboardCard = ({ title, value, icon, color = 'navy', subtitle = '' }) =>
     >
       {/* Icon bubble */}
       <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-        style={{ background: c.bg }}
+        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+        style={{ background: c.bg, color: c.accent }}
       >
-        <span>{icon}</span>
+        {renderedIcon}
       </div>
 
       {/* Content */}

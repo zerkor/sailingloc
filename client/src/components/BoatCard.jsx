@@ -1,6 +1,8 @@
 // src/components/BoatCard.jsx
 import { Link } from 'react-router-dom';
+import { ArrowRight, CalendarDays, MapPin, Ruler, Star, Users } from 'lucide-react';
 import { formatPrice } from '../utils/formatPrice';
+import { buildBoatSlug } from '../utils/slugifyBoat';
 
 const typeLabels = {
   sailboat:   'Voilier',
@@ -44,7 +46,7 @@ const BoatCard = ({ boat }) => {
 
   return (
     <Link
-      to={`/boats/${boat._id}`}
+      to={`/bateaux/${buildBoatSlug(boat)}`}
       className="group block bg-white rounded-2xl overflow-hidden transition-all duration-300"
       style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,198,224,0.15), 0 8px 24px rgba(7,25,46,0.12)')}
@@ -80,7 +82,7 @@ const BoatCard = ({ boat }) => {
               className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full flex items-center gap-1"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
-              ★ Vérifié
+              <Star size={12} fill="currentColor" /> Vérifié
             </span>
           </div>
         ) : boat.skipperAvailable ? (
@@ -97,7 +99,7 @@ const BoatCard = ({ boat }) => {
         {/* Rating — bottom left */}
         {rating > 0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
-            <span style={{ color: '#F4A01A', fontSize: 13 }}>★</span>
+            <Star size={14} fill="#F4A01A" color="#F4A01A" />
             <span className="text-white text-sm font-semibold">{rating.toFixed(1)}</span>
             {reviewCount > 0 && <span className="text-white/65 text-xs">({reviewCount} avis)</span>}
           </div>
@@ -107,7 +109,9 @@ const BoatCard = ({ boat }) => {
       {/* ── Body ── */}
       <div className="p-5">
         <div className="text-[10px] font-bold uppercase tracking-[1.5px] mb-1" style={{ color: '#00C6E0' }}>
-          📍 {boat.port || boat.location}
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin size={12} /> {boat.port || boat.location}
+          </span>
         </div>
 
         <h3
@@ -119,9 +123,9 @@ const BoatCard = ({ boat }) => {
 
         {/* Specs row */}
         <div className="flex items-center gap-3 text-xs mb-3" style={{ color: '#8896A8' }}>
-          {boat.capacity && <span>👥 {boat.capacity} pers.</span>}
-          {boat.length   && <span>📏 {boat.length} m</span>}
-          {boat.year     && <span>📅 {boat.year}</span>}
+          {boat.capacity && <span className="inline-flex items-center gap-1"><Users size={13} /> {boat.capacity} pers.</span>}
+          {boat.length && <span className="inline-flex items-center gap-1"><Ruler size={13} /> {boat.length} m</span>}
+          {boat.year && <span className="inline-flex items-center gap-1"><CalendarDays size={13} /> {boat.year}</span>}
         </div>
 
         {/* Features */}
@@ -162,7 +166,9 @@ const BoatCard = ({ boat }) => {
             className="text-xs font-bold px-4 py-2 rounded-full transition-all duration-200"
             style={{ background: '#07192E', color: '#fff' }}
           >
-            Voir →
+            <span className="inline-flex items-center gap-1">
+              Voir <ArrowRight size={13} />
+            </span>
           </span>
         </div>
       </div>

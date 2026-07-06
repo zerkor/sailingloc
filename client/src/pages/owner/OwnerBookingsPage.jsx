@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ArrowRight, CalendarDays, Check, X } from 'lucide-react';
 import { getOwnerBookings, acceptBooking, rejectBooking, completeBooking } from '../../services/bookingService';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -40,10 +41,10 @@ const OwnerBookingsPage = () => {
     catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
   };
 
-  const statusFilters = ['all', 'pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+  const statusFilters = ['all', 'pending', 'accepted', 'confirmed', 'rejected', 'completed', 'cancelled'];
   const filterLabel   = {
     all: 'Toutes', pending: 'En attente', accepted: 'Acceptées',
-    rejected: 'Refusées', completed: 'Terminées', cancelled: 'Annulées',
+    confirmed: 'Confirmées', rejected: 'Refusées', completed: 'Terminées', cancelled: 'Annulées',
   };
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
 
@@ -77,7 +78,7 @@ const OwnerBookingsPage = () => {
 
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-4xl mb-3">📅</p>
+          <CalendarDays size={42} className="mx-auto mb-3" color="#00C6E0" />
           <p className="text-sm" style={{ color: '#8896A8' }}>Aucune réservation dans cette catégorie.</p>
         </div>
       ) : (
@@ -111,7 +112,7 @@ const OwnerBookingsPage = () => {
                   Locataire : <strong>{booking.tenant?.firstName} {booking.tenant?.lastName}</strong>
                 </p>
                 <p className="text-sm mb-1" style={{ color: '#8896A8' }}>
-                  📅 {formatDate(booking.startDate)} → {formatDate(booking.endDate)}
+                  <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(booking.startDate)} → {formatDate(booking.endDate)}</span>
                 </p>
                 <p className="text-lg font-bold mb-3" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
                   {formatPrice(booking.totalPrice)}
@@ -125,14 +126,14 @@ const OwnerBookingsPage = () => {
                         className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
                         style={{ background: '#00C6E0', color: '#07192E' }}
                       >
-                        ✓ Accepter
+                        <span className="inline-flex items-center gap-1.5"><Check size={14} /> Accepter</span>
                       </button>
                       <button
                         onClick={() => handleReject(booking._id)}
                         className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
                         style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)' }}
                       >
-                        ✕ Refuser
+                        <span className="inline-flex items-center gap-1.5"><X size={14} /> Refuser</span>
                       </button>
                     </>
                   )}
@@ -142,7 +143,7 @@ const OwnerBookingsPage = () => {
                       className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
                       style={{ background: '#EDF1F5', color: '#07192E', border: '1px solid rgba(7,25,46,0.1)' }}
                     >
-                      ✓ Marquer terminée
+                      <span className="inline-flex items-center gap-1.5"><Check size={14} /> Marquer terminée</span>
                     </button>
                   )}
                 </div>

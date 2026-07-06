@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Sailboat, Waves } from 'lucide-react';
 import { register } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -9,15 +10,19 @@ const HERO = 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=900
 const RegisterPage = () => {
   const { loginUser } = useAuth();
   const navigate = useNavigate();
-  const [form,    setForm]    = useState({ firstName: '', lastName: '', email: '', password: '', role: 'tenant' });
+  const [form,    setForm]    = useState({ firstName: '', lastName: '', email: '', password: '', role: 'tenant', privacyConsent: false, marketingConsent: false });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setForm(prev => ({ ...prev, [e.target.name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password.length < 6) { setError('Le mot de passe doit contenir au moins 6 caractères.'); return; }
+    if (!form.privacyConsent) { setError('Vous devez accepter la politique de confidentialite pour creer un compte.'); return; }
     setLoading(true);
     setError('');
     try {
@@ -87,9 +92,11 @@ const RegisterPage = () => {
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#3D4D61' }}>Je souhaite…</label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: 'tenant', icon: '🌊', label: 'Louer un bateau',   sub: 'Je suis locataire' },
-                    { value: 'owner',  icon: '⛵', label: 'Louer mon bateau', sub: 'Je suis propriétaire' },
-                  ].map(opt => (
+                    { value: 'tenant', icon: Waves, label: 'Louer un bateau', sub: 'Je suis locataire' },
+                    { value: 'owner', icon: Sailboat, label: 'Louer mon bateau', sub: 'Je suis propriétaire' },
+                  ].map(opt => {
+                    const Icon = opt.icon;
+                    return (
                     <label
                       key={opt.value}
                       className="flex flex-col items-center p-4 rounded-2xl cursor-pointer transition-all"
@@ -99,12 +106,26 @@ const RegisterPage = () => {
                       }
                     >
                       <input type="radio" name="role" value={opt.value} checked={form.role === opt.value} onChange={handleChange} className="sr-only" />
-                      <span className="text-2xl mb-1">{opt.icon}</span>
+                      <Icon size={24} className="mb-1" color={form.role === opt.value ? '#07192E' : '#00C6E0'} />
                       <span className="text-sm font-bold" style={{ color: '#07192E' }}>{opt.label}</span>
                       <span className="text-xs mt-0.5 text-center" style={{ color: '#8896A8' }}>{opt.sub}</span>
                     </label>
-                  ))}
+                    );
+                  })}
                 </div>
+              </div>
+
+              <div className="space-y-3 rounded-2xl p-4" style={{ background: '#F7F5F2' }}>
+                <label className="flex items-start gap-3 text-sm" style={{ color: '#3D4D61' }}>
+                  <input type="checkbox" name="privacyConsent" checked={form.privacyConsent} onChange={handleChange} className="mt-1" required />
+                  <span>
+                    J'accepte la <Link to="/legal/privacy" className="font-bold hover:underline" style={{ color: '#07192E' }}>politique de confidentialite</Link> et le traitement de mes donnees pour utiliser SailingLoc.
+                  </span>
+                </label>
+                <label className="flex items-start gap-3 text-sm" style={{ color: '#3D4D61' }}>
+                  <input type="checkbox" name="marketingConsent" checked={form.marketingConsent} onChange={handleChange} className="mt-1" />
+                  <span>J'accepte de recevoir des conseils et offres SailingLoc par email.</span>
+                </label>
               </div>
 
               <ErrorMessage message={error} />

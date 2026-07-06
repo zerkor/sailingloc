@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, CalendarDays, CreditCard, MessageSquareText } from 'lucide-react';
 import { getTenantBookings, cancelBooking, payBooking } from '../../services/bookingService';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -45,6 +46,18 @@ const MyBookingsPage = () => {
     }
   };
 
+  const paymentStyle = (paymentStatus) => {
+    if (paymentStatus === 'paid') return { background: 'rgba(22,163,74,0.1)', color: '#166534' };
+    if (paymentStatus === 'refunded') return { background: 'rgba(220,38,38,0.08)', color: '#991b1b' };
+    return { background: 'rgba(234,179,8,0.1)', color: '#854d0e' };
+  };
+
+  const paymentLabel = (paymentStatus) => {
+    if (paymentStatus === 'paid') return 'Payé';
+    if (paymentStatus === 'refunded') return 'Remboursé';
+    return 'Non payé';
+  };
+
   if (loading) return <LoadingSpinner text="Chargement de vos réservations…" />;
 
   return (
@@ -57,7 +70,7 @@ const MyBookingsPage = () => {
 
         {bookings.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-5xl mb-4">📅</p>
+            <CalendarDays size={48} className="mx-auto mb-4" color="#00C6E0" />
             <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>Aucune réservation</h3>
             <p className="text-sm mb-6" style={{ color: '#8896A8' }}>Vous n'avez pas encore effectué de réservation.</p>
             <Link to="/boats" className="btn-primary">Explorer les bateaux</Link>
@@ -94,7 +107,7 @@ const MyBookingsPage = () => {
                   </div>
 
                   <p className="text-sm mb-3" style={{ color: '#8896A8' }}>
-                    📅 {formatDate(booking.startDate)} → {formatDate(booking.endDate)}
+                    <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(booking.startDate)} → {formatDate(booking.endDate)}</span>
                     &nbsp;·&nbsp; {booking.numberOfDays} jour{booking.numberOfDays > 1 ? 's' : ''}
                   </p>
 
@@ -103,11 +116,8 @@ const MyBookingsPage = () => {
                       <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
                         {formatPrice(booking.totalPrice)}
                       </span>
-                      <span className="text-xs ml-2 px-2 py-0.5 rounded-full" style={{
-                        background: booking.paymentStatus === 'paid' ? 'rgba(22,163,74,0.1)' : 'rgba(234,179,8,0.1)',
-                        color: booking.paymentStatus === 'paid' ? '#166534' : '#854d0e',
-                      }}>
-                        {booking.paymentStatus === 'paid' ? '✓ Payé' : booking.paymentStatus === 'refunded' ? '↩ Remboursé' : '⏳ Non payé'}
+                      <span className="text-xs ml-2 px-2 py-0.5 rounded-full" style={paymentStyle(booking.paymentStatus)}>
+                        {paymentLabel(booking.paymentStatus)}
                       </span>
                     </div>
 
@@ -118,10 +128,10 @@ const MyBookingsPage = () => {
                           className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
                           style={{ background: '#00C6E0', color: '#07192E' }}
                         >
-                          💳 Payer maintenant
+                          <span className="inline-flex items-center gap-1.5"><CreditCard size={14} /> Payer maintenant</span>
                         </button>
                       )}
-                      {['pending', 'accepted'].includes(booking.status) && (
+                      {['pending', 'accepted', 'confirmed'].includes(booking.status) && (
                         <button
                           onClick={() => handleCancel(booking._id)}
                           className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
@@ -136,7 +146,7 @@ const MyBookingsPage = () => {
                           className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
                           style={{ background: '#EDF1F5', color: '#07192E', border: '1px solid rgba(7,25,46,0.1)' }}
                         >
-                          ⭐ Laisser un avis
+                          <span className="inline-flex items-center gap-1.5"><MessageSquareText size={14} /> Laisser un avis</span>
                         </button>
                       )}
                     </div>

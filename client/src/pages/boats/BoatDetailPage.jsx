@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getBoatById } from '../../services/boatService';
+import { Anchor, Check, Compass, Lock, MapPin, Ruler, Settings, ShieldCheck, Star, Users } from 'lucide-react';
+import { getBoatById, getBoatBySlug } from '../../services/boatService';
 import { getBoatReviews } from '../../services/reviewService';
 import BookingForm from '../../components/BookingForm';
 import ReviewList from '../../components/ReviewList';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import SEO from '../../components/SEO';
 import { formatPrice } from '../../utils/formatPrice';
 
 const typeLabels = {
@@ -15,7 +17,7 @@ const typeLabels = {
 };
 
 const BoatDetailPage = () => {
-  const { id } = useParams();
+  const { id, slug } = useParams();
   const [boat,          setBoat]          = useState(null);
   const [reviews,       setReviews]       = useState([]);
   const [loading,       setLoading]       = useState(true);
@@ -26,8 +28,8 @@ const BoatDetailPage = () => {
     const fetchData = async () => {
       try {
         const [boatRes, reviewsRes] = await Promise.all([
-          getBoatById(id),
-          getBoatReviews(id),
+          slug ? getBoatBySlug(slug) : getBoatById(id),
+          getBoatReviews(id || slug?.match(/[a-f\d]{24}$/i)?.[0]),
         ]);
         setBoat(boatRes.data);
         setReviews(reviewsRes.data || []);
@@ -38,13 +40,13 @@ const BoatDetailPage = () => {
       }
     };
     fetchData();
-  }, [id]);
+  }, [id, slug]);
 
   if (loading) return <LoadingSpinner text="Chargement du bateau..." />;
   if (error || !boat) {
     return (
       <div className="container-max section-padding text-center py-24">
-        <p className="text-5xl mb-4">⚓</p>
+        <Anchor size={48} className="mx-auto mb-4" color="#00C6E0" />
         <h2 className="text-2xl font-bold mb-4" style={{ color: '#07192E' }}>{error || 'Bateau introuvable'}</h2>
         <Link to="/boats" className="btn-primary">Retour aux bateaux</Link>
       </div>
@@ -54,9 +56,34 @@ const BoatDetailPage = () => {
   const images = boat.images?.length
     ? boat.images
     : ['https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=800'];
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: boat.title,
+    description: boat.description,
+    image: images,
+    brand: { '@type': 'Brand', name: 'SailingLoc' },
+    offers: {
+      '@type': 'Offer',
+      price: boat.pricePerDay,
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      areaServed: boat.location,
+    },
+    aggregateRating: boat.averageRating > 0 ? {
+      '@type': 'AggregateRating',
+      ratingValue: boat.averageRating,
+      reviewCount: reviews.length || 1,
+    } : undefined,
+  };
 
   return (
     <div style={{ background: '#EDF1F5', minHeight: '100vh' }}>
+      <SEO
+        title={`${boat.title} a ${boat.location} - SailingLoc`}
+        description={`Louez ${boat.title}, ${typeLabels[boat.type] || 'bateau'} a ${boat.location}, a partir de ${formatPrice(boat.pricePerDay)} par jour.`}
+        jsonLd={jsonLd}
+      />
       <div className="container-max section-padding">
 
         {/* Breadcrumb */}
@@ -130,15 +157,15 @@ const BoatDetailPage = () => {
               </div>
 
               <div className="flex flex-wrap gap-2 items-center mb-4">
-                <div className="meta-pill">📍 {boat.location}</div>
+                <div className="meta-pill"><MapPin size={14} /> {boat.location}</div>
                 {boat.averageRating > 0 && (
                   <div className="meta-pill">
-                    <span style={{ color: '#F4A01A' }}>★</span>
+                    <Star size={14} fill="#F4A01A" color="#F4A01A" />
                     {boat.averageRating.toFixed(1)} ({reviews.length} avis)
                   </div>
                 )}
-                {boat.skipperAvailable && <div className="meta-pill">👨‍✈️ Skipper disponible</div>}
-                {boat.length && <div className="meta-pill">📏 {boat.length} m</div>}
+                {boat.skipperAvailable && <div className="meta-pill"><Compass size={14} /> Skipper disponible</div>}
+                {boat.length && <div className="meta-pill"><Ruler size={14} /> {boat.length} m</div>}
               </div>
 
               <p className="text-sm leading-relaxed" style={{ color: '#3D4D61' }}>
@@ -156,15 +183,15 @@ const BoatDetailPage = () => {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  { label: 'Capacité',    value: `${boat.capacity} pers.`,                icon: '👥' },
-                  { label: 'Longueur',    value: boat.length ? `${boat.length} m` : 'N/A', icon: '📏' },
-                  { label: 'Skipper',     value: boat.skipperAvailable ? 'Disponible' : 'Non inclus', icon: '🧭' },
-                  { label: 'Moteur',      value: boat.engine  || 'N/A',                   icon: '⚙️' },
-                  { label: 'Port',        value: boat.port    || boat.location,            icon: '⚓' },
-                  { label: 'Note',        value: boat.averageRating > 0 ? `${boat.averageRating.toFixed(1)}/5` : 'Nouveau', icon: '⭐' },
+                  { label: 'Capacité', value: `${boat.capacity} pers.`, icon: Users },
+                  { label: 'Longueur', value: boat.length ? `${boat.length} m` : 'N/A', icon: Ruler },
+                  { label: 'Skipper', value: boat.skipperAvailable ? 'Disponible' : 'Non inclus', icon: Compass },
+                  { label: 'Moteur', value: boat.engine || 'N/A', icon: Settings },
+                  { label: 'Port', value: boat.port || boat.location, icon: Anchor },
+                  { label: 'Note', value: boat.averageRating > 0 ? `${boat.averageRating.toFixed(1)}/5` : 'Nouveau', icon: Star },
                 ].map((spec) => (
                   <div key={spec.label} className="spec-item">
-                    <div className="text-xl mb-2">{spec.icon}</div>
+                    <spec.icon size={22} className="mb-2 mx-auto" color="#155374" />
                     <div className="spec-lbl">{spec.label}</div>
                     <div className="spec-val">{spec.value}</div>
                   </div>
@@ -185,7 +212,7 @@ const BoatDetailPage = () => {
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
                       style={{ background: 'rgba(0,198,224,0.1)', color: '#155374', border: '1px solid rgba(0,198,224,0.25)' }}
                     >
-                      ✓ {eq}
+                      <Check size={14} /> {eq}
                     </span>
                   ))}
                 </div>
@@ -207,7 +234,9 @@ const BoatDetailPage = () => {
                   </div>
                   <div>
                     <p className="font-bold" style={{ color: '#07192E' }}>{boat.owner.firstName} {boat.owner.lastName}</p>
-                    <p className="text-sm" style={{ color: '#8896A8' }}>Propriétaire vérifié ✓</p>
+                    <p className="inline-flex items-center gap-1.5 text-sm" style={{ color: '#8896A8' }}>
+                      Propriétaire vérifié <ShieldCheck size={14} color="#16a34a" />
+                    </p>
                   </div>
                 </div>
                 {/* Trust block */}
@@ -215,7 +244,7 @@ const BoatDetailPage = () => {
                   className="mt-4 flex items-start gap-3 p-3 rounded-xl text-sm"
                   style={{ background: 'rgba(0,198,224,0.07)', border: '1px solid rgba(0,198,224,0.2)' }}
                 >
-                  <span className="text-lg mt-0.5">🔒</span>
+                  <Lock size={18} className="mt-0.5 flex-shrink-0" />
                   <p style={{ color: '#155374' }}>
                     Les documents du propriétaire sont vérifiés avant la publication de l'annonce.
                   </p>

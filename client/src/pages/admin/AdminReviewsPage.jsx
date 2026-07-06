@@ -2,11 +2,20 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
+import PaginationControls from '../../components/PaginationControls';
 import { formatDate } from '../../utils/formatDate';
+import { Clock3, Star } from 'lucide-react';
 
 const Stars = ({ rating }) => (
-  <span style={{ color: '#F4A01A', letterSpacing: 1 }}>
-    {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+  <span className="inline-flex items-center gap-0.5" aria-label={`${rating} sur 5`}>
+    {Array.from({ length: 5 }, (_, index) => (
+      <Star
+        key={index}
+        size={14}
+        fill={index < rating ? '#F4A01A' : 'none'}
+        color={index < rating ? '#F4A01A' : '#CBD5E1'}
+      />
+    ))}
   </span>
 );
 
@@ -14,11 +23,15 @@ const AdminReviewsPage = () => {
   const [reviews,      setReviews]      = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
 
-  const fetchReviews = async () => {
+  const fetchReviews = async (page = 1) => {
+    setLoading(true);
     try {
-      const { data } = await api.get('/admin/reviews');
-      setReviews(data || []);
+      const { data } = await api.get('/admin/reviews', { params: { page, limit: 10, status: statusFilter || undefined } });
+      const items = Array.isArray(data) ? data : data.items || [];
+      setReviews(items);
+      setMeta({ page: data.page || page, totalPages: data.totalPages || 1, total: data.total ?? items.length });
     } catch {
       setReviews([]);
     } finally {
@@ -26,7 +39,7 @@ const AdminReviewsPage = () => {
     }
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => { fetchReviews(1); }, [statusFilter]);
 
   const handleApprove = async (id) => {
     try {
@@ -50,7 +63,7 @@ const AdminReviewsPage = () => {
     } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
   };
 
-  const filtered      = statusFilter ? reviews.filter(r => r.status === statusFilter) : reviews;
+  const filtered      = reviews;
   const pendingCount  = reviews.filter(r => r.status === 'pending').length;
 
   if (loading) return <LoadingSpinner text="Chargement des avis…" />;
@@ -61,11 +74,11 @@ const AdminReviewsPage = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: '#07192E' }}>
-            Avis <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({reviews.length})</span>
+            Avis <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({meta.total})</span>
           </h1>
           {pendingCount > 0 && (
-            <p className="text-sm mt-0.5 font-medium" style={{ color: '#b45309' }}>
-              ⏳ {pendingCount} en attente de modération
+            <p className="inline-flex items-center gap-1.5 text-sm mt-0.5 font-medium" style={{ color: '#b45309' }}>
+              <Clock3 size={14} /> {pendingCount} en attente de moderation
             </p>
           )}
         </div>
@@ -173,6 +186,7 @@ const AdminReviewsPage = () => {
             </tbody>
           </table>
         </div>
+        <PaginationControls page={meta.page} totalPages={meta.totalPages} onPageChange={fetchReviews} />
       </div>
     </div>
   );

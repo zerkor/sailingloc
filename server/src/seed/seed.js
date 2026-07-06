@@ -1,438 +1,330 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') });
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Boat = require('../models/Boat');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
+const Payment = require('../models/Payment');
+const OwnerDocument = require('../models/OwnerDocument');
+const Notification = require('../models/Notification');
+const Report = require('../models/Report');
+const AdminActionLog = require('../models/AdminActionLog');
+
+const DAY = 24 * 60 * 60 * 1000;
 
 const connectDB = async () => {
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sailingloc');
   console.log('MongoDB connected for seeding');
 };
 
-const boatImages = {
+const addDays = (days) => {
+  const date = new Date();
+  date.setHours(10, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+const differenceInDays = (startDate, endDate) => Math.max(Math.ceil((endDate - startDate) / DAY), 1);
+
+const calculatePrice = (boat, startDate, endDate) => {
+  const numberOfDays = differenceInDays(startDate, endDate);
+  const subtotal = numberOfDays * boat.pricePerDay;
+  const serviceFee = Math.round(subtotal * 0.1 * 100) / 100;
+  const totalPrice = Math.round((subtotal + serviceFee) * 100) / 100;
+  return { numberOfDays, serviceFee, totalPrice };
+};
+
+const imageByType = {
   sailboat: [
-    'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=800',
-    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
-  ],
-  catamaran: [
-    'https://images.unsplash.com/photo-1520483601560-389dff434fdf?w=800',
-    'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=800',
+    'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=1200',
+    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200',
   ],
   motorboat: [
-    'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800',
-    'https://images.unsplash.com/photo-1524932558893-59ebaffc7d58?w=800',
+    'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200',
+    'https://images.unsplash.com/photo-1524932558893-59ebaffc7d58?w=1200',
+  ],
+  catamaran: [
+    'https://images.unsplash.com/photo-1520483601560-389dff434fdf?w=1200',
+    'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=1200',
   ],
   rib: [
-    'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=800',
-    'https://images.unsplash.com/photo-1541979116559-e55e0183f8a0?w=800',
+    'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=1200',
+    'https://images.unsplash.com/photo-1541979116559-e55e0183f8a0?w=1200',
   ],
 };
+
+const ownerNames = [
+  ['Pierre', 'Dupont'], ['Marie', 'Laurent'], ['Nicolas', 'Moreau'], ['Camille', 'Roux'],
+  ['Antoine', 'Fournier'], ['Claire', 'Girard'], ['Julien', 'Mercier'], ['Élodie', 'Faure'],
+  ['Mathieu', 'Lefèvre'], ['Amandine', 'Blanc'], ['Thomas', 'Garnier'], ['Lucie', 'Chevalier'],
+  ['Romain', 'Perrin'], ['Manon', 'Robin'],
+];
+
+const tenantNames = [
+  ['Jean', 'Martin'], ['Sophie', 'Bernard'], ['Lucas', 'Petit'], ['Chloé', 'Robert'],
+  ['Hugo', 'Richard'], ['Emma', 'Durand'], ['Louis', 'Dubois'], ['Léa', 'Morel'],
+  ['Nathan', 'Simon'], ['Inès', 'Michel'], ['Arthur', 'Leroy'], ['Zoé', 'Renaud'],
+  ['Gabriel', 'David'], ['Sarah', 'Bertrand'], ['Adam', 'Fontaine'], ['Jade', 'Lemoine'],
+  ['Noah', 'Marchand'], ['Louise', 'Gauthier'], ['Raphaël', 'Moulin'], ['Alice', 'Renard'],
+];
+
+const boatBlueprints = [
+  ['Sun Odyssey 349', 'sailboat', 'Marseille', 'Vieux-Port de Marseille', 250, 6, 10.3, 'Yanmar 21cv', true, 'Voilier équilibré pour une croisière côtière en Méditerranée.'],
+  ['Lagoon 42', 'catamaran', 'Nice', 'Port de Nice', 650, 8, 12.8, '2x Yanmar 45cv', true, 'Catamaran spacieux avec grand cockpit et cabines confortables.'],
+  ['Cap Camarat 7.5', 'motorboat', 'Cannes', 'Port du Mouré-Rouge', 350, 7, 7.5, 'Mercury 200cv', false, 'Open rapide pour rejoindre les îles de Lérins et les criques voisines.'],
+  ['Zodiac Medline 7', 'rib', 'La Rochelle', 'Port des Minimes', 150, 8, 6.7, 'Suzuki 150cv', false, 'Semi-rigide maniable pour sorties sportives et pêche côtière.'],
+  ['Dufour 390', 'sailboat', 'Brest', 'Port du Château', 290, 6, 11.9, 'Volvo Penta 30cv', true, 'Croiseur moderne adapté aux navigations bretonnes.'],
+  ['Merry Fisher 895', 'motorboat', 'Antibes', 'Port Vauban', 420, 6, 8.9, '2x Yamaha 150cv', false, 'Cabin cruiser confortable pour une journée ou un week-end.'],
+  ['Bali Catspace', 'catamaran', 'Ajaccio', 'Port Charles-Ornano', 580, 8, 12.3, '2x Volvo 40cv', true, 'Catamaran lumineux pour découvrir les plages corses.'],
+  ['Bombard Explorer 650', 'rib', 'Saint-Malo', 'Port des Bas-Sablons', 140, 7, 6.5, 'Honda 130cv', false, 'Semi-rigide robuste pour la côte d’Émeraude.'],
+  ['Bavaria Cruiser 46', 'sailboat', 'Toulon', 'Port de Toulon', 380, 8, 14.0, 'Volvo 55cv', false, 'Grand voilier familial avec quatre cabines.'],
+  ['Prestige 420', 'motorboat', 'Lorient', 'Port de Kernevel', 720, 8, 13.1, '2x Cummins 380cv', true, 'Vedette premium pour croisière confortable en Atlantique.'],
+  ['Fountaine Pajot Isla 40', 'catamaran', 'Arcachon', 'Port d’Arcachon', 610, 8, 11.9, '2x Volvo 30cv', true, 'Catamaran stable pour explorer le bassin.'],
+  ['Highfield Sport 760', 'rib', 'Sète', 'Port de Sète', 210, 10, 7.6, 'Yamaha 250cv', false, 'Semi-rigide puissant pour sorties rapides en Méditerranée.'],
+  ['Oceanis 38.1', 'sailboat', 'Marseille', 'Port de la Pointe Rouge', 310, 6, 11.5, 'Yanmar 29cv', true, 'Voilier agréable avec carré lumineux et pont dégagé.'],
+  ['Jeanneau Leader 30', 'motorboat', 'Nice', 'Port Lympia', 460, 6, 9.2, 'Volvo 300cv', false, 'Bateau moteur élégant avec bain de soleil avant.'],
+  ['Nautitech 46 Open', 'catamaran', 'Cannes', 'Vieux-Port de Cannes', 790, 10, 13.8, '2x Volvo 50cv', true, 'Catamaran haut de gamme pour groupe ou famille nombreuse.'],
+  ['Capelli Tempest 700', 'rib', 'La Rochelle', 'Port des Minimes', 180, 8, 7.0, 'Yamaha 200cv', false, 'Semi-rigide polyvalent pour balade et sports nautiques.'],
+  ['First 36', 'sailboat', 'Brest', 'Port du Moulin Blanc', 340, 6, 11.0, 'Yanmar 30cv', true, 'Voilier performant pour équipages aimant la voile active.'],
+  ['Beneteau Antares 9', 'motorboat', 'Saint-Malo', 'Port Vauban Saint-Malo', 390, 6, 9.0, '2x Suzuki 200cv', false, 'Timonière moderne sécurisante pour la Manche.'],
+  ['Lagoon 380', 'catamaran', 'Ajaccio', 'Port Tino Rossi', 520, 8, 11.5, '2x Yanmar 29cv', true, 'Catamaran fiable avec grands trampolines avant.'],
+  ['Zar 65 Suite', 'rib', 'Antibes', 'Port Gallice', 190, 9, 6.5, 'Mercury 175cv', false, 'Semi-rigide compact et confortable pour cabotage.'],
+  ['RM 1180', 'sailboat', 'Lorient', 'Port de Lorient La Base', 360, 8, 11.8, 'Volvo 40cv', true, 'Voilier rapide et marin pour navigation hauturière.'],
+  ['Quicksilver Activ 875', 'motorboat', 'Arcachon', 'Port d’Arcachon', 430, 8, 8.8, 'Mercury 300cv', false, 'Day cruiser pratique pour le bassin et l’océan.'],
+  ['Excess 11', 'catamaran', 'Sète', 'Port de Sète', 560, 8, 11.3, '2x Yanmar 29cv', true, 'Catamaran vif avec ambiance moderne.'],
+  ['Dufour 470', 'sailboat', 'Toulon', 'Port Saint-Louis du Mourillon', 450, 10, 14.9, 'Volvo 60cv', true, 'Grand voilier de croisière pour navigation méditerranéenne.'],
+  ['Zodiac Pro 6.5', 'rib', 'Cannes', 'Port Pierre Canto', 160, 7, 6.5, 'Suzuki 140cv', false, 'Semi-rigide simple et efficace pour sorties à la journée.'],
+];
+
+const baseEquipments = {
+  sailboat: ['GPS', 'VHF', 'Pilote automatique', 'Gilets de sauvetage', 'Annexe', 'Cuisine équipée', 'Douchette'],
+  motorboat: ['GPS', 'VHF', 'Sondeur', 'Bain de soleil', 'Taud de soleil', 'Échelle de bain', 'Glacière'],
+  catamaran: ['GPS', 'AIS', 'Panneaux solaires', 'Cuisine équipée', 'Stand-up paddle', 'Annexe', 'Douche de pont'],
+  rib: ['GPS', 'VHF', 'Gilets de sauvetage', 'Mouillage', 'Échelle de bain', 'Sac étanche', 'Kit premier secours'],
+};
+
+const bookingStatuses = [
+  ...Array(8).fill('pending'),
+  ...Array(8).fill('accepted'),
+  ...Array(12).fill('confirmed'),
+  ...Array(26).fill('completed'),
+  ...Array(4).fill('cancelled'),
+  ...Array(2).fill('rejected'),
+];
+
+const reviewComments = [
+  'Très belle sortie, bateau propre et propriétaire disponible.',
+  'Excellente expérience, prise en main simple et navigation agréable.',
+  'Bateau conforme à l’annonce, idéal pour une journée en famille.',
+  'Accueil sérieux, matériel de sécurité complet et bon état général.',
+  'Super moment sur l’eau, je recommande cette annonce.',
+  'Très bon rapport qualité-prix et port facile d’accès.',
+];
 
 const seed = async () => {
   try {
     await connectDB();
 
-    // Clear existing data
-    await User.deleteMany({});
-    await Boat.deleteMany({});
-    await Booking.deleteMany({});
-    await Review.deleteMany({});
-    console.log('Cleared existing data');
+    await Promise.all([
+      AdminActionLog.deleteMany({}),
+      Report.deleteMany({}),
+      Notification.deleteMany({}),
+      OwnerDocument.deleteMany({}),
+      Payment.deleteMany({}),
+      Review.deleteMany({}),
+      Booking.deleteMany({}),
+      Boat.deleteMany({}),
+      User.deleteMany({}),
+    ]);
+    console.log('Cleared existing demo data');
 
-    // Create users
-    const adminUser = await User.create({
+    const admin = await User.create({
       firstName: 'Admin',
       lastName: 'SailingLoc',
       email: 'admin@sailingloc.fr',
       password: 'Admin123!',
       role: 'admin',
       phone: '+33600000001',
+      privacyConsent: true,
+      privacyConsentAt: new Date(),
     });
 
-    const owner1 = await User.create({
-      firstName: 'Pierre',
-      lastName: 'Dupont',
-      email: 'owner1@sailingloc.fr',
+    const owners = await Promise.all(ownerNames.map(([firstName, lastName], index) => User.create({
+      firstName,
+      lastName,
+      email: `owner${index + 1}@sailingloc.fr`,
       password: 'Owner123!',
       role: 'owner',
-      phone: '+33600000002',
-    });
+      phone: `+33610${String(index + 1).padStart(6, '0')}`,
+      privacyConsent: true,
+      privacyConsentAt: new Date(),
+    })));
 
-    const owner2 = await User.create({
-      firstName: 'Marie',
-      lastName: 'Laurent',
-      email: 'owner2@sailingloc.fr',
-      password: 'Owner123!',
-      role: 'owner',
-      phone: '+33600000003',
-    });
-
-    const tenant1 = await User.create({
-      firstName: 'Jean',
-      lastName: 'Martin',
-      email: 'tenant1@sailingloc.fr',
+    const tenants = await Promise.all(tenantNames.map(([firstName, lastName], index) => User.create({
+      firstName,
+      lastName,
+      email: `tenant${index + 1}@sailingloc.fr`,
       password: 'Tenant123!',
       role: 'tenant',
-      phone: '+33600000004',
-    });
+      phone: `+33620${String(index + 1).padStart(6, '0')}`,
+      privacyConsent: true,
+      privacyConsentAt: new Date(),
+    })));
 
-    const tenant2 = await User.create({
-      firstName: 'Sophie',
-      lastName: 'Bernard',
-      email: 'tenant2@sailingloc.fr',
-      password: 'Tenant123!',
-      role: 'tenant',
-      phone: '+33600000005',
-    });
+    const boats = await Boat.insertMany(boatBlueprints.map((boat, index) => {
+      const [title, type, location, port, pricePerDay, capacity, length, engine, skipperAvailable, intro] = boat;
+      const status = index < 20 ? 'approved' : index < 23 ? 'pending' : 'rejected';
+      return {
+        owner: owners[index % owners.length]._id,
+        title,
+        type,
+        description: `${intro} Entretien suivi, inventaire vérifié et équipement adapté à la zone de navigation de ${location}.`,
+        location,
+        port,
+        pricePerDay,
+        capacity,
+        length,
+        engine,
+        skipperAvailable,
+        equipments: baseEquipments[type],
+        images: imageByType[type],
+        status,
+        averageRating: 0,
+      };
+    }));
 
-    const tenant3 = await User.create({
-      firstName: 'Lucas',
-      lastName: 'Petit',
-      email: 'tenant3@sailingloc.fr',
-      password: 'Tenant123!',
-      role: 'tenant',
-      phone: '+33600000006',
-    });
+    const bookings = [];
+    const payments = [];
+    const boatSlot = new Map();
 
-    console.log('Users created');
+    for (let index = 0; index < 60; index += 1) {
+      const status = bookingStatuses[index];
+      const boat = boats[index % boats.length];
+      const tenant = tenants[(index * 3) % tenants.length];
+      const slot = boatSlot.get(String(boat._id)) || 0;
+      boatSlot.set(String(boat._id), slot + 1);
 
-    // Create boats
-    const boat1 = await Boat.create({
-      owner: owner1._id,
-      title: 'Sun Odyssey 349',
-      type: 'sailboat',
-      description: 'Beautiful 34-foot sailboat perfect for coastal cruising in the Mediterranean. Fully equipped with modern navigation instruments, comfortable cabin for up to 6 people, and all safety equipment. Ideal for families or groups looking for an authentic sailing experience in the stunning waters around Marseille.',
-      location: 'Marseille',
-      port: 'Vieux-Port de Marseille',
-      pricePerDay: 250,
-      capacity: 6,
-      length: 10.3,
-      engine: 'Yanmar 21cv',
-      skipperAvailable: true,
-      equipments: ['GPS', 'VHF Radio', 'Life jackets', 'Anchor', 'Autopilot', 'Snorkeling equipment', 'Kitchenette', 'Hot water'],
-      images: boatImages.sailboat,
-      status: 'approved',
-      averageRating: 4.8,
-    });
+      const duration = 1 + (index % 5);
+      const startOffset = ['completed', 'cancelled', 'rejected'].includes(status)
+        ? -180 + slot * 8
+        : 7 + slot * 9;
+      const startDate = addDays(startOffset);
+      const endDate = addDays(startOffset + duration);
+      const price = calculatePrice(boat, startDate, endDate);
+      const paymentStatus =
+        status === 'confirmed' || status === 'completed' ? 'paid'
+          : status === 'cancelled' && index % 2 === 0 ? 'refunded'
+            : 'unpaid';
 
-    const boat2 = await Boat.create({
-      owner: owner1._id,
-      title: 'Lagoon 42',
-      type: 'catamaran',
-      description: 'Spacious Lagoon 42 catamaran offering exceptional comfort and stability. With 4 double cabins and 2 bathrooms, this yacht is perfect for longer voyages along the French Riviera. The large flybridge offers panoramic views while the cockpit is ideal for al fresco dining.',
-      location: 'Nice',
-      port: 'Port de Nice',
-      pricePerDay: 650,
-      capacity: 8,
-      length: 12.8,
-      engine: '2x Yanmar 45cv',
-      skipperAvailable: true,
-      equipments: ['GPS chartplotter', 'AIS', 'Watermaker', 'Generator', 'Air conditioning', 'Kayaks', 'SUP boards', 'Full kitchen', 'BBQ'],
-      images: boatImages.catamaran,
-      status: 'approved',
-      averageRating: 4.9,
-    });
+      const booking = await Booking.create({
+        boat: boat._id,
+        tenant: tenant._id,
+        owner: boat.owner,
+        startDate,
+        endDate,
+        numberOfDays: price.numberOfDays,
+        pricePerDay: boat.pricePerDay,
+        serviceFee: price.serviceFee,
+        totalPrice: price.totalPrice,
+        status,
+        paymentStatus,
+      });
 
-    const boat3 = await Boat.create({
-      owner: owner2._id,
-      title: 'Cap Camarat 7.5',
-      type: 'motorboat',
-      description: 'Fast and elegant motorboat perfect for day trips along the Cannes coastline. Discover the Lérins Islands and secluded coves at speed. The open deck is perfect for sunbathing and the powerful engine ensures quick transfers between beautiful spots.',
-      location: 'Cannes',
-      port: 'Port du Mouré-Rouge',
-      pricePerDay: 350,
-      capacity: 7,
-      length: 7.5,
-      engine: 'Mercury 200cv',
-      skipperAvailable: false,
-      equipments: ['VHF Radio', 'GPS', 'Life jackets', 'Swim ladder', 'Bimini top', 'Cooler', 'Anchor'],
-      images: boatImages.motorboat,
-      status: 'approved',
-      averageRating: 4.5,
-    });
+      bookings.push(booking);
 
-    const boat4 = await Boat.create({
-      owner: owner2._id,
-      title: 'Zodiac Medline 7',
-      type: 'rib',
-      description: 'High-performance RIB ideal for exploring the Atlantic coast near La Rochelle. Perfect for fishing, watersports, or simply zipping around the beautiful Île de Ré. Compact yet capable, this inflatable boat handles any conditions.',
-      location: 'La Rochelle',
-      port: 'Port des Minimes',
-      pricePerDay: 120,
-      capacity: 8,
-      length: 6.5,
-      engine: 'Suzuki 115cv',
-      skipperAvailable: false,
-      equipments: ['GPS', 'VHF Radio', 'Life jackets', 'Anchor', 'First aid kit', 'Paddle'],
-      images: boatImages.rib,
-      status: 'approved',
-      averageRating: 4.3,
-    });
+      if (status !== 'rejected') {
+        const payment = await Payment.create({
+          booking: booking._id,
+          tenant: tenant._id,
+          owner: boat.owner,
+          amount: price.totalPrice,
+          serviceFee: price.serviceFee,
+          providerReference: `demo_pay_${String(index + 1).padStart(4, '0')}`,
+          status: paymentStatus === 'paid' ? 'succeeded' : paymentStatus === 'refunded' ? 'refunded' : 'requires_capture',
+          paidAt: paymentStatus === 'paid' || paymentStatus === 'refunded' ? addDays(startOffset - 3) : undefined,
+          refundedAt: paymentStatus === 'refunded' ? addDays(startOffset + duration + 1) : undefined,
+          refundedBy: paymentStatus === 'refunded' ? admin._id : undefined,
+        });
+        booking.payment = payment._id;
+        await booking.save();
+        payments.push(payment);
+      }
+    }
 
-    const boat5 = await Boat.create({
-      owner: owner1._id,
-      title: 'Dufour 390',
-      type: 'sailboat',
-      description: 'Modern performance cruiser available in the magnificent waters of Brittany. The Dufour 390 combines elegance with seaworthiness, offering a thrilling sailing experience in the Atlantic. With 3 cabins and a bright saloon, it\'s perfect for extended coastal cruising.',
-      location: 'Brest',
-      port: 'Port de Commerce de Brest',
-      pricePerDay: 290,
-      capacity: 6,
-      length: 11.9,
-      engine: 'Volvo Penta 21cv',
-      skipperAvailable: true,
-      equipments: ['Autopilot', 'GPS chartplotter', 'VHF', 'Life jackets', 'Liferaft', 'EPIRB', 'Full galley', 'Shower'],
-      images: boatImages.sailboat,
-      status: 'approved',
-      averageRating: 4.7,
-    });
+    const completedBookings = bookings.filter(booking => booking.status === 'completed');
+    const reviews = [];
+    for (let index = 0; index < 25; index += 1) {
+      const booking = completedBookings[index];
+      const rating = 3 + (index % 3);
+      reviews.push(await Review.create({
+        boat: booking.boat,
+        booking: booking._id,
+        author: booking.tenant,
+        rating,
+        comment: reviewComments[index % reviewComments.length],
+        status: index < 19 ? 'approved' : 'pending',
+      }));
+    }
 
-    const boat6 = await Boat.create({
-      owner: owner2._id,
-      title: 'Merry Fisher 895',
-      type: 'motorboat',
-      description: 'Versatile offshore cruiser perfect for discovering the hidden coves of the French Riviera. The Merry Fisher 895 offers exceptional seakeeping and a comfortable cabin for overnight stays. Ideal for fishing enthusiasts or families wanting to explore beyond the coastline.',
-      location: 'Antibes',
-      port: 'Port Vauban d\'Antibes',
-      pricePerDay: 420,
-      capacity: 6,
-      length: 8.9,
-      engine: 'Yamaha 2x150cv',
-      skipperAvailable: false,
-      equipments: ['GPS chartplotter', 'Autopilot', 'VHF', 'Radar', 'Fishing equipment', 'Cabin with berths', 'Kitchenette', 'Shower'],
-      images: boatImages.motorboat,
-      status: 'approved',
-      averageRating: 4.6,
-    });
+    const approvedReviews = await Review.aggregate([
+      { $match: { status: 'approved' } },
+      { $group: { _id: '$boat', averageRating: { $avg: '$rating' } } },
+    ]);
+    await Promise.all(approvedReviews.map(item => Boat.findByIdAndUpdate(item._id, {
+      averageRating: Math.round(item.averageRating * 10) / 10,
+    })));
 
-    const boat7 = await Boat.create({
-      owner: owner1._id,
-      title: 'Bali Catspace',
-      type: 'catamaran',
-      description: 'Innovative and trendy catamaran moored in the stunning Corsican capital. The Bali Catspace revolutionizes catamaran design with its forward cockpit offering unobstructed sea views. Perfect for exploring the turquoise waters and hidden beaches around Ajaccio.',
-      location: 'Ajaccio',
-      port: 'Port Charles-Ornano',
-      pricePerDay: 580,
-      capacity: 6,
-      length: 11.0,
-      engine: '2x Volvo 40cv',
-      skipperAvailable: true,
-      equipments: ['Forward cockpit', 'GPS', 'AIS', 'Watermaker', 'Solar panels', 'Snorkeling gear', 'Full kitchen', 'Air conditioning'],
-      images: boatImages.catamaran,
-      status: 'approved',
-      averageRating: 4.9,
-    });
+    const documentTypes = ['identity', 'registration', 'insurance', 'contract'];
+    const documents = [];
+    for (let index = 0; index < 18; index += 1) {
+      const owner = owners[index % owners.length];
+      const boat = boats.find(item => item.owner.toString() === owner._id.toString()) || boats[index % boats.length];
+      const status = index < 10 ? 'approved' : index < 15 ? 'pending' : 'rejected';
+      documents.push(await OwnerDocument.create({
+        owner: owner._id,
+        boat: boat._id,
+        type: documentTypes[index % documentTypes.length],
+        title: `${documentTypes[index % documentTypes.length]} - ${boat.title}`,
+        fileUrl: `https://example.com/demo-documents/document-${index + 1}.pdf`,
+        status,
+        rejectionReason: status === 'rejected' ? 'Document illisible ou incomplet' : undefined,
+        reviewedBy: status !== 'pending' ? admin._id : undefined,
+        reviewedAt: status !== 'pending' ? new Date() : undefined,
+      }));
+    }
 
-    const boat8 = await Boat.create({
-      owner: owner2._id,
-      title: 'Bombard Explorer 650',
-      type: 'rib',
-      description: 'Powerful RIB designed for adventure along the wild Emerald Coast near Saint-Malo. Explore the Mont-Saint-Michel bay, discover hidden beaches accessible only by sea, and experience the powerful Atlantic tides from a safe and exhilarating vessel.',
-      location: 'Saint-Malo',
-      port: 'Port de Plaisance du Bas-Sablons',
-      pricePerDay: 150,
-      capacity: 8,
-      length: 6.5,
-      engine: 'Honda 130cv',
-      skipperAvailable: false,
-      equipments: ['GPS', 'VHF', 'Life jackets', 'Anchor', 'Waterproof bags', 'First aid kit'],
-      images: boatImages.rib,
-      status: 'approved',
-      averageRating: 4.2,
-    });
+    const reports = await Report.insertMany([
+      { reporter: tenants[0]._id, targetType: 'boat', targetId: boats[0]._id, reason: 'Annonce à vérifier', description: 'Une information sur le port semble incorrecte.', status: 'open' },
+      { reporter: tenants[4]._id, targetType: 'review', targetId: reviews[0]._id, reason: 'Avis contesté', description: 'Le commentaire ne correspond pas à mon expérience.', status: 'in_review', adminNote: 'À comparer avec la réservation.' },
+      { reporter: owners[2]._id, targetType: 'booking', targetId: bookings[10]._id, reason: 'No-show locataire', description: 'Le locataire ne s’est pas présenté au port.', status: 'resolved', adminNote: 'Résolu après contact téléphonique.' },
+    ]);
 
-    // Pending boat
-    const boat9 = await Boat.create({
-      owner: owner2._id,
-      title: 'Bavaria Cruiser 46',
-      type: 'sailboat',
-      description: 'Spacious cruiser awaiting approval. Large interior with 4 cabins perfect for extended voyages.',
-      location: 'Toulon',
-      port: 'Port de Toulon',
-      pricePerDay: 380,
-      capacity: 8,
-      length: 14.0,
-      engine: 'Volvo 50cv',
-      skipperAvailable: false,
-      equipments: ['Full navigation instruments', 'Life jackets', 'Liferaft'],
-      images: boatImages.sailboat,
-      status: 'pending',
-      averageRating: 0,
-    });
+    await AdminActionLog.insertMany([
+      { admin: admin._id, action: 'seed_demo_data', entityType: 'database', entityId: 'demo-seed', description: 'Création du jeu de données de démonstration', metadata: { users: 35, boats: boats.length, bookings: bookings.length } },
+      { admin: admin._id, action: 'approve_document', entityType: 'document', entityId: documents[0]._id.toString(), description: 'Validation initiale de documents propriétaires', metadata: {} },
+      { admin: admin._id, action: 'update_report_status', entityType: 'report', entityId: reports[1]._id.toString(), description: 'Signalement placé en analyse', metadata: { status: 'in_review' } },
+      { admin: admin._id, action: 'refund_payment', entityType: 'booking', entityId: bookings.find(item => item.paymentStatus === 'refunded')._id.toString(), description: 'Remboursement de démonstration', metadata: {} },
+    ]);
 
-    console.log('Boats created');
-
-    // Create bookings
-    const now = new Date();
-    const pastDate = (daysAgo) => new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-    const futureDate = (daysFromNow) => new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
-
-    // Completed booking - tenant1, boat1
-    const booking1 = await Booking.create({
-      boat: boat1._id,
-      tenant: tenant1._id,
-      owner: owner1._id,
-      startDate: pastDate(20),
-      endDate: pastDate(17),
-      numberOfDays: 3,
-      pricePerDay: 250,
-      serviceFee: 75,
-      totalPrice: 825,
-      status: 'completed',
-      paymentStatus: 'paid',
-    });
-
-    // Completed booking - tenant2, boat3
-    const booking2 = await Booking.create({
-      boat: boat3._id,
-      tenant: tenant2._id,
-      owner: owner2._id,
-      startDate: pastDate(15),
-      endDate: pastDate(12),
-      numberOfDays: 3,
-      pricePerDay: 350,
-      serviceFee: 105,
-      totalPrice: 1155,
-      status: 'completed',
-      paymentStatus: 'paid',
-    });
-
-    // Confirmed booking - tenant1, boat2
-    const booking3 = await Booking.create({
-      boat: boat2._id,
-      tenant: tenant1._id,
-      owner: owner1._id,
-      startDate: futureDate(5),
-      endDate: futureDate(10),
-      numberOfDays: 5,
-      pricePerDay: 650,
-      serviceFee: 325,
-      totalPrice: 3575,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-    });
-
-    // Accepted booking - tenant2, boat5
-    const booking4 = await Booking.create({
-      boat: boat5._id,
-      tenant: tenant2._id,
-      owner: owner1._id,
-      startDate: futureDate(15),
-      endDate: futureDate(18),
-      numberOfDays: 3,
-      pricePerDay: 290,
-      serviceFee: 87,
-      totalPrice: 957,
-      status: 'accepted',
-      paymentStatus: 'unpaid',
-    });
-
-    // Pending booking - tenant3, boat7
-    const booking5 = await Booking.create({
-      boat: boat7._id,
-      tenant: tenant3._id,
-      owner: owner1._id,
-      startDate: futureDate(20),
-      endDate: futureDate(25),
-      numberOfDays: 5,
-      pricePerDay: 580,
-      serviceFee: 290,
-      totalPrice: 3190,
-      status: 'pending',
-      paymentStatus: 'unpaid',
-    });
-
-    // Cancelled booking - tenant3, boat4
-    const booking6 = await Booking.create({
-      boat: boat4._id,
-      tenant: tenant3._id,
-      owner: owner2._id,
-      startDate: pastDate(10),
-      endDate: pastDate(8),
-      numberOfDays: 2,
-      pricePerDay: 120,
-      serviceFee: 24,
-      totalPrice: 264,
-      status: 'cancelled',
-      paymentStatus: 'refunded',
-    });
-
-    // Completed booking - tenant3, boat6
-    const booking7 = await Booking.create({
-      boat: boat6._id,
-      tenant: tenant3._id,
-      owner: owner2._id,
-      startDate: pastDate(30),
-      endDate: pastDate(27),
-      numberOfDays: 3,
-      pricePerDay: 420,
-      serviceFee: 126,
-      totalPrice: 1386,
-      status: 'completed',
-      paymentStatus: 'paid',
-    });
-
-    console.log('Bookings created');
-
-    // Create reviews
-    await Review.create({
-      boat: boat1._id,
-      booking: booking1._id,
-      author: tenant1._id,
-      rating: 5,
-      comment: 'Absolutely stunning sailboat! Pierre was incredibly helpful and the Sun Odyssey is in perfect condition. The Marseille coastline is magical from the water. Cannot wait to come back!',
-      status: 'approved',
-    });
-
-    await Review.create({
-      boat: boat3._id,
-      booking: booking2._id,
-      author: tenant2._id,
-      rating: 4,
-      comment: 'Great motorboat for exploring the Cannes islands. Fast and very well maintained. Only minor issue was that the GPS was a bit outdated but overall excellent experience.',
-      status: 'approved',
-    });
-
-    await Review.create({
-      boat: boat6._id,
-      booking: booking7._id,
-      author: tenant3._id,
-      rating: 5,
-      comment: 'The Merry Fisher is a fantastic boat for coastal cruising around Antibes. Very powerful and comfortable for a day at sea. Found some hidden beaches that are only accessible by boat. Highly recommend!',
-      status: 'approved',
-    });
-
-    // Pending review
-    await Review.create({
-      boat: boat1._id,
-      booking: booking1._id,
-      author: tenant2._id,
-      rating: 4,
-      comment: 'Nice boat, had a wonderful time. Would recommend.',
-      status: 'pending',
-    });
-
-    console.log('Reviews created');
-
-    // Update average ratings
-    await Boat.findByIdAndUpdate(boat1._id, { averageRating: 4.8 });
-    await Boat.findByIdAndUpdate(boat3._id, { averageRating: 4.5 });
-    await Boat.findByIdAndUpdate(boat6._id, { averageRating: 4.6 });
-
-    console.log('\n=== SEED COMPLETE ===');
+    const totalUsers = 1 + owners.length + tenants.length;
+    console.log('\nSeed completed successfully:');
+    console.log(`- ${totalUsers} users created`);
+    console.log(`- ${boats.length} boats created`);
+    console.log(`- ${bookings.length} bookings created`);
+    console.log(`- ${reviews.length} reviews created`);
+    console.log(`- ${payments.length} payments created`);
+    console.log(`- ${documents.length} owner documents created`);
+    console.log(`- ${reports.length} reports created`);
     console.log('\nDemo accounts:');
-    console.log('Admin:   admin@sailingloc.fr  / Admin123!');
-    console.log('Owner 1: owner1@sailingloc.fr / Owner123!');
-    console.log('Owner 2: owner2@sailingloc.fr / Owner123!');
-    console.log('Tenant 1: tenant1@sailingloc.fr / Tenant123!');
-    console.log('Tenant 2: tenant2@sailingloc.fr / Tenant123!');
-    console.log('Tenant 3: tenant3@sailingloc.fr / Tenant123!');
+    console.log('Admin:    admin@sailingloc.fr    / Admin123!');
+    console.log('Owners:   owner1@sailingloc.fr   / Owner123!  ... owner14@sailingloc.fr');
+    console.log('Tenants:  tenant1@sailingloc.fr  / Tenant123! ... tenant20@sailingloc.fr');
 
+    await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
     console.error('Seed error:', error);
+    await mongoose.disconnect();
     process.exit(1);
   }
 };

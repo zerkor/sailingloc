@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Check, X } from 'lucide-react';
 import { createBoat, updateBoat, getBoatById } from '../../services/boatService';
 import ErrorMessage from '../../components/ErrorMessage';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -21,7 +22,7 @@ const OwnerBoatFormPage = () => {
     title: '', description: '', type: 'sailboat',
     location: '', port: '', pricePerDay: '', capacity: '',
     length: '', engine: '', skipperAvailable: false,
-    images: [''], equipments: [],
+    images: [''], equipments: [], unavailableDates: [''],
   });
   const [loading,  setLoading]  = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -38,6 +39,9 @@ const OwnerBoatFormPage = () => {
         engine: data.engine || '', skipperAvailable: data.skipperAvailable || false,
         images: data.images?.length ? data.images : [''],
         equipments: data.equipments || [],
+        unavailableDates: data.unavailableDates?.length
+          ? data.unavailableDates.map(date => new Date(date).toISOString().split('T')[0])
+          : [''],
       }))
       .catch(() => setError('Impossible de charger ce bateau.'))
       .finally(() => setFetching(false));
@@ -53,6 +57,12 @@ const OwnerBoatFormPage = () => {
   };
   const addImage    = () => setForm(prev => ({ ...prev, images: [...prev.images, ''] }));
   const removeImage = i  => setForm(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }));
+  const handleUnavailableDateChange = (i, v) => {
+    const dates = [...form.unavailableDates]; dates[i] = v;
+    setForm(prev => ({ ...prev, unavailableDates: dates }));
+  };
+  const addUnavailableDate = () => setForm(prev => ({ ...prev, unavailableDates: [...prev.unavailableDates, ''] }));
+  const removeUnavailableDate = i => setForm(prev => ({ ...prev, unavailableDates: prev.unavailableDates.filter((_, idx) => idx !== i) }));
   const toggleEq    = eq => setForm(prev => ({
     ...prev,
     equipments: prev.equipments.includes(eq)
@@ -69,6 +79,7 @@ const OwnerBoatFormPage = () => {
       capacity:    Number(form.capacity),
       length:      form.length ? Number(form.length) : undefined,
       images:      form.images.filter(Boolean),
+      unavailableDates: [...new Set(form.unavailableDates.filter(Boolean))],
     };
     try {
       if (isEdit) await updateBoat(id, payload);
@@ -189,9 +200,9 @@ const OwnerBoatFormPage = () => {
                   className="input-field flex-1" placeholder="https://images.unsplash.com/…" />
                 {form.images.length > 1 && (
                   <button type="button" onClick={() => removeImage(i)}
-                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90"
+                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 inline-flex items-center"
                     style={{ background: '#fef2f2', color: '#dc2626' }}>
-                    ✕
+                    <X size={14} />
                   </button>
                 )}
               </div>
@@ -203,6 +214,34 @@ const OwnerBoatFormPage = () => {
                 + Ajouter une photo
               </button>
             )}
+          </div>
+        </Section>
+
+        {/* Availability */}
+        <Section title="Disponibilités">
+          <div className="space-y-2">
+            {form.unavailableDates.map((date, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => handleUnavailableDateChange(i, e.target.value)}
+                  className="input-field flex-1"
+                />
+                {form.unavailableDates.length > 1 && (
+                  <button type="button" onClick={() => removeUnavailableDate(i)}
+                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 inline-flex items-center"
+                    style={{ background: '#fef2f2', color: '#dc2626' }}>
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={addUnavailableDate}
+              className="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-[#EDF1F5]"
+              style={{ borderColor: 'rgba(7,25,46,0.15)', color: '#07192E' }}>
+              + Ajouter une date indisponible
+            </button>
           </div>
         </Section>
 
@@ -220,7 +259,7 @@ const OwnerBoatFormPage = () => {
                   : { background: '#fff', color: '#3D4D61', borderColor: 'rgba(7,25,46,0.15)' }
                 }
               >
-                {form.equipments.includes(eq) ? '✓ ' : ''}{eq}
+                {form.equipments.includes(eq) && <Check size={13} className="inline mr-1" />}{eq}
               </button>
             ))}
           </div>

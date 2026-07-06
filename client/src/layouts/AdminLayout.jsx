@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 
 const AdminLayout = () => {
   const { user, logoutUser } = useAuth();
@@ -12,12 +13,12 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#EDF1F5' }}>
+    <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: '#EDF1F5' }}>
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header
-          className="px-8 py-4 flex items-center justify-between flex-shrink-0"
+          className="px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between flex-shrink-0"
           style={{ background: '#fff', borderBottom: '1px solid rgba(7,25,46,0.08)', boxShadow: '0 1px 12px rgba(7,25,46,0.04)' }}
         >
           <div className="flex items-center gap-3">
@@ -33,9 +34,7 @@ const AdminLayout = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-xs font-medium hover:underline" style={{ color: '#8896A8' }}>
-              ← Site public
-            </Link>
+            <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium hover:underline" style={{ color: '#8896A8' }}><ArrowLeft size={13} /> Site public</Link>
             <button
               onClick={handleLogout}
               className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors hover:bg-red-50"
@@ -47,7 +46,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto">
           <Outlet />
         </main>
       </div>

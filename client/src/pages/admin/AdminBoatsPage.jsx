@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
+import PaginationControls from '../../components/PaginationControls';
 import { formatPrice } from '../../utils/formatPrice';
 import { formatDate } from '../../utils/formatDate';
+import { Clock3, MapPin } from 'lucide-react';
 
 const typeLabels = { sailboat: 'Voilier', motorboat: 'Moteur', catamaran: 'Catamaran', rib: 'Semi-rigide' };
 
@@ -13,11 +15,15 @@ const AdminBoatsPage = () => {
   const [loading,      setLoading]      = useState(true);
   const [search,       setSearch]       = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
 
-  const fetchBoats = async () => {
+  const fetchBoats = async (page = 1) => {
+    setLoading(true);
     try {
-      const { data } = await api.get('/admin/boats');
-      setBoats(Array.isArray(data) ? data : data.boats || []);
+      const { data } = await api.get('/admin/boats', { params: { page, limit: 10, status: statusFilter || undefined } });
+      const items = Array.isArray(data) ? data : data.items || data.boats || [];
+      setBoats(items);
+      setMeta({ page: data.page || page, totalPages: data.totalPages || 1, total: data.total ?? items.length });
     } catch {
       setBoats([]);
     } finally {
@@ -25,7 +31,7 @@ const AdminBoatsPage = () => {
     }
   };
 
-  useEffect(() => { fetchBoats(); }, []);
+  useEffect(() => { fetchBoats(1); }, [statusFilter]);
 
   const handleApprove = async (id) => {
     try {
@@ -51,8 +57,7 @@ const AdminBoatsPage = () => {
 
   const filtered = boats.filter(b => {
     const matchesSearch  = `${b.title} ${b.location} ${b.owner?.firstName} ${b.owner?.lastName}`.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus  = !statusFilter || b.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   const pendingCount = boats.filter(b => b.status === 'pending').length;
@@ -65,11 +70,11 @@ const AdminBoatsPage = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: '#07192E' }}>
-            Bateaux <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({boats.length})</span>
+            Bateaux <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({meta.total})</span>
           </h1>
           {pendingCount > 0 && (
-            <p className="text-sm mt-0.5 font-medium" style={{ color: '#b45309' }}>
-              ⏳ {pendingCount} en attente d'approbation
+            <p className="inline-flex items-center gap-1.5 text-sm mt-0.5 font-medium" style={{ color: '#b45309' }}>
+              <Clock3 size={14} /> {pendingCount} en attente d'approbation
             </p>
           )}
         </div>
@@ -146,7 +151,9 @@ const AdminBoatsPage = () => {
                         </div>
                         <div>
                           <p className="font-semibold" style={{ color: '#07192E' }}>{boat.title}</p>
-                          <p className="text-xs" style={{ color: '#8896A8' }}>📍 {boat.location}</p>
+                          <p className="inline-flex items-center gap-1 text-xs" style={{ color: '#8896A8' }}>
+                            <MapPin size={12} /> {boat.location}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -204,6 +211,7 @@ const AdminBoatsPage = () => {
             </tbody>
           </table>
         </div>
+        <PaginationControls page={meta.page} totalPages={meta.totalPages} onPageChange={fetchBoats} />
       </div>
     </div>
   );

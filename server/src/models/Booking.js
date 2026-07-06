@@ -13,12 +13,17 @@ const bookingSchema = new mongoose.Schema(
     totalPrice: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'paid', 'confirmed', 'cancelled', 'completed'],
+      enum: ['pending', 'accepted', 'rejected', 'confirmed', 'cancelled', 'completed'],
       default: 'pending',
     },
     paymentStatus: { type: String, enum: ['unpaid', 'paid', 'refunded'], default: 'unpaid' },
+    payment: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
   },
   { timestamps: true }
 );
+
+bookingSchema.index({ boat: 1, status: 1, startDate: 1, endDate: 1 });
+bookingSchema.index({ tenant: 1, createdAt: -1 });
+bookingSchema.index({ owner: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

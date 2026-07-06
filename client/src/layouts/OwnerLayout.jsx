@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import OwnerSidebar from '../components/OwnerSidebar';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft, Plus } from 'lucide-react';
 
 const OwnerLayout = () => {
   const { user, logoutUser } = useAuth();
@@ -12,12 +13,12 @@ const OwnerLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#EDF1F5' }}>
+    <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: '#EDF1F5' }}>
       <OwnerSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header
-          className="px-8 py-4 flex items-center justify-between flex-shrink-0"
+          className="px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between flex-shrink-0"
           style={{ background: '#fff', borderBottom: '1px solid rgba(7,25,46,0.08)', boxShadow: '0 1px 12px rgba(7,25,46,0.04)' }}
         >
           <div className="flex items-center gap-3">
@@ -33,15 +34,13 @@ const OwnerLayout = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-xs font-medium hover:underline" style={{ color: '#8896A8' }}>
-              ← Site public
-            </Link>
+            <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium hover:underline" style={{ color: '#8896A8' }}><ArrowLeft size={13} /> Site public</Link>
             <Link
               to="/owner/boats/new"
               className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
               style={{ background: '#00C6E0', color: '#07192E' }}
             >
-              + Ajouter un bateau
+              <Plus size={14} /> Ajouter un bateau
             </Link>
             <button
               onClick={handleLogout}
@@ -54,7 +53,7 @@ const OwnerLayout = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto">
           <Outlet />
         </main>
       </div>

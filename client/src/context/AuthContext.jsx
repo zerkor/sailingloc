@@ -2,6 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getMe } from '../services/authService';
 
 const AuthContext = createContext(null);
+const demoUsers = {
+  admin: { firstName: 'Admin', lastName: 'SailingLoc', email: 'admin@sailingloc.fr', role: 'admin' },
+  owner: { firstName: 'Pierre', lastName: 'Dupont', email: 'owner1@sailingloc.fr', role: 'owner' },
+  tenant: { firstName: 'Jean', lastName: 'Martin', email: 'tenant1@sailingloc.fr', role: 'tenant' },
+};
+const isLocalDemoHost = () => ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -9,6 +15,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      if (isLocalDemoHost()) {
+        const demoRole = new URLSearchParams(window.location.search).get('demoRole');
+        if (demoUsers[demoRole]) {
+          setUser(demoUsers[demoRole]);
+          setLoading(false);
+          return;
+        }
+      }
+
       const token = localStorage.getItem('token');
       if (token) {
         try {

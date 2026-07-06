@@ -41,6 +41,16 @@ const getBoatById = asyncHandler(async (req, res) => {
   res.json(boat);
 });
 
+const getBoatBySlug = asyncHandler(async (req, res) => {
+  const match = req.params.slug.match(/[a-f\d]{24}$/i);
+  if (!match) {
+    res.status(404);
+    throw new Error('Boat not found');
+  }
+  req.params.id = match[0];
+  return getBoatById(req, res);
+});
+
 const createBoat = asyncHandler(async (req, res) => {
   const { title, type, description, location, port, pricePerDay, capacity, length, engine, skipperAvailable, equipments, images } = req.body;
   const boat = await Boat.create({
@@ -87,4 +97,4 @@ const getOwnerBoats = asyncHandler(async (req, res) => {
   res.json(boats);
 });
 
-module.exports = { getBoats, getBoatById, createBoat, updateBoat, deleteBoat, getOwnerBoats };
+module.exports = { getBoats, getBoatById, getBoatBySlug, createBoat, updateBoat, deleteBoat, getOwnerBoats };

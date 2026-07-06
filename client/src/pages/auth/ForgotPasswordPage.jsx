@@ -1,6 +1,7 @@
 // src/pages/auth/ForgotPasswordPage.jsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, MailCheck, Send } from 'lucide-react';
 
 const HERO = 'https://images.unsplash.com/photo-1548793428-9e9e1e37e84c?w=900&q=85&auto=format&fit=crop';
 
@@ -44,7 +45,7 @@ const ForgotPasswordPage = () => {
           <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
             {sent ? (
               <div className="text-center py-4">
-                <div className="text-5xl mb-4">📬</div>
+                <MailCheck size={48} className="mx-auto mb-4" color="#00C6E0" />
                 <p
                   className="font-bold mb-2"
                   style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: '#07192E' }}
@@ -97,16 +98,16 @@ const ForgotPasswordPage = () => {
                       Envoi en cours…
                     </>
                   ) : (
-                    'Envoyer le lien'
+                    <>
+                      <Send size={16} /> Envoyer le lien
+                    </>
                   )}
                 </button>
               </form>
             )}
 
             <p className="text-center text-sm mt-5" style={{ color: '#8896A8' }}>
-              <Link to="/login" className="font-bold hover:underline" style={{ color: '#07192E' }}>
-                ← Retour à la connexion
-              </Link>
+              <Link to="/login" className="font-bold hover:underline" style={{ color: '#07192E' }}>`r`n                <span className="inline-flex items-center justify-center gap-1.5">`r`n                  <ArrowLeft size={14} /> Retour a la connexion`r`n                </span>`r`n              </Link>
             </p>
           </div>
         </div>

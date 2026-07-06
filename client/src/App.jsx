@@ -12,6 +12,8 @@ import AdminLayout from './layouts/AdminLayout';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import ContactPage from './pages/ContactPage';
+import CategoriesPage from './pages/CategoriesPage';
+import ProductsPage from './pages/ProductsPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -28,6 +30,7 @@ import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
 import OwnerBoatsPage from './pages/owner/OwnerBoatsPage';
 import OwnerBoatFormPage from './pages/owner/OwnerBoatFormPage';
 import OwnerBookingsPage from './pages/owner/OwnerBookingsPage';
+import OwnerDocumentsPage from './pages/owner/OwnerDocumentsPage';
 
 // Admin pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -35,6 +38,10 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBoatsPage from './pages/admin/AdminBoatsPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
+import AdminDocumentsPage from './pages/admin/AdminDocumentsPage';
+import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminActionLogsPage from './pages/admin/AdminActionLogsPage';
 
 function App() {
   return (
@@ -45,11 +52,14 @@ function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/products" element={<ProductsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/boats" element={<BoatListPage />} />
             <Route path="/boats/:id" element={<BoatDetailPage />} />
+            <Route path="/bateaux/:slug" element={<BoatDetailPage />} />
             <Route path="/legal/:slug" element={<LegalPage />} />
 
             {/* Protected public routes */}
@@ -74,6 +84,7 @@ function App() {
             <Route path="boats/new" element={<OwnerBoatFormPage />} />
             <Route path="boats/:id/edit" element={<OwnerBoatFormPage />} />
             <Route path="bookings" element={<OwnerBookingsPage />} />
+            <Route path="documents" element={<OwnerDocumentsPage />} />
           </Route>
 
           {/* Admin routes */}
@@ -87,6 +98,10 @@ function App() {
             <Route path="boats" element={<AdminBoatsPage />} />
             <Route path="bookings" element={<AdminBookingsPage />} />
             <Route path="reviews" element={<AdminReviewsPage />} />
+            <Route path="documents" element={<AdminDocumentsPage />} />
+            <Route path="payments" element={<AdminPaymentsPage />} />
+            <Route path="reports" element={<AdminReportsPage />} />
+            <Route path="action-logs" element={<AdminActionLogsPage />} />
           </Route>
         </Routes>
       </AuthProvider>

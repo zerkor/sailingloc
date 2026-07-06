@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Clock3, MapPin, Plus, Sailboat } from 'lucide-react';
 import { getOwnerBoats, deleteBoat } from '../../services/boatService';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
@@ -46,13 +47,13 @@ const OwnerBoatsPage = () => {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:opacity-90"
           style={{ background: '#00C6E0', color: '#07192E' }}
         >
-          + Ajouter un bateau
+          <Plus size={16} /> Ajouter un bateau
         </Link>
       </div>
 
       {boats.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-5xl mb-4">⛵</p>
+          <Sailboat size={48} className="mx-auto mb-4" color="#00C6E0" />
           <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>Aucun bateau</h3>
           <p className="text-sm mb-6" style={{ color: '#8896A8' }}>Ajoutez votre premier bateau pour commencer à louer.</p>
           <Link to="/owner/boats/new" className="btn-ocean">Ajouter un bateau</Link>
@@ -84,14 +85,16 @@ const OwnerBoatsPage = () => {
                   <StatusBadge status={boat.status} />
                 </div>
 
-                <p className="text-sm mb-1" style={{ color: '#8896A8' }}>📍 {boat.location}</p>
+                <p className="inline-flex items-center gap-1.5 text-sm mb-1" style={{ color: '#8896A8' }}>
+                  <MapPin size={14} /> {boat.location}
+                </p>
                 <p className="font-bold text-base mb-4" style={{ color: '#07192E' }}>
                   {formatPrice(boat.pricePerDay)}<span className="font-normal text-sm" style={{ color: '#8896A8' }}>/jour</span>
                 </p>
 
                 {boat.status === 'pending' && (
-                  <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium" style={{ background: 'rgba(234,179,8,0.1)', color: '#854d0e' }}>
-                    ⏳ En attente d'approbation par l'administrateur
+                  <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-2 rounded-xl text-xs font-medium" style={{ background: 'rgba(234,179,8,0.1)', color: '#854d0e' }}>
+                    <Clock3 size={13} /> En attente d'approbation par l'administrateur
                   </div>
                 )}
 

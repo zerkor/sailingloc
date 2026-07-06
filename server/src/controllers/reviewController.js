@@ -1,7 +1,6 @@
 const asyncHandler = require('../utils/asyncHandler');
 const Review = require('../models/Review');
 const Booking = require('../models/Booking');
-const Boat = require('../models/Boat');
 
 const createReview = asyncHandler(async (req, res) => {
   const { boatId, bookingId, rating, comment } = req.body;
@@ -31,12 +30,6 @@ const createReview = asyncHandler(async (req, res) => {
     comment,
     status: 'pending',
   });
-  // Update average rating
-  const approvedReviews = await Review.find({ boat: boatId, status: 'approved' });
-  if (approvedReviews.length > 0) {
-    const avg = approvedReviews.reduce((sum, r) => sum + r.rating, 0) / approvedReviews.length;
-    await Boat.findByIdAndUpdate(boatId, { averageRating: Math.round(avg * 10) / 10 });
-  }
   res.status(201).json(review);
 });
 

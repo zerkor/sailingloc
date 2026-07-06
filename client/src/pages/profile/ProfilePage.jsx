@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { updateProfile, deleteAccount } from '../../services/authService';
 import ErrorMessage from '../../components/ErrorMessage';
+import { CheckCircle2 } from 'lucide-react';
 
 const roleLabels = {
   tenant: 'Locataire',
@@ -100,8 +101,8 @@ const ProfilePage = () => {
           <ErrorMessage message={error} />
 
           {success && (
-            <div className="p-3 rounded-xl text-sm font-medium" style={{ background: 'rgba(22,163,74,0.08)', color: '#166534', border: '1px solid rgba(22,163,74,0.2)' }}>
-              ✓ {success}
+            <div className="flex items-center gap-2 p-3 rounded-xl text-sm font-medium" style={{ background: 'rgba(22,163,74,0.08)', color: '#166534', border: '1px solid rgba(22,163,74,0.2)' }}>
+              <CheckCircle2 size={16} /> {success}
             </div>
           )}
 

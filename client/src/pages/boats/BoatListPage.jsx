@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Sailboat, X } from 'lucide-react';
 import BoatCard from '../../components/BoatCard';
 import FilterSidebar from '../../components/FilterSidebar';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -127,7 +128,7 @@ const BoatListPage = () => {
               className="px-4 py-2 rounded-full text-sm font-medium transition-all"
               style={{ color: '#00C6E0', background: 'rgba(0,198,224,0.08)' }}
             >
-              ✕ Effacer
+              <span className="inline-flex items-center gap-1.5"><X size={14} /> Effacer</span>
             </button>
           )}
         </div>
@@ -161,7 +162,7 @@ const BoatListPage = () => {
               <LoadingSpinner text="Recherche de bateaux..." />
             ) : boats.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-5xl mb-4">⛵</p>
+                <Sailboat size={48} className="mx-auto mb-4" color="#00C6E0" />
                 <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>Aucun résultat</h3>
                 <p className="text-sm" style={{ color: '#8896A8' }}>Essayez de modifier vos critères de recherche.</p>
               </div>

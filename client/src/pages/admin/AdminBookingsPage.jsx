@@ -2,27 +2,32 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
+import PaginationControls from '../../components/PaginationControls';
 import { formatDate } from '../../utils/formatDate';
 import { formatPrice } from '../../utils/formatPrice';
+import { ArrowRight } from 'lucide-react';
 
 const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState('all');
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
 
-  useEffect(() => {
-    const fetchBookings = async () => {
+  const fetchBookings = async (page = 1) => {
+      setLoading(true);
       try {
-        const { data } = await api.get('/admin/bookings');
-        setBookings(data || []);
+        const { data } = await api.get('/admin/bookings', { params: { page, limit: 10, status: filter === 'all' ? undefined : filter } });
+        const items = Array.isArray(data) ? data : data.items || [];
+        setBookings(items);
+        setMeta({ page: data.page || page, totalPages: data.totalPages || 1, total: data.total ?? items.length });
       } catch {
         setBookings([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchBookings();
-  }, []);
+
+  useEffect(() => { fetchBookings(1); }, [filter]);
 
   const handleCancel = async (id) => {
     if (!confirm('Annuler cette réservation ?')) return;
@@ -45,7 +50,7 @@ const AdminBookingsPage = () => {
     all: 'Toutes', pending: 'En attente', accepted: 'Acceptées', confirmed: 'Confirmées',
     completed: 'Terminées', cancelled: 'Annulées', rejected: 'Refusées',
   };
-  const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
+  const filtered = bookings;
 
   if (loading) return <LoadingSpinner text="Chargement des réservations…" />;
 
@@ -53,7 +58,7 @@ const AdminBookingsPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: '#07192E' }}>
-        Réservations <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({bookings.length})</span>
+        Réservations <span style={{ fontSize: 18, fontWeight: 600, color: '#8896A8' }}>({meta.total})</span>
       </h1>
 
       {/* Filter tabs */}
@@ -121,7 +126,7 @@ const AdminBookingsPage = () => {
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap" style={{ color: '#8896A8' }}>
                       <p>{formatDate(b.startDate)}</p>
-                      <p>→ {formatDate(b.endDate)}</p>
+                      <p className="inline-flex items-center gap-1"><ArrowRight size={13} /> {formatDate(b.endDate)}</p>
                     </td>
                     <td className="px-5 py-3 font-bold whitespace-nowrap" style={{ color: '#07192E' }}>
                       {formatPrice(b.totalPrice)}
@@ -157,6 +162,7 @@ const AdminBookingsPage = () => {
             </tbody>
           </table>
         </div>
+        <PaginationControls page={meta.page} totalPages={meta.totalPages} onPageChange={fetchBookings} />
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ const Footer = () => {
             © {new Date().getFullYear()} SailingLoc · Tous droits réservés
           </span>
           <span className="text-xs" style={{ color: '#00C6E0' }}>
-            Fait avec ♥ par l'équipe SailingLoc
+            Projet realise par l'equipe SailingLoc
           </span>
         </div>
       </div>

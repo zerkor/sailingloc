@@ -1,7 +1,10 @@
 const asyncHandler = require('../utils/asyncHandler');
 const Booking = require('../models/Booking');
 const Boat = require('../models/Boat');
+const Payment = require('../models/Payment');
 const calculateBookingPrice = require('../utils/calculateBookingPrice');
+const { assertBoatAvailable } = require('../utils/bookingAvailability');
+const createNotification = require('../utils/createNotification');
 
 const createBooking = asyncHandler(async (req, res) => {
   const { boatId, startDate, endDate } = req.body;
@@ -24,6 +27,9 @@ const createBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Start date cannot be in the past');
   }
+
+  await assertBoatAvailable({ boat, startDate: start, endDate: end });
+
   const { numberOfDays, pricePerDay, serviceFee, totalPrice } = calculateBookingPrice(startDate, endDate, boat.pricePerDay);
   const booking = await Booking.create({
     boat: boatId,
@@ -40,6 +46,14 @@ const createBooking = asyncHandler(async (req, res) => {
     .populate('boat', 'title images location')
     .populate('tenant', 'firstName lastName email')
     .populate('owner', 'firstName lastName email');
+  await createNotification({
+    user: boat.owner,
+    type: 'booking_created',
+    title: 'Nouvelle demande de reservation',
+    message: `${req.user.firstName} souhaite reserver ${boat.title}.`,
+    relatedBooking: booking._id,
+    relatedBoat: boat._id,
+  });
   res.status(201).json(populated);
 });
 
@@ -60,12 +74,26 @@ const getOwnerBookings = asyncHandler(async (req, res) => {
 });
 
 const acceptBooking = asyncHandler(async (req, res) => {
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id).populate('boat');
   if (!booking) { res.status(404); throw new Error('Booking not found'); }
   if (booking.owner.toString() !== req.user._id.toString()) { res.status(403); throw new Error('Not authorized'); }
   if (booking.status !== 'pending') { res.status(400); throw new Error('Booking cannot be accepted in its current state'); }
+  await assertBoatAvailable({
+    boat: booking.boat,
+    startDate: booking.startDate,
+    endDate: booking.endDate,
+    excludedBookingId: booking._id,
+  });
   booking.status = 'accepted';
   await booking.save();
+  await createNotification({
+    user: booking.tenant,
+    type: 'booking_accepted',
+    title: 'Reservation acceptee',
+    message: `Votre demande pour ${booking.boat.title} a ete acceptee. Vous pouvez proceder au paiement.`,
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat._id,
+  });
   res.json(booking);
 });
 
@@ -76,6 +104,14 @@ const rejectBooking = asyncHandler(async (req, res) => {
   if (!['pending'].includes(booking.status)) { res.status(400); throw new Error('Booking cannot be rejected in its current state'); }
   booking.status = 'rejected';
   await booking.save();
+  await createNotification({
+    user: booking.tenant,
+    type: 'booking_rejected',
+    title: 'Reservation refusee',
+    message: 'Le proprietaire a refuse votre demande de reservation.',
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat,
+  });
   res.json(booking);
 });
 
@@ -93,6 +129,18 @@ const cancelBooking = asyncHandler(async (req, res) => {
   booking.status = 'cancelled';
   if (booking.paymentStatus === 'paid') booking.paymentStatus = 'refunded';
   await booking.save();
+  if (booking.payment) {
+    await Payment.findByIdAndUpdate(booking.payment, { status: 'refunded', refundedAt: new Date() });
+  }
+  const notifyUser = isTenant ? booking.owner : booking.tenant;
+  await createNotification({
+    user: notifyUser,
+    type: 'booking_cancelled',
+    title: 'Reservation annulee',
+    message: 'Une reservation a ete annulee sur SailingLoc.',
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat,
+  });
   res.json(booking);
 });
 
@@ -101,9 +149,34 @@ const payBooking = asyncHandler(async (req, res) => {
   if (!booking) { res.status(404); throw new Error('Booking not found'); }
   if (booking.tenant.toString() !== req.user._id.toString()) { res.status(403); throw new Error('Not authorized'); }
   if (booking.status !== 'accepted') { res.status(400); throw new Error('Booking must be accepted before payment'); }
+  const existingPayment = await Payment.findOne({ booking: booking._id });
+  if (existingPayment && existingPayment.status === 'succeeded') {
+    res.status(400);
+    throw new Error('Booking already paid');
+  }
+  const payment = existingPayment || await Payment.create({
+    booking: booking._id,
+    tenant: booking.tenant,
+    owner: booking.owner,
+    amount: booking.totalPrice,
+    serviceFee: booking.serviceFee,
+    providerReference: `sim_stripe_${booking._id.toString()}`,
+  });
+  payment.status = 'succeeded';
+  payment.paidAt = new Date();
+  await payment.save();
   booking.paymentStatus = 'paid';
   booking.status = 'confirmed';
+  booking.payment = payment._id;
   await booking.save();
+  await createNotification({
+    user: booking.owner,
+    type: 'booking_paid',
+    title: 'Paiement confirme',
+    message: 'Le paiement de la reservation a ete valide.',
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat,
+  });
   res.json(booking);
 });
 

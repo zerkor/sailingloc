@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     role: { type: String, enum: ['tenant', 'owner', 'admin'], default: 'tenant' },
     isActive: { type: Boolean, default: true },
+    privacyConsent: { type: Boolean, default: false },
+    privacyConsentAt: Date,
+    marketingConsent: { type: Boolean, default: false },
+    anonymizedAt: Date,
   },
   { timestamps: true }
 );

@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 const content = {
   'mentions-legales': {
@@ -147,7 +148,7 @@ const LegalPage = () => {
 
   return (
     <div className="container-max section-padding max-w-3xl">
-      <Link to="/" className="text-navy-600 hover:underline text-sm">← Retour à l'accueil</Link>
+      <Link to="/" className="inline-flex items-center gap-1.5 text-navy-600 hover:underline text-sm"><ArrowLeft size={14} /> Retour a l'accueil</Link>
       <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-8">{page.title}</h1>
       <div className="prose max-w-none space-y-1">
         {renderContent(page.body)}
