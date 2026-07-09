@@ -1,0 +1,21 @@
+{
+  "name": "sailingloc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SailingLoc monorepo deployment helper",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "build": "npm --prefix server install",
+    "start": "npm --prefix server start",
+    "server:install": "npm --prefix server install",
+    "server:start": "npm --prefix server start",
+    "client:install": "npm --prefix client install",
+    "client:build": "npm --prefix client run build"
+  },
+  "engines": {
+    "node": ">=20 <25"
+  }
+}
