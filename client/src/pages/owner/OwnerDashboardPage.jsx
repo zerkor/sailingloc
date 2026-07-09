@@ -9,6 +9,7 @@ import StatusBadge from '../../components/StatusBadge';
 import { formatDate } from '../../utils/formatDate';
 import { formatPrice } from '../../utils/formatPrice';
 import { useAuth } from '../../context/AuthContext';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
 
 const OwnerDashboardPage = () => {
   const { user } = useAuth();
@@ -180,11 +181,11 @@ const OwnerDashboardPage = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
                       <img
-                        src={boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=100'}
+                        src={getBoatImage(boat)}
                         alt={boat.title}
                         className="w-full h-full object-cover"
                         onError={(event) => {
-                          event.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=100';
+                          event.target.src = FALLBACK_BOAT_IMAGE;
                         }}
                       />
                     </div>

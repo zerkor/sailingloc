@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarDays, MapPin, Ruler, Star, Users } from 'lucide-react';
 import { formatPrice } from '../utils/formatPrice';
 import { buildBoatSlug } from '../utils/slugifyBoat';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../utils/boatImages';
 
 const typeLabels = {
   sailboat: 'Voilier',
@@ -37,8 +38,7 @@ export const BoatCardSkeleton = () => (
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 const BoatCard = ({ boat }) => {
-  const imageUrl =
-    boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80&auto=format&fit=crop';
+  const imageUrl = getBoatImage(boat);
   const rating = boat.averageRating || 0;
   const reviewCount = boat.reviewCount || 0;
   const features = boat.features || [];
@@ -65,7 +65,7 @@ const BoatCard = ({ boat }) => {
           alt={boat.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
           onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80';
+            e.target.src = FALLBACK_BOAT_IMAGE;
           }}
           loading="lazy"
         />

@@ -8,6 +8,7 @@ import { formatPrice } from '../../utils/formatPrice';
 import { formatDate } from '../../utils/formatDate';
 import { Clock3, MapPin } from 'lucide-react';
 import { useUiFeedback } from '../../components/ToastProvider';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
 
 const typeLabels = { sailboat: 'Voilier', motorboat: 'Moteur', catamaran: 'Catamaran', rib: 'Semi-rigide' };
 
@@ -205,13 +206,11 @@ const AdminBoatsPage = () => {
                           style={{ background: '#EDF1F5' }}
                         >
                           <img
-                            src={
-                              boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80'
-                            }
+                            src={getBoatImage(boat)}
                             alt={boat.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80';
+                              e.target.src = FALLBACK_BOAT_IMAGE;
                             }}
                           />
                         </div>

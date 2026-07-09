@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
 import { formatPrice } from '../../utils/formatPrice';
 import { useUiFeedback } from '../../components/ToastProvider';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
 
 const OwnerBoatsPage = () => {
   const { toast, requestApproval } = useUiFeedback();
@@ -87,11 +88,11 @@ const OwnerBoatsPage = () => {
               {/* Image */}
               <div className="w-full sm:w-36 h-28 sm:h-auto rounded-xl overflow-hidden flex-shrink-0">
                 <img
-                  src={boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=200'}
+                  src={getBoatImage(boat)}
                   alt={boat.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=200';
+                    e.target.src = FALLBACK_BOAT_IMAGE;
                   }}
                 />
               </div>

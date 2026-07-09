@@ -8,6 +8,7 @@ import ReviewList from '../../components/ReviewList';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import SEO from '../../components/SEO';
 import { formatPrice } from '../../utils/formatPrice';
+import { FALLBACK_BOAT_IMAGE, getBoatImages } from '../../utils/boatImages';
 
 const typeLabels = {
   sailboat: 'Voilier',
@@ -57,9 +58,7 @@ const BoatDetailPage = () => {
     );
   }
 
-  const images = boat.images?.length
-    ? boat.images
-    : ['https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=800'];
+  const images = getBoatImages(boat);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -114,7 +113,7 @@ const BoatDetailPage = () => {
               alt={boat.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=800';
+                e.target.src = FALLBACK_BOAT_IMAGE;
               }}
             />
             <div
@@ -142,7 +141,7 @@ const BoatDetailPage = () => {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     style={{ height: '100%', maxHeight: 180 }}
                     onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=400';
+                      e.target.src = FALLBACK_BOAT_IMAGE;
                     }}
                   />
                 </button>

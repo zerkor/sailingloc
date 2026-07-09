@@ -35,22 +35,10 @@ const calculatePrice = (boat, startDate, endDate) => {
 };
 
 const imageByType = {
-  sailboat: [
-    'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=1200',
-    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200',
-  ],
-  motorboat: [
-    'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200',
-    'https://images.unsplash.com/photo-1524932558893-59ebaffc7d58?w=1200',
-  ],
-  catamaran: [
-    'https://images.unsplash.com/photo-1520483601560-389dff434fdf?w=1200',
-    'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=1200',
-  ],
-  rib: [
-    'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=1200',
-    'https://images.unsplash.com/photo-1541979116559-e55e0183f8a0?w=1200',
-  ],
+  sailboat: ['/images/hero-boat.jpeg'],
+  motorboat: ['/images/hero-boat.jpeg'],
+  catamaran: ['/images/hero-boat.jpeg'],
+  rib: ['/images/hero-boat.jpeg'],
 };
 
 const ownerNames = [

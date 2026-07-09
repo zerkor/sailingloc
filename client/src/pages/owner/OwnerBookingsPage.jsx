@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { formatDate } from '../../utils/formatDate';
 import { formatPrice } from '../../utils/formatPrice';
 import { useUiFeedback } from '../../components/ToastProvider';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
 
 const OwnerBookingsPage = () => {
   const { toast, requestApproval } = useUiFeedback();
@@ -132,13 +133,11 @@ const OwnerBookingsPage = () => {
               {/* Thumbnail */}
               <div className="sm:w-24 h-20 sm:h-auto rounded-xl overflow-hidden flex-shrink-0">
                 <img
-                  src={
-                    booking.boat?.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=150'
-                  }
+                  src={getBoatImage(booking.boat)}
                   alt={booking.boat?.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=150';
+                    e.target.src = FALLBACK_BOAT_IMAGE;
                   }}
                 />
               </div>
