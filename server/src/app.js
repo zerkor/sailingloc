@@ -42,6 +42,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.resolve(uploadRoot)));
 
+app.get('/', (req, res) =>
+  res.json({
+    name: 'SailingLoc API',
+    status: 'online',
+    health: '/api/health',
+    docs: '/api-docs',
+    timestamp: new Date().toISOString(),
+  })
+);
+
 app.get('/api/health', (req, res) =>
   res.json({
     status: 'ok',
