@@ -1,7 +1,12 @@
 const express = require('express');
 const { body } = require('express-validator');
 const router = express.Router();
-const { createDocument, getMyDocuments, getAdminDocuments, reviewDocument } = require('../controllers/documentController');
+const {
+  createDocument,
+  getMyDocuments,
+  getAdminDocuments,
+  reviewDocument,
+} = require('../controllers/documentController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
@@ -9,9 +14,18 @@ const { mongoId } = require('../middleware/validators');
 
 const documentRules = [
   body('boatId').optional({ checkFalsy: true }).isMongoId().withMessage('Bateau invalide'),
-  body('type').isIn(['identity', 'insurance', 'registration', 'contract', 'other']).withMessage('Type de document invalide'),
+  body('type')
+    .isIn(['identity', 'insurance', 'registration', 'contract', 'other'])
+    .withMessage('Type de document invalide'),
   body('title').trim().notEmpty().isLength({ max: 140 }).withMessage('Titre requis'),
-  body('fileUrl').isURL({ require_protocol: true }).withMessage('URL de document invalide'),
+  body('fileUrl').custom((value) => {
+    if (typeof value === 'string' && value.startsWith('/uploads/')) return true;
+    try {
+      return Boolean(new URL(value).protocol);
+    } catch {
+      throw new Error('URL de document invalide');
+    }
+  }),
 ];
 
 const reviewRules = [

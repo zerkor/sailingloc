@@ -8,16 +8,16 @@ import { getBoats } from '../../services/boatService';
 
 const BoatListPage = () => {
   const [searchParams] = useSearchParams();
-  const [boats,       setBoats]       = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [total,       setTotal]       = useState(0);
+  const [boats, setBoats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    location:        searchParams.get('location') || '',
-    type:            searchParams.get('type')     || '',
-    minPrice:        '',
-    maxPrice:        '',
-    capacity:        '',
+    location: searchParams.get('location') || '',
+    type: searchParams.get('type') || '',
+    minPrice: '',
+    maxPrice: '',
+    capacity: '',
     skipperAvailable: false,
   });
 
@@ -25,11 +25,11 @@ const BoatListPage = () => {
     setLoading(true);
     try {
       const params = {};
-      if (filters.location)        params.location        = filters.location;
-      if (filters.type)            params.type            = filters.type;
-      if (filters.minPrice)        params.minPrice        = filters.minPrice;
-      if (filters.maxPrice)        params.maxPrice        = filters.maxPrice;
-      if (filters.capacity)        params.capacity        = filters.capacity;
+      if (filters.location) params.location = filters.location;
+      if (filters.type) params.type = filters.type;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.capacity) params.capacity = filters.capacity;
       if (filters.skipperAvailable) params.skipperAvailable = true;
       const { data } = await getBoats(params);
       const boatList = data.boats || data || [];
@@ -42,24 +42,37 @@ const BoatListPage = () => {
     }
   }, [filters]);
 
-  useEffect(() => { fetchBoats(); }, [fetchBoats]);
+  useEffect(() => {
+    fetchBoats();
+  }, [fetchBoats]);
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
-
       {/* ── Page header ── */}
       <div
         className="relative overflow-hidden px-4 sm:px-6 lg:px-14 py-14"
         style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}
       >
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full" style={{ background: 'rgba(0,198,224,0.06)' }} />
+        <div
+          className="absolute -top-24 -right-24 w-96 h-96 rounded-full"
+          style={{ background: 'rgba(0,198,224,0.06)' }}
+        />
         <div className="container-max relative">
-          <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>Catalogue</span>
+          <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
+            Catalogue
+          </span>
           <h1
             className="mb-2 leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px,5vw,52px)', fontWeight: 800, color: '#fff' }}
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 'clamp(28px,5vw,52px)',
+              fontWeight: 800,
+              color: '#fff',
+            }}
           >
-            Tous nos bateaux<br />disponibles
+            Tous nos bateaux
+            <br />
+            disponibles
           </h1>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
             {total} annonce{total !== 1 ? 's' : ''} · France & Europe
@@ -70,7 +83,12 @@ const BoatListPage = () => {
       {/* ── Filter bar ── */}
       <div
         className="sticky z-30 px-4 sm:px-6 lg:px-14 py-3 flex flex-wrap items-center gap-3"
-        style={{ top: 76, background: '#fff', borderBottom: '1px solid rgba(7,25,46,0.08)', boxShadow: '0 2px 16px rgba(7,25,46,0.06)' }}
+        style={{
+          top: 76,
+          background: '#fff',
+          borderBottom: '1px solid rgba(7,25,46,0.08)',
+          boxShadow: '0 2px 16px rgba(7,25,46,0.06)',
+        }}
       >
         {/* Mobile toggle */}
         <button
@@ -79,7 +97,12 @@ const BoatListPage = () => {
           style={{ border: '1.5px solid rgba(7,25,46,0.15)', color: '#07192E' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
+            />
           </svg>
           Filtres {showFilters ? '▲' : '▼'}
         </button>
@@ -88,7 +111,7 @@ const BoatListPage = () => {
         <div className="hidden lg:flex items-center gap-2 flex-wrap flex-1">
           <select
             value={filters.type}
-            onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}
+            onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
             className="px-4 py-2 rounded-full border text-sm font-medium cursor-pointer outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
@@ -101,7 +124,7 @@ const BoatListPage = () => {
 
           <select
             value={filters.minPrice}
-            onChange={e => setFilters(f => ({ ...f, minPrice: e.target.value }))}
+            onChange={(e) => setFilters((f) => ({ ...f, minPrice: e.target.value }))}
             className="px-4 py-2 rounded-full border text-sm font-medium cursor-pointer outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
@@ -112,11 +135,12 @@ const BoatListPage = () => {
           </select>
 
           <button
-            onClick={() => setFilters(f => ({ ...f, skipperAvailable: !f.skipperAvailable }))}
+            onClick={() => setFilters((f) => ({ ...f, skipperAvailable: !f.skipperAvailable }))}
             className="px-4 py-2 rounded-full border text-sm font-medium transition-all"
-            style={filters.skipperAvailable
-              ? { background: '#07192E', color: '#fff', border: '1.5px solid #07192E' }
-              : { border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }
+            style={
+              filters.skipperAvailable
+                ? { background: '#07192E', color: '#fff', border: '1.5px solid #07192E' }
+                : { border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }
             }
           >
             Avec skipper
@@ -124,11 +148,22 @@ const BoatListPage = () => {
 
           {(filters.type || filters.location || filters.minPrice || filters.skipperAvailable) && (
             <button
-              onClick={() => setFilters({ location: '', type: '', minPrice: '', maxPrice: '', capacity: '', skipperAvailable: false })}
+              onClick={() =>
+                setFilters({
+                  location: '',
+                  type: '',
+                  minPrice: '',
+                  maxPrice: '',
+                  capacity: '',
+                  skipperAvailable: false,
+                })
+              }
               className="px-4 py-2 rounded-full text-sm font-medium transition-all"
               style={{ color: '#00C6E0', background: 'rgba(0,198,224,0.08)' }}
             >
-              <span className="inline-flex items-center gap-1.5"><X size={14} /> Effacer</span>
+              <span className="inline-flex items-center gap-1.5">
+                <X size={14} /> Effacer
+              </span>
             </button>
           )}
         </div>
@@ -140,10 +175,12 @@ const BoatListPage = () => {
 
       {/* ── Main content ── */}
       <div className="container-max section-padding">
-
         {/* Mobile filters panel */}
         {showFilters && (
-          <div className="lg:hidden mb-6 p-5 bg-white rounded-2xl" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+          <div
+            className="lg:hidden mb-6 p-5 bg-white rounded-2xl"
+            style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+          >
             <FilterSidebar filters={filters} onChange={setFilters} />
           </div>
         )}
@@ -151,7 +188,10 @@ const BoatListPage = () => {
         <div className="flex gap-8">
           {/* Desktop sidebar */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl p-5 sticky" style={{ top: 140, boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+            <div
+              className="bg-white rounded-2xl p-5 sticky"
+              style={{ top: 140, boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+            >
               <FilterSidebar filters={filters} onChange={setFilters} />
             </div>
           </div>
@@ -163,8 +203,12 @@ const BoatListPage = () => {
             ) : boats.length === 0 ? (
               <div className="text-center py-20">
                 <Sailboat size={48} className="mx-auto mb-4" color="#00C6E0" />
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>Aucun résultat</h3>
-                <p className="text-sm" style={{ color: '#8896A8' }}>Essayez de modifier vos critères de recherche.</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>
+                  Aucun résultat
+                </h3>
+                <p className="text-sm" style={{ color: '#8896A8' }}>
+                  Essayez de modifier vos critères de recherche.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

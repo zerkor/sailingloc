@@ -14,13 +14,22 @@ const registerRules = [
   body('password').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caracteres'),
   body('phone').optional({ checkFalsy: true }).trim().isLength({ max: 30 }),
   body('role').optional().isIn(['tenant', 'owner']).withMessage('Role invalide'),
-  body('privacyConsent').custom(value => value === true || value === 'true').withMessage('Le consentement RGPD est requis'),
+  body('privacyConsent')
+    .custom((value) => value === true || value === 'true')
+    .withMessage('Le consentement RGPD est requis'),
   body('marketingConsent').optional().isBoolean().withMessage('Consentement marketing invalide'),
 ];
 
 const loginRules = [
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
   body('password').notEmpty().withMessage('Le mot de passe est requis'),
+];
+
+const forgotPasswordRules = [body('email').isEmail().withMessage('Email invalide').normalizeEmail()];
+
+const resetPasswordRules = [
+  param('token').isHexadecimal().isLength({ min: 64, max: 64 }).withMessage('Token de reinitialisation invalide'),
+  body('password').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caracteres'),
 ];
 
 const buildBoatRules = (isUpdate = false) => {
@@ -34,13 +43,25 @@ const buildBoatRules = (isUpdate = false) => {
     body('port').optional({ checkFalsy: true }).trim().isLength({ max: 120 }),
     required('pricePerDay').isFloat({ min: 1 }).withMessage('Le prix par jour doit etre positif'),
     required('capacity').isInt({ min: 1, max: 50 }).withMessage('La capacite doit etre comprise entre 1 et 50'),
-    body('length').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 1 }).withMessage('La longueur doit etre positive'),
+    body('length')
+      .optional({ nullable: true, checkFalsy: true })
+      .isFloat({ min: 1 })
+      .withMessage('La longueur doit etre positive'),
     body('engine').optional({ checkFalsy: true }).trim().isLength({ max: 120 }),
     body('skipperAvailable').optional().isBoolean().withMessage('skipperAvailable doit etre un booleen'),
     body('equipments').optional().isArray().withMessage('Les equipements doivent etre une liste'),
     body('equipments.*').optional().trim().isLength({ max: 80 }),
     body('images').optional().isArray({ max: 8 }).withMessage('Les images doivent etre une liste'),
-    body('images.*').optional({ checkFalsy: true }).isURL({ require_protocol: true }).withMessage('URL image invalide'),
+    body('images.*')
+      .optional({ checkFalsy: true })
+      .custom((value) => {
+        if (value.startsWith('/uploads/')) return true;
+        try {
+          return Boolean(new URL(value).protocol);
+        } catch {
+          throw new Error('URL image invalide');
+        }
+      }),
     body('unavailableDates').optional().isArray().withMessage('Les dates indisponibles doivent etre une liste'),
     body('unavailableDates.*').optional().isISO8601().withMessage('Date indisponible invalide'),
   ];
@@ -59,7 +80,10 @@ const createReviewRules = [
   body('boatId').isMongoId().withMessage('Bateau invalide'),
   body('bookingId').isMongoId().withMessage('Reservation invalide'),
   body('rating').isInt({ min: 1, max: 5 }).withMessage('La note doit etre comprise entre 1 et 5'),
-  body('comment').trim().isLength({ min: 5, max: 2000 }).withMessage('Le commentaire doit contenir entre 5 et 2000 caracteres'),
+  body('comment')
+    .trim()
+    .isLength({ min: 5, max: 2000 })
+    .withMessage('Le commentaire doit contenir entre 5 et 2000 caracteres'),
 ];
 
 const updateProfileRules = [
@@ -80,6 +104,8 @@ module.exports = {
   pagination,
   registerRules,
   loginRules,
+  forgotPasswordRules,
+  resetPasswordRules,
   boatRules,
   updateBoatRules,
   createBookingRules,

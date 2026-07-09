@@ -41,7 +41,7 @@ const BoatGrid = ({ boats = [], loading = false }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {boats.map(boat => (
+      {boats.map((boat) => (
         <BoatCard key={boat._id} boat={boat} />
       ))}
     </div>

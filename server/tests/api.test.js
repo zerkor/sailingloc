@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('crypto');
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -55,39 +56,38 @@ const futureDate = (daysFromNow) => {
   return date.toISOString().split('T')[0];
 };
 
-const createUser = (overrides = {}) => User.create({
-  firstName: overrides.firstName || 'Test',
-  lastName: overrides.lastName || 'User',
-  email: overrides.email || `user-${Date.now()}@sailingloc.test`,
-  password: overrides.password || 'Password123!',
-  role: overrides.role || 'tenant',
-  phone: overrides.phone || '+33600000000',
-});
+const createUser = (overrides = {}) =>
+  User.create({
+    firstName: overrides.firstName || 'Test',
+    lastName: overrides.lastName || 'User',
+    email: overrides.email || `user-${Date.now()}@sailingloc.test`,
+    password: overrides.password || 'Password123!',
+    role: overrides.role || 'tenant',
+    phone: overrides.phone || '+33600000000',
+  });
 
 const loginAs = async (email, password = 'Password123!') => {
-  const response = await request(app)
-    .post('/api/auth/login')
-    .send({ email, password })
-    .expect(200);
+  const response = await request(app).post('/api/auth/login').send({ email, password }).expect(200);
 
   return response.body.token;
 };
 
-const createApprovedBoat = async (ownerId, overrides = {}) => Boat.create({
-  owner: ownerId,
-  title: overrides.title || 'Voilier Test',
-  type: overrides.type || 'sailboat',
-  description: overrides.description || 'Bateau de test suffisamment decrit pour valider les regles.',
-  location: overrides.location || 'Marseille',
-  port: overrides.port || 'Vieux-Port',
-  pricePerDay: overrides.pricePerDay || 250,
-  capacity: overrides.capacity || 6,
-  skipperAvailable: overrides.skipperAvailable || false,
-  equipments: overrides.equipments || ['GPS'],
-  images: overrides.images || ['https://example.com/boat.jpg'],
-  unavailableDates: overrides.unavailableDates || [],
-  status: overrides.status || 'approved',
-});
+const createApprovedBoat = async (ownerId, overrides = {}) =>
+  Boat.create({
+    owner: ownerId,
+    title: overrides.title || 'Voilier Test',
+    type: overrides.type || 'sailboat',
+    description: overrides.description || 'Bateau de test suffisamment decrit pour valider les regles.',
+    location: overrides.location || 'Marseille',
+    port: overrides.port || 'Vieux-Port',
+    pricePerDay: overrides.pricePerDay || 250,
+    capacity: overrides.capacity || 6,
+    skipperAvailable: overrides.skipperAvailable || false,
+    equipments: overrides.equipments || ['GPS'],
+    images: overrides.images || ['https://example.com/boat.jpg'],
+    unavailableDates: overrides.unavailableDates || [],
+    status: overrides.status || 'approved',
+  });
 
 test('Auth API: registers, logs in and returns the connected profile', async () => {
   const registerResponse = await request(app)
@@ -107,13 +107,51 @@ test('Auth API: registers, logs in and returns the connected profile', async () 
 
   const token = await loginAs('alice@sailingloc.test');
 
-  const profileResponse = await request(app)
-    .get('/api/auth/me')
-    .set('Authorization', `Bearer ${token}`)
-    .expect(200);
+  const profileResponse = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`).expect(200);
 
   assert.equal(profileResponse.body.email, 'alice@sailingloc.test');
   assert.equal(profileResponse.body.password, undefined);
+});
+
+test('Auth API: sends a reset token and updates the password through the reset flow', async () => {
+  const user = await createUser({ email: 'reset@sailingloc.test', password: 'OldPassword123!' });
+  const fixedTokenBuffer = Buffer.alloc(32, 1);
+  const fixedToken = fixedTokenBuffer.toString('hex');
+  const originalRandomBytes = crypto.randomBytes;
+  crypto.randomBytes = () => fixedTokenBuffer;
+
+  try {
+    const forgotResponse = await request(app).post('/api/auth/forgot-password').send({ email: user.email }).expect(200);
+
+    assert.match(forgotResponse.body.message, /reinitialisation/);
+  } finally {
+    crypto.randomBytes = originalRandomBytes;
+  }
+
+  const userWithToken = await User.findById(user._id).select('+passwordResetToken +passwordResetExpires');
+  assert.ok(userWithToken.passwordResetToken);
+  assert.ok(userWithToken.passwordResetExpires > new Date());
+  assert.notEqual(userWithToken.passwordResetToken, fixedToken);
+
+  await request(app).post(`/api/auth/reset-password/${fixedToken}`).send({ password: 'NewPassword123!' }).expect(200);
+
+  await request(app).post('/api/auth/login').send({ email: user.email, password: 'OldPassword123!' }).expect(401);
+
+  await request(app).post('/api/auth/login').send({ email: user.email, password: 'NewPassword123!' }).expect(200);
+
+  const userAfterReset = await User.findById(user._id).select('+passwordResetToken +passwordResetExpires');
+  assert.equal(userAfterReset.passwordResetToken, undefined);
+  assert.equal(userAfterReset.passwordResetExpires, undefined);
+});
+
+test('Auth API: rejects expired password reset tokens', async () => {
+  const user = await createUser({ email: 'expired-reset@sailingloc.test' });
+  const expiredToken = 'a'.repeat(64);
+  user.passwordResetToken = crypto.createHash('sha256').update(expiredToken).digest('hex');
+  user.passwordResetExpires = new Date(Date.now() - 60 * 1000);
+  await user.save({ validateBeforeSave: false });
+
+  await request(app).post(`/api/auth/reset-password/${expiredToken}`).send({ password: 'NewPassword123!' }).expect(400);
 });
 
 test('Boats API: owner creates a pending boat and admin approves it for public listing', async () => {
@@ -219,8 +257,8 @@ test('Bookings API: creates, accepts, pays and completes a booking while blockin
   assert.equal(payment.amount, 825);
 
   const ownerNotifications = await Notification.find({ user: owner._id });
-  assert.ok(ownerNotifications.some(notification => notification.type === 'booking_created'));
-  assert.ok(ownerNotifications.some(notification => notification.type === 'booking_paid'));
+  assert.ok(ownerNotifications.some((notification) => notification.type === 'booking_created'));
+  assert.ok(ownerNotifications.some((notification) => notification.type === 'booking_paid'));
 
   const completed = await request(app)
     .patch(`/api/bookings/${bookingResponse.body._id}/complete`)
@@ -320,9 +358,7 @@ test('Reviews API: tenant reviews a completed booking and admin approves the rev
 
   assert.equal(reviewResponse.body.status, 'pending');
 
-  const hiddenReviews = await request(app)
-    .get(`/api/boats/${boat._id}/reviews`)
-    .expect(200);
+  const hiddenReviews = await request(app).get(`/api/boats/${boat._id}/reviews`).expect(200);
   assert.equal(hiddenReviews.body.length, 0);
 
   await request(app)
@@ -330,9 +366,7 @@ test('Reviews API: tenant reviews a completed booking and admin approves the rev
     .set('Authorization', `Bearer ${adminToken}`)
     .expect(200);
 
-  const visibleReviews = await request(app)
-    .get(`/api/boats/${boat._id}/reviews`)
-    .expect(200);
+  const visibleReviews = await request(app).get(`/api/boats/${boat._id}/reviews`).expect(200);
 
   assert.equal(visibleReviews.body.length, 1);
   assert.equal(visibleReviews.body[0].rating, 5);

@@ -8,7 +8,10 @@ const getMyNotifications = asyncHandler(async (req, res) => {
 
 const markNotificationRead = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({ _id: req.params.id, user: req.user._id });
-  if (!notification) { res.status(404); throw new Error('Notification not found'); }
+  if (!notification) {
+    res.status(404);
+    throw new Error('Notification not found');
+  }
   notification.readAt = new Date();
   await notification.save();
   res.json(notification);

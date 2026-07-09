@@ -9,7 +9,10 @@ const createDocument = asyncHandler(async (req, res) => {
   const { boatId, type, title, fileUrl } = req.body;
   if (boatId) {
     const boat = await Boat.findOne({ _id: boatId, owner: req.user._id });
-    if (!boat) { res.status(404); throw new Error('Boat not found'); }
+    if (!boat) {
+      res.status(404);
+      throw new Error('Boat not found');
+    }
   }
   const document = await OwnerDocument.create({
     owner: req.user._id,
@@ -50,7 +53,10 @@ const getAdminDocuments = asyncHandler(async (req, res) => {
 
 const reviewDocument = asyncHandler(async (req, res) => {
   const document = await OwnerDocument.findById(req.params.id);
-  if (!document) { res.status(404); throw new Error('Document not found'); }
+  if (!document) {
+    res.status(404);
+    throw new Error('Document not found');
+  }
   const { status, rejectionReason } = req.body;
   if (!['approved', 'rejected'].includes(status)) {
     res.status(400);

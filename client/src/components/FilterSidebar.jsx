@@ -15,16 +15,13 @@ const FilterSidebar = ({ filters, onChange }) => {
     onChange(reset);
   };
 
-  const labelClass = "block text-xs font-bold uppercase tracking-wider mb-2";
+  const labelClass = 'block text-xs font-bold uppercase tracking-wider mb-2';
   const labelStyle = { color: '#3D4D61' };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2
-          className="font-bold text-lg"
-          style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-        >
+        <h2 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
           Filtres
         </h2>
         <button
@@ -39,22 +36,26 @@ const FilterSidebar = ({ filters, onChange }) => {
       <div className="space-y-5">
         {/* Location */}
         <div>
-          <label className={labelClass} style={labelStyle}>Destination</label>
+          <label className={labelClass} style={labelStyle}>
+            Destination
+          </label>
           <input
             type="text"
             placeholder="Ville ou port…"
             value={localFilters.location || ''}
-            onChange={e => handleChange('location', e.target.value)}
+            onChange={(e) => handleChange('location', e.target.value)}
             className="input-field text-sm"
           />
         </div>
 
         {/* Type */}
         <div>
-          <label className={labelClass} style={labelStyle}>Type de bateau</label>
+          <label className={labelClass} style={labelStyle}>
+            Type de bateau
+          </label>
           <select
             value={localFilters.type || ''}
-            onChange={e => handleChange('type', e.target.value)}
+            onChange={(e) => handleChange('type', e.target.value)}
             className="input-field text-sm"
           >
             <option value="">Tous les types</option>
@@ -67,13 +68,15 @@ const FilterSidebar = ({ filters, onChange }) => {
 
         {/* Price */}
         <div>
-          <label className={labelClass} style={labelStyle}>Prix par jour (€)</label>
+          <label className={labelClass} style={labelStyle}>
+            Prix par jour (€)
+          </label>
           <div className="flex gap-2">
             <input
               type="number"
               placeholder="Min"
               value={localFilters.minPrice || ''}
-              onChange={e => handleChange('minPrice', e.target.value)}
+              onChange={(e) => handleChange('minPrice', e.target.value)}
               className="input-field text-sm"
               min="0"
             />
@@ -81,7 +84,7 @@ const FilterSidebar = ({ filters, onChange }) => {
               type="number"
               placeholder="Max"
               value={localFilters.maxPrice || ''}
-              onChange={e => handleChange('maxPrice', e.target.value)}
+              onChange={(e) => handleChange('maxPrice', e.target.value)}
               className="input-field text-sm"
               min="0"
             />
@@ -90,12 +93,14 @@ const FilterSidebar = ({ filters, onChange }) => {
 
         {/* Capacity */}
         <div>
-          <label className={labelClass} style={labelStyle}>Capacité (pers.)</label>
+          <label className={labelClass} style={labelStyle}>
+            Capacité (pers.)
+          </label>
           <input
             type="number"
             placeholder="Minimum"
             value={localFilters.capacity || ''}
-            onChange={e => handleChange('capacity', e.target.value)}
+            onChange={(e) => handleChange('capacity', e.target.value)}
             className="input-field text-sm"
             min="1"
           />
@@ -104,20 +109,23 @@ const FilterSidebar = ({ filters, onChange }) => {
         {/* Skipper */}
         <label
           className="flex items-center gap-3 cursor-pointer p-3 rounded-xl transition-all"
-          style={localFilters.skipperAvailable
-            ? { background: 'rgba(0,198,224,0.1)', border: '1.5px solid rgba(0,198,224,0.3)' }
-            : { background: '#EDF1F5', border: '1.5px solid transparent' }
+          style={
+            localFilters.skipperAvailable
+              ? { background: 'rgba(0,198,224,0.1)', border: '1.5px solid rgba(0,198,224,0.3)' }
+              : { background: '#EDF1F5', border: '1.5px solid transparent' }
           }
         >
           <input
             id="skipper"
             type="checkbox"
             checked={localFilters.skipperAvailable || false}
-            onChange={e => handleChange('skipperAvailable', e.target.checked)}
+            onChange={(e) => handleChange('skipperAvailable', e.target.checked)}
             className="w-4 h-4 rounded"
             style={{ accentColor: '#00C6E0' }}
           />
-          <span className="text-sm font-medium" style={{ color: '#07192E' }}>Skipper disponible</span>
+          <span className="text-sm font-medium" style={{ color: '#07192E' }}>
+            Skipper disponible
+          </span>
         </label>
       </div>
     </div>

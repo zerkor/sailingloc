@@ -13,6 +13,8 @@ const userSchema = new mongoose.Schema(
     privacyConsent: { type: Boolean, default: false },
     privacyConsentAt: Date,
     marketingConsent: { type: Boolean, default: false },
+    passwordResetToken: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
     anonymizedAt: Date,
   },
   { timestamps: true }

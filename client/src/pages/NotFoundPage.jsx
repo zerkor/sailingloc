@@ -8,7 +8,9 @@ const NotFoundPage = () => (
     <p className="text-gray-500 mb-8 max-w-md">
       Cette page a dérivé en haute mer... Retournez à l'accueil pour continuer votre navigation.
     </p>
-    <Link to="/" className="btn-primary">Retour à l'accueil</Link>
+    <Link to="/" className="btn-primary">
+      Retour à l'accueil
+    </Link>
   </div>
 );
 

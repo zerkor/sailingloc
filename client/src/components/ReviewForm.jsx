@@ -56,7 +56,9 @@ const ReviewForm = ({ boatId, bookingId, onSuccess }) => {
         </div>
       </div>
       <div>
-        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+          Commentaire
+        </label>
         <textarea
           id="comment"
           rows={3}

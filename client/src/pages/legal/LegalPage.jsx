@@ -23,7 +23,7 @@ L'ensemble des contenus présents sur ce site (textes, images, logos) est proté
     `,
   },
   cgu: {
-    title: 'Conditions Générales d\'Utilisation (CGU)',
+    title: "Conditions Générales d'Utilisation (CGU)",
     body: `
 ## 1. Objet
 
@@ -131,28 +131,49 @@ const LegalPage = () => {
     return (
       <div className="container-max section-padding text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Page introuvable</h1>
-        <Link to="/" className="btn-primary">Retour à l'accueil</Link>
+        <Link to="/" className="btn-primary">
+          Retour à l'accueil
+        </Link>
       </div>
     );
   }
 
   const renderContent = (text) => {
     return text.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="text-xl font-bold text-gray-900 mt-6 mb-2">{line.slice(3)}</h2>;
-      if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="font-semibold text-gray-800">{line.slice(2, -2)}</p>;
-      if (line.startsWith('- ')) return <li key={i} className="ml-4 text-gray-600">{line.slice(2)}</li>;
+      if (line.startsWith('## '))
+        return (
+          <h2 key={i} className="text-xl font-bold text-gray-900 mt-6 mb-2">
+            {line.slice(3)}
+          </h2>
+        );
+      if (line.startsWith('**') && line.endsWith('**'))
+        return (
+          <p key={i} className="font-semibold text-gray-800">
+            {line.slice(2, -2)}
+          </p>
+        );
+      if (line.startsWith('- '))
+        return (
+          <li key={i} className="ml-4 text-gray-600">
+            {line.slice(2)}
+          </li>
+        );
       if (line.trim() === '') return <br key={i} />;
-      return <p key={i} className="text-gray-600 leading-relaxed">{line}</p>;
+      return (
+        <p key={i} className="text-gray-600 leading-relaxed">
+          {line}
+        </p>
+      );
     });
   };
 
   return (
     <div className="container-max section-padding max-w-3xl">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-navy-600 hover:underline text-sm"><ArrowLeft size={14} /> Retour a l'accueil</Link>
+      <Link to="/" className="inline-flex items-center gap-1.5 text-navy-600 hover:underline text-sm">
+        <ArrowLeft size={14} /> Retour a l'accueil
+      </Link>
       <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-8">{page.title}</h1>
-      <div className="prose max-w-none space-y-1">
-        {renderContent(page.body)}
-      </div>
+      <div className="prose max-w-none space-y-1">{renderContent(page.body)}</div>
     </div>
   );
 };

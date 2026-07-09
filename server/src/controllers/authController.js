@@ -1,10 +1,16 @@
 const asyncHandler = require('../utils/asyncHandler');
+const crypto = require('crypto');
 const User = require('../models/User');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const Payment = require('../models/Payment');
 const OwnerDocument = require('../models/OwnerDocument');
 const generateToken = require('../utils/generateToken');
+const { sendPasswordResetEmail } = require('../utils/mailService');
+
+const RESET_TOKEN_TTL_MINUTES = 30;
+
+const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 const register = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password, phone, role, privacyConsent, marketingConsent } = req.body;
@@ -54,6 +60,58 @@ const logout = asyncHandler(async (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
+const forgotPassword = asyncHandler(async (req, res) => {
+  const genericResponse = {
+    message: 'Si un compte existe pour cet email, un lien de reinitialisation sera envoye.',
+  };
+  const user = await User.findOne({ email: req.body.email }).select('+passwordResetToken +passwordResetExpires');
+
+  if (!user || !user.isActive) {
+    return res.json(genericResponse);
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.passwordResetToken = hashResetToken(resetToken);
+  user.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+  await user.save({ validateBeforeSave: false });
+
+  const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+  const resetUrl = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
+
+  try {
+    await sendPasswordResetEmail({ to: user.email, firstName: user.firstName, resetUrl });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    res.status(500);
+    throw new Error(`Impossible d envoyer l email de reinitialisation: ${error.message}`);
+  }
+
+  res.json(genericResponse);
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const tokenHash = hashResetToken(req.params.token);
+  const user = await User.findOne({
+    passwordResetToken: tokenHash,
+    passwordResetExpires: { $gt: new Date() },
+    isActive: true,
+  }).select('+passwordResetToken +passwordResetExpires');
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Lien de reinitialisation invalide ou expire');
+  }
+
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Mot de passe reinitialise avec succes' });
+});
+
 const exportMyData = asyncHandler(async (req, res) => {
   const [bookingsAsTenant, bookingsAsOwner, reviews, payments, documents] = await Promise.all([
     Booking.find({ tenant: req.user._id }).lean(),
@@ -76,7 +134,10 @@ const exportMyData = asyncHandler(async (req, res) => {
 
 const anonymizeMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) { res.status(404); throw new Error('User not found'); }
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
   const suffix = user._id.toString().slice(-8);
   user.firstName = 'Utilisateur';
   user.lastName = 'Anonymise';
@@ -90,4 +151,4 @@ const anonymizeMe = asyncHandler(async (req, res) => {
   res.json({ message: 'Account anonymized', anonymizedAt: user.anonymizedAt });
 });
 
-module.exports = { register, login, getMe, logout, exportMyData, anonymizeMe };
+module.exports = { register, login, getMe, logout, forgotPassword, resetPassword, exportMyData, anonymizeMe };

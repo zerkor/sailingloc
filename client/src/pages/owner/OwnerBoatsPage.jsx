@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock3, MapPin, Plus, Sailboat } from 'lucide-react';
 import { getOwnerBoats, deleteBoat } from '../../services/boatService';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
 import { formatPrice } from '../../utils/formatPrice';
+import { useUiFeedback } from '../../components/ToastProvider';
 
 const OwnerBoatsPage = () => {
-  const [boats,   setBoats]   = useState([]);
+  const { toast, requestApproval } = useUiFeedback();
+  const [boats, setBoats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBoats = async () => {
@@ -21,19 +23,29 @@ const OwnerBoatsPage = () => {
     }
   };
 
-  useEffect(() => { fetchBoats(); }, []);
+  useEffect(() => {
+    fetchBoats();
+  }, []);
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer ce bateau ? Cette action est irréversible.')) return;
+    if (
+      !(await requestApproval('Supprimer ce bateau ? Cette action est irréversible.', {
+        title: 'Supprimer le bateau',
+        variant: 'danger',
+        confirmLabel: 'Supprimer',
+      }))
+    )
+      return;
     try {
       await deleteBoat(id);
       fetchBoats();
+      toast('Bateau supprimé.', 'success');
     } catch (err) {
-      alert(err.response?.data?.message || 'Erreur lors de la suppression.');
+      toast(err.response?.data?.message || 'Erreur lors de la suppression.', 'error');
     }
   };
 
-  if (loading) return <LoadingSpinner text="Chargement de vos bateaux…" />;
+  if (loading) return <LoadingSpinner text="Chargement de vos bateaux..." />;
 
   return (
     <div className="space-y-6">
@@ -54,13 +66,19 @@ const OwnerBoatsPage = () => {
       {boats.length === 0 ? (
         <div className="text-center py-20">
           <Sailboat size={48} className="mx-auto mb-4" color="#00C6E0" />
-          <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>Aucun bateau</h3>
-          <p className="text-sm mb-6" style={{ color: '#8896A8' }}>Ajoutez votre premier bateau pour commencer à louer.</p>
-          <Link to="/owner/boats/new" className="btn-ocean">Ajouter un bateau</Link>
+          <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>
+            Aucun bateau
+          </h3>
+          <p className="text-sm mb-6" style={{ color: '#8896A8' }}>
+            Ajoutez votre premier bateau pour commencer à louer.
+          </p>
+          <Link to="/owner/boats/new" className="btn-ocean">
+            Ajouter un bateau
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">
-          {boats.map(boat => (
+          {boats.map((boat) => (
             <div
               key={boat._id}
               className="bg-white rounded-2xl p-5 flex flex-col sm:flex-row gap-5"
@@ -72,14 +90,19 @@ const OwnerBoatsPage = () => {
                   src={boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=200'}
                   alt={boat.title}
                   className="w-full h-full object-cover"
-                  onError={e => { e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=200'; }}
+                  onError={(e) => {
+                    e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=200';
+                  }}
                 />
               </div>
 
               {/* Content */}
               <div className="flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
+                  <h3
+                    className="font-bold text-lg"
+                    style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
+                  >
                     {boat.title}
                   </h3>
                   <StatusBadge status={boat.status} />
@@ -89,11 +112,17 @@ const OwnerBoatsPage = () => {
                   <MapPin size={14} /> {boat.location}
                 </p>
                 <p className="font-bold text-base mb-4" style={{ color: '#07192E' }}>
-                  {formatPrice(boat.pricePerDay)}<span className="font-normal text-sm" style={{ color: '#8896A8' }}>/jour</span>
+                  {formatPrice(boat.pricePerDay)}
+                  <span className="font-normal text-sm" style={{ color: '#8896A8' }}>
+                    /jour
+                  </span>
                 </p>
 
                 {boat.status === 'pending' && (
-                  <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-2 rounded-xl text-xs font-medium" style={{ background: 'rgba(234,179,8,0.1)', color: '#854d0e' }}>
+                  <div
+                    className="inline-flex items-center gap-1.5 mb-3 px-3 py-2 rounded-xl text-xs font-medium"
+                    style={{ background: 'rgba(234,179,8,0.1)', color: '#854d0e' }}
+                  >
                     <Clock3 size={13} /> En attente d'approbation par l'administrateur
                   </div>
                 )}

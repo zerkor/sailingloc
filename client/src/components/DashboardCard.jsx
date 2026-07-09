@@ -1,14 +1,14 @@
 import { createElement, isValidElement } from 'react';
 
 const colorMap = {
-  navy:   { bg: '#07192E', accent: '#00C6E0' },
-  ocean:  { bg: '#155374', accent: '#4DDFF0' },
-  green:  { bg: '#166534', accent: '#86efac' },
+  navy: { bg: '#07192E', accent: '#00C6E0' },
+  ocean: { bg: '#155374', accent: '#4DDFF0' },
+  green: { bg: '#166534', accent: '#86efac' },
   yellow: { bg: '#854d0e', accent: '#fde047' },
   purple: { bg: '#581c87', accent: '#d8b4fe' },
-  red:    { bg: '#991b1b', accent: '#fca5a5' },
-  cyan:   { bg: '#00C6E0', accent: '#07192E' },
-  gold:   { bg: '#C9A84C', accent: '#07192E' },
+  red: { bg: '#991b1b', accent: '#fca5a5' },
+  cyan: { bg: '#00C6E0', accent: '#07192E' },
+  gold: { bg: '#C9A84C', accent: '#07192E' },
 };
 
 const DashboardCard = ({ title, value, icon: Icon, color = 'navy', subtitle = '' }) => {
@@ -34,14 +34,20 @@ const DashboardCard = ({ title, value, icon: Icon, color = 'navy', subtitle = ''
 
       {/* Content */}
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#8896A8' }}>{title}</p>
+        <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#8896A8' }}>
+          {title}
+        </p>
         <p
           className="text-2xl font-bold leading-none"
           style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
         >
           {value}
         </p>
-        {subtitle && <p className="text-xs mt-1" style={{ color: '#8896A8' }}>{subtitle}</p>}
+        {subtitle && (
+          <p className="text-xs mt-1" style={{ color: '#8896A8' }}>
+            {subtitle}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -5,15 +5,18 @@ import { formatPrice } from '../utils/formatPrice';
 import { buildBoatSlug } from '../utils/slugifyBoat';
 
 const typeLabels = {
-  sailboat:   'Voilier',
-  motorboat:  'Moteur',
-  catamaran:  'Catamaran',
-  rib:        'Yacht / Rigid',
+  sailboat: 'Voilier',
+  motorboat: 'Moteur',
+  catamaran: 'Catamaran',
+  rib: 'Yacht / Rigid',
 };
 
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 export const BoatCardSkeleton = () => (
-  <div className="bg-white rounded-2xl overflow-hidden animate-pulse" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.06)' }}>
+  <div
+    className="bg-white rounded-2xl overflow-hidden animate-pulse"
+    style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.06)' }}
+  >
     <div className="bg-gray-200" style={{ height: 220 }} />
     <div className="p-5 space-y-3">
       <div className="h-2.5 bg-gray-200 rounded-full w-1/3" />
@@ -34,13 +37,14 @@ export const BoatCardSkeleton = () => (
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 const BoatCard = ({ boat }) => {
-  const imageUrl    = boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80&auto=format&fit=crop';
-  const rating      = boat.averageRating || 0;
-  const reviewCount = boat.reviewCount   || 0;
-  const features    = boat.features      || [];
-  const visible     = features.slice(0, 3);
-  const extra       = features.length - visible.length;
-  const isVerified  = boat.owner?.verified === true;
+  const imageUrl =
+    boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80&auto=format&fit=crop';
+  const rating = boat.averageRating || 0;
+  const reviewCount = boat.reviewCount || 0;
+  const features = boat.features || [];
+  const visible = features.slice(0, 3);
+  const extra = features.length - visible.length;
+  const isVerified = boat.owner?.verified === true;
 
   const filledStars = Math.round(rating);
 
@@ -49,8 +53,10 @@ const BoatCard = ({ boat }) => {
       to={`/bateaux/${buildBoatSlug(boat)}`}
       className="group block bg-white rounded-2xl overflow-hidden transition-all duration-300"
       style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
-      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,198,224,0.15), 0 8px 24px rgba(7,25,46,0.12)')}
-      onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 24px rgba(7,25,46,0.08)')}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,198,224,0.15), 0 8px 24px rgba(7,25,46,0.12)')
+      }
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 4px 24px rgba(7,25,46,0.08)')}
     >
       {/* ── Image ── */}
       <div className="relative overflow-hidden" style={{ height: 220 }}>
@@ -58,12 +64,17 @@ const BoatCard = ({ boat }) => {
           src={imageUrl}
           alt={boat.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-          onError={e => { e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80'; }}
+          onError={(e) => {
+            e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=600&q=80';
+          }}
           loading="lazy"
         />
 
         {/* Gradient */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(7,25,46,0.65) 0%, transparent 55%)' }} />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, rgba(7,25,46,0.65) 0%, transparent 55%)' }}
+        />
 
         {/* Type badge — top left */}
         <div className="absolute top-3 left-3">
@@ -123,15 +134,27 @@ const BoatCard = ({ boat }) => {
 
         {/* Specs row */}
         <div className="flex items-center gap-3 text-xs mb-3" style={{ color: '#8896A8' }}>
-          {boat.capacity && <span className="inline-flex items-center gap-1"><Users size={13} /> {boat.capacity} pers.</span>}
-          {boat.length && <span className="inline-flex items-center gap-1"><Ruler size={13} /> {boat.length} m</span>}
-          {boat.year && <span className="inline-flex items-center gap-1"><CalendarDays size={13} /> {boat.year}</span>}
+          {boat.capacity && (
+            <span className="inline-flex items-center gap-1">
+              <Users size={13} /> {boat.capacity} pers.
+            </span>
+          )}
+          {boat.length && (
+            <span className="inline-flex items-center gap-1">
+              <Ruler size={13} /> {boat.length} m
+            </span>
+          )}
+          {boat.year && (
+            <span className="inline-flex items-center gap-1">
+              <CalendarDays size={13} /> {boat.year}
+            </span>
+          )}
         </div>
 
         {/* Features */}
         {visible.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {visible.map(f => (
+            {visible.map((f) => (
               <span
                 key={f}
                 className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
@@ -154,13 +177,12 @@ const BoatCard = ({ boat }) => {
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div>
-            <span
-              className="text-xl font-bold"
-              style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-            >
+            <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
               {formatPrice(boat.pricePerDay)}
             </span>
-            <span className="text-sm ml-1" style={{ color: '#8896A8' }}>/jour</span>
+            <span className="text-sm ml-1" style={{ color: '#8896A8' }}>
+              /jour
+            </span>
           </div>
           <span
             className="text-xs font-bold px-4 py-2 rounded-full transition-all duration-200"

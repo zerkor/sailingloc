@@ -52,11 +52,35 @@ const getBoatBySlug = asyncHandler(async (req, res) => {
 });
 
 const createBoat = asyncHandler(async (req, res) => {
-  const { title, type, description, location, port, pricePerDay, capacity, length, engine, skipperAvailable, equipments, images } = req.body;
+  const {
+    title,
+    type,
+    description,
+    location,
+    port,
+    pricePerDay,
+    capacity,
+    length,
+    engine,
+    skipperAvailable,
+    equipments,
+    images,
+  } = req.body;
   const boat = await Boat.create({
     owner: req.user._id,
-    title, type, description, location, port, pricePerDay, capacity, length, engine,
-    skipperAvailable, equipments, images, status: 'pending',
+    title,
+    type,
+    description,
+    location,
+    port,
+    pricePerDay,
+    capacity,
+    length,
+    engine,
+    skipperAvailable,
+    equipments,
+    images,
+    status: 'pending',
   });
   res.status(201).json(boat);
 });
@@ -71,8 +95,24 @@ const updateBoat = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error('Not authorized to update this boat');
   }
-  const fields = ['title', 'type', 'description', 'location', 'port', 'pricePerDay', 'capacity', 'length', 'engine', 'skipperAvailable', 'equipments', 'images', 'unavailableDates'];
-  fields.forEach((f) => { if (req.body[f] !== undefined) boat[f] = req.body[f]; });
+  const fields = [
+    'title',
+    'type',
+    'description',
+    'location',
+    'port',
+    'pricePerDay',
+    'capacity',
+    'length',
+    'engine',
+    'skipperAvailable',
+    'equipments',
+    'images',
+    'unavailableDates',
+  ];
+  fields.forEach((f) => {
+    if (req.body[f] !== undefined) boat[f] = req.body[f];
+  });
   if (boat.status === 'rejected' && req.user.role !== 'admin') boat.status = 'pending';
   const updated = await boat.save();
   res.json(updated);

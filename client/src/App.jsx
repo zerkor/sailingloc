@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
+import { ToastProvider } from './components/ToastProvider';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -17,9 +18,11 @@ import ProductsPage from './pages/ProductsPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import BoatListPage from './pages/boats/BoatListPage';
 import BoatDetailPage from './pages/boats/BoatDetailPage';
 import LegalPage from './pages/legal/LegalPage';
+import MvpLimitationsPage from './pages/MvpLimitationsPage';
 
 // Protected pages
 import ProfilePage from './pages/profile/ProfilePage';
@@ -47,63 +50,83 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/boats" element={<BoatListPage />} />
-            <Route path="/boats/:id" element={<BoatDetailPage />} />
-            <Route path="/bateaux/:slug" element={<BoatDetailPage />} />
-            <Route path="/legal/:slug" element={<LegalPage />} />
+        <ToastProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+              <Route path="/boats" element={<BoatListPage />} />
+              <Route path="/boats/:id" element={<BoatDetailPage />} />
+              <Route path="/bateaux/:slug" element={<BoatDetailPage />} />
+              <Route path="/legal/:slug" element={<LegalPage />} />
+              <Route path="/mvp-limitations" element={<MvpLimitationsPage />} />
 
-            {/* Protected public routes */}
-            <Route path="/profile" element={
-              <ProtectedRoute><ProfilePage /></ProtectedRoute>
-            } />
-            <Route path="/my-bookings" element={
-              <ProtectedRoute><MyBookingsPage /></ProtectedRoute>
-            } />
+              {/* Protected public routes */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-bookings"
+                element={
+                  <ProtectedRoute>
+                    <MyBookingsPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
 
-          {/* Owner routes */}
-          <Route path="/owner" element={
-            <RoleRoute roles={['owner']}>
-              <OwnerLayout />
-            </RoleRoute>
-          }>
-            <Route path="dashboard" element={<OwnerDashboardPage />} />
-            <Route path="boats" element={<OwnerBoatsPage />} />
-            <Route path="boats/new" element={<OwnerBoatFormPage />} />
-            <Route path="boats/:id/edit" element={<OwnerBoatFormPage />} />
-            <Route path="bookings" element={<OwnerBookingsPage />} />
-            <Route path="documents" element={<OwnerDocumentsPage />} />
-          </Route>
+            {/* Owner routes */}
+            <Route
+              path="/owner"
+              element={
+                <RoleRoute roles={['owner']}>
+                  <OwnerLayout />
+                </RoleRoute>
+              }
+            >
+              <Route path="dashboard" element={<OwnerDashboardPage />} />
+              <Route path="boats" element={<OwnerBoatsPage />} />
+              <Route path="boats/new" element={<OwnerBoatFormPage />} />
+              <Route path="boats/:id/edit" element={<OwnerBoatFormPage />} />
+              <Route path="bookings" element={<OwnerBookingsPage />} />
+              <Route path="documents" element={<OwnerDocumentsPage />} />
+            </Route>
 
-          {/* Admin routes */}
-          <Route path="/admin" element={
-            <RoleRoute roles={['admin']}>
-              <AdminLayout />
-            </RoleRoute>
-          }>
-            <Route path="dashboard" element={<AdminDashboardPage />} />
-            <Route path="users" element={<AdminUsersPage />} />
-            <Route path="boats" element={<AdminBoatsPage />} />
-            <Route path="bookings" element={<AdminBookingsPage />} />
-            <Route path="reviews" element={<AdminReviewsPage />} />
-            <Route path="documents" element={<AdminDocumentsPage />} />
-            <Route path="payments" element={<AdminPaymentsPage />} />
-            <Route path="reports" element={<AdminReportsPage />} />
-            <Route path="action-logs" element={<AdminActionLogsPage />} />
-          </Route>
-        </Routes>
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <RoleRoute roles={['admin']}>
+                  <AdminLayout />
+                </RoleRoute>
+              }
+            >
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="boats" element={<AdminBoatsPage />} />
+              <Route path="bookings" element={<AdminBookingsPage />} />
+              <Route path="reviews" element={<AdminReviewsPage />} />
+              <Route path="documents" element={<AdminDocumentsPage />} />
+              <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="reports" element={<AdminReportsPage />} />
+              <Route path="action-logs" element={<AdminActionLogsPage />} />
+            </Route>
+          </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

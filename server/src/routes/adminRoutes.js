@@ -1,11 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getStats, getUsers, updateUser, disableUser,
-  getAdminBoats, approveBoat, rejectBoat, deleteBoat,
-  getAdminBookings, cancelAdminBooking, completeAdminBooking,
-  getReviews, approveReview, hideReview, deleteReview,
-  getAdminPayments, refundPayment, getActionLogs,
+  getStats,
+  getUsers,
+  updateUser,
+  disableUser,
+  getAdminBoats,
+  approveBoat,
+  rejectBoat,
+  deleteBoat,
+  getAdminBookings,
+  cancelAdminBooking,
+  completeAdminBooking,
+  getReviews,
+  approveReview,
+  hideReview,
+  deleteReview,
+  getAdminPayments,
+  refundPayment,
+  getActionLogs,
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');

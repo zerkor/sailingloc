@@ -1,289 +1,23 @@
-# SailingLoc ⚓
+# SailingLoc
 
-**Plateforme de location de bateaux entre particuliers**
+Plateforme full-stack de location de bateaux entre particuliers, avec espaces visiteur, locataire, propriétaire et administrateur.
 
-SailingLoc est une application web full-stack permettant aux propriétaires de bateaux de publier des annonces de location, et aux locataires de rechercher, réserver et évaluer des bateaux. La plateforme inclut un back-office d'administration complet.
+## Fonctionnalités
 
-## Dernières améliorations admin et navigation
+- Catalogue public avec filtres, fiches bateaux et avis.
+- Mot de passe oublie avec token hashe en base et envoi SMTP configurable.
+- Authentification JWT avec rôles `tenant`, `owner`, `admin`.
+- Réservations, acceptation propriétaire et paiement simulé.
+- Back-office admin : utilisateurs, bateaux, réservations, avis, documents, paiements, signalements, journal d actions.
+- Upload local réel pour images de bateaux et documents propriétaire.
+- Swagger/OpenAPI, tests API, E2E Playwright, Docker, CI GitHub Actions.
 
-- Navbar publique enrichie : Accueil, Bateaux, Catégories, Produits, Contact.
-- Nouvelles pages publiques : `/categories`, `/products`, `/contact`.
-- Back-office enrichi : `/admin/documents`, `/admin/payments`, `/admin/reports`, `/admin/action-logs`.
-- Protection admin : impossible de désactiver ou rétrograder son propre compte admin, et impossible de supprimer le dernier admin actif.
-- Remboursement admin cohérent : la réservation et le paiement associé passent ensemble en statut remboursé.
-- Journal admin : validation/rejet, rôles, désactivation, remboursements et signalements sont tracés.
-- Pagination ajoutée aux listes admin principales.
-- Les dashboards affichent une erreur visible si l'API échoue, sans faux chiffres silencieux.
-
----
-
-## Fonctionnalités principales
-
-### Pour les visiteurs
-- Parcourir les bateaux disponibles
-- Filtrer par destination, type, prix, capacité, skipper
-- Consulter les fiches bateaux avec avis
-
-### Pour les locataires
-- Créer un compte et se connecter
-- Réserver un bateau avec calcul automatique du prix
-- Simuler un paiement sécurisé
-- Consulter l'historique des réservations
-- Laisser un avis après une location terminée
-
-### Pour les propriétaires
-- Publier des annonces de bateaux (soumises à validation admin)
-- Gérer les demandes de réservation (accepter/refuser)
-- Consulter les revenus simulés
-- Tableau de bord propriétaire
-
-### Pour l'administrateur
-- Tableau de bord avec statistiques globales
-- Gestion des utilisateurs (activation/désactivation)
-- Modération des annonces (approbation/rejet)
-- Gestion des réservations
-- Modération des avis
-
----
-
-## Stack technique
-
-| Composant | Technologie |
-|-----------|-------------|
-| Front-end | React 18, Vite, Tailwind CSS, React Router v6 |
-| État auth | Context API + JWT (localStorage) |
-| HTTP | Axios |
-| Back-end | Node.js, Express.js |
-| Base de données | MongoDB, Mongoose |
-| Auth | JWT + bcrypt |
-| Sécurité | Helmet, CORS, express-rate-limit |
-| Paiement | Simulé (Stripe-ready) |
-
----
-
-## Structure du projet
-
-```
-sailingloc/
-├── client/          # Front-end React + Vite
-│   └── src/
-│       ├── components/    # Composants réutilisables
-│       ├── context/       # AuthContext
-│       ├── layouts/       # PublicLayout, OwnerLayout, AdminLayout
-│       ├── pages/         # Pages par domaine
-│       ├── services/      # Appels API Axios
-│       └── utils/         # Formatage dates, prix, calculs
-├── server/          # Back-end Express
-│   └── src/
-│       ├── config/        # Connexion MongoDB
-│       ├── controllers/   # Logique métier
-│       ├── middleware/     # Auth, rôles, erreurs
-│       ├── models/        # Modèles Mongoose
-│       ├── routes/        # Routes Express
-│       ├── seed/          # Données de démonstration
-│       └── utils/         # Helpers
-├── .env.example
-├── README.md
-└── TESTS.md
-```
-
----
-
-## Installation — Windows
-
-### Prérequis
-
-Installe ces outils dans l'ordre :
-
-#### 1. Node.js
-- Télécharge sur **https://nodejs.org** (version LTS recommandée)
-- Lors de l'installation, coche **"Add to PATH"**
-- Vérifie dans un terminal :
-```cmd
-node -v
-npm -v
-```
-
-#### 2. MongoDB Community Server
-- Télécharge sur **https://www.mongodb.com/try/download/community**
-- Choisis **Windows**, version **7.x**, package **MSI**
-- Lance l'installeur → coche **"Install MongoDB as a Service"** → ça démarre automatiquement à chaque boot
-- Vérifie que le service tourne :
-```cmd
-sc query MongoDB
-```
-Tu dois voir `STATE : 4 RUNNING`
-
-> Alternatively, télécharge **MongoDB Compass** (interface graphique) depuis le même site.
-
-#### 3. Git (optionnel)
-- Télécharge sur **https://git-scm.com/download/win**
-
----
-
-### Démarrage du projet
-
-Ouvre **deux fenêtres PowerShell** (ou deux terminaux dans VS Code avec le bouton `+`).
-
-#### Terminal 1 — Serveur
-
-```powershell
-cd C:\chemin\vers\sailingloc\server
-```
-
-Si c'est la première fois :
-```powershell
-npm install
-```
-
-Crée le fichier `.env` :
-```powershell
-copy ..\\.env.example .env
-```
-Ou crée manuellement un fichier `.env` dans `server/` avec ce contenu :
-```
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/sailingloc
-JWT_SECRET=change_this_secret
-JWT_EXPIRES_IN=7d
-CLIENT_URL=http://localhost:5173
-NODE_ENV=development
-```
-
-Insère les données de démo :
-```powershell
-npm run seed
-```
-
-Lance le serveur :
-```powershell
-npm run dev
-```
-
-Tu dois voir :
-```
-MongoDB connected ✓
-SailingLoc server running on port 5000
-```
-
----
-
-#### Terminal 2 — Client
-
-```powershell
-cd C:\chemin\vers\sailingloc\client
-```
-
-Si c'est la première fois :
-```powershell
-npm install
-```
-
-Lance le client :
-```powershell
-npm run dev
-```
-
-Tu dois voir :
-```
-VITE ready
-➜  Local: http://localhost:5173/
-```
-
-Ouvre **http://localhost:5173** dans ton navigateur.
-
----
-
-### Problèmes fréquents sur Windows
-
-#### MongoDB ne démarre pas
-```powershell
-# Démarrer le service manuellement
-net start MongoDB
-```
-
-#### "npm n'est pas reconnu"
-→ Réinstalle Node.js et coche bien **"Add to PATH"** pendant l'installation.  
-→ Redémarre PowerShell après l'installation.
-
-#### Erreur EACCES ou permission refusée
-→ Lance PowerShell **en tant qu'administrateur** (clic droit → "Exécuter en tant qu'administrateur").
-
-#### Port 5000 déjà utilisé
-→ Change `PORT=5000` en `PORT=5001` dans le fichier `.env` du serveur.
-
-#### Erreur `MongooseServerSelectionError`
-→ MongoDB n'est pas démarré. Lance :
-```powershell
-net start MongoDB
-```
-
----
-
-## Installation — macOS
-
-### Prérequis
-
-```bash
-# Installe Homebrew si pas déjà fait
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Node.js
-brew install node
-
-# MongoDB
-brew tap mongodb/brew
-brew install mongodb-community
-brew services start mongodb-community
-```
-
-### Démarrage
-
-```bash
-# Terminal 1 — Serveur
-cd ~/Documents/sailingloc/server
-npm install
-cp ../.env.example .env
-npm run seed
-npm run dev
-
-# Terminal 2 — Client
-cd ~/Documents/sailingloc/client
-npm install
-npm run dev
-```
-
----
-
-## Variables d'environnement
-
-Fichier `.env` à créer dans le dossier `server/` :
-
-```env
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/sailingloc
-JWT_SECRET=change_this_secret
-JWT_EXPIRES_IN=7d
-CLIENT_URL=http://localhost:5173
-NODE_ENV=development
-```
-
----
-
-## Comptes de démonstration
-
-Après `npm run seed` :
-
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
-| Admin | admin@sailingloc.fr | Admin123! |
-
-## Lancer le projet en local
+## Quick Start
 
 Terminal backend :
 
 ```powershell
-cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\server
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\tmp\sailingloc-github\server
 npm install
 npm run seed
 npm run dev
@@ -292,133 +26,152 @@ npm run dev
 Terminal frontend :
 
 ```powershell
-cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\client
+cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\tmp\sailingloc-github\client
 npm install
 npm run dev
 ```
 
-Ouvrir ensuite [http://localhost:5173](http://localhost:5173).
+Ouvrir [http://localhost:5173](http://localhost:5173).
 
-## Tests E2E
+## Variables d environnement
 
-Un squelette Playwright est présent dans `client/e2e`.
+Créer `server/.env` :
 
-Installation si Playwright n'est pas encore installé :
-
-```powershell
-cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\client
-npm install -D @playwright/test
-npx playwright install
+```env
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/sailingloc
+JWT_SECRET=change_this_secret
+JWT_EXPIRES_IN=7d
+CLIENT_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
+SERVER_URL=http://localhost:5000
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM="SailingLoc <no-reply@sailingloc.fr>"
+SMTP_SECURE=false
+UPLOAD_DIR=uploads
+MAX_FILE_SIZE_MB=5
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=200
+LOG_LEVEL=debug
 ```
 
-Lancer les tests E2E :
+Pour la production, voir `.env.production.example` et [docs/PRODUCTION.md](docs/PRODUCTION.md).
 
-```powershell
+## Docker
+
+```bash
+docker compose up --build
+docker compose logs -f
+docker compose down
+```
+
+Services inclus : `mongodb`, `server`, `client`. Le client est exposé sur [http://localhost:8080](http://localhost:8080).
+
+## API Swagger
+
+Une fois le serveur lancé :
+
+[http://localhost:5000/api-docs](http://localhost:5000/api-docs)
+
+Healthcheck :
+
+[http://localhost:5000/api/health](http://localhost:5000/api/health)
+
+## Tests
+
+Backend complet :
+
+```bash
+cd server
+npm test
+```
+
+Tests admin critiques :
+
+```bash
+cd server
+npm run test:admin
+```
+
+E2E Playwright :
+
+```bash
+cd client
+npx playwright install
 npm run test:e2e
 ```
 
-Les scénarios couvrent le chargement de l'accueil, les liens navbar, la page login, la connexion admin, le dashboard admin, la page utilisateurs, la liste des bateaux et une page détail.
+Lint et format :
 
-## Demo data
+```bash
+cd server
+npm run lint
+npm run format:check
 
-Le projet contient un seed réaliste pour remplir MongoDB avec des données de démonstration.
-
-Depuis le backend :
-
-```powershell
-cd C:\Users\xxx75012\Documents\Codex\2026-06-20\tu-t\outputs\sailingloc-complete\server
-npm run seed
+cd ../client
+npm run lint
+npm run format:check
 ```
 
-Le seed recrée une base de test complète :
+## CI/CD
 
-- 35 utilisateurs : 1 admin, 14 propriétaires, 20 locataires.
-- 25 bateaux répartis entre voiliers, bateaux à moteur, catamarans et semi-rigides.
-- 60 réservations avec statuts variés : pending, accepted, confirmed, completed, cancelled, rejected.
-- Paiements liés aux réservations : paid, refunded et unpaid.
-- 25 avis, dont certains en attente de modération.
-- Documents propriétaires, signalements et journal admin.
+Le pipeline `.github/workflows/ci.yml` s exécute sur `push` et `pull_request` :
 
-Comptes de démonstration :
+- install serveur/client ;
+- lint si disponible ;
+- format check si disponible ;
+- tests serveur ;
+- build client ;
+- E2E Playwright.
 
-- Admin : `admin@sailingloc.fr` / `Admin123!`
-- Propriétaires : `owner1@sailingloc.fr` à `owner14@sailingloc.fr` / `Owner123!`
-- Locataires : `tenant1@sailingloc.fr` à `tenant20@sailingloc.fr` / `Tenant123!`
+## Uploads
 
-Ce jeu de données permet de tester :
+Endpoints :
 
-- insertion en base MongoDB ;
-- connexion avec chaque rôle ;
-- gestion admin des utilisateurs et changements de rôle ;
-- validation des bateaux ;
-- gestion des réservations et des dates ;
-- supervision des paiements et statistiques budget ;
-- modération des avis ;
-- vérification des documents ;
-- signalements et journal des actions admin.
-| Propriétaire 1 | owner1@sailingloc.fr | Owner123! |
-| Propriétaire 2 | owner2@sailingloc.fr | Owner123! |
-| Locataire 1 | tenant1@sailingloc.fr | Tenant123! |
-| Locataire 2 | tenant2@sailingloc.fr | Tenant123! |
-| Locataire 3 | tenant3@sailingloc.fr | Tenant123! |
+- `POST /api/uploads/boat-images`
+- `POST /api/uploads/documents`
 
----
+Les fichiers sont servis depuis `/uploads`. Pour une vraie production, remplacer le stockage local par un stockage objet cloud.
 
-## Aperçu de l'API
+## Documentation
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| POST | /api/auth/register | Inscription |
-| POST | /api/auth/login | Connexion |
-| GET | /api/auth/me | Profil connecté |
-| GET | /api/boats | Liste des bateaux approuvés |
-| GET | /api/boats/:id | Détail d'un bateau |
-| POST | /api/boats | Créer une annonce (owner) |
-| POST | /api/bookings | Créer une réservation (tenant) |
-| GET | /api/bookings/me | Réservations du locataire |
-| GET | /api/bookings/owner | Réservations du propriétaire |
-| PATCH | /api/bookings/:id/pay | Simuler le paiement |
-| POST | /api/reviews | Soumettre un avis |
-| GET | /api/admin/stats | Statistiques admin |
-| PATCH | /api/admin/boats/:id/approve | Approuver un bateau |
+- [Architecture](docs/ARCHITECTURE.md)
+- [Production](docs/PRODUCTION.md)
+- [Logging et monitoring](docs/LOGGING_MONITORING.md)
+- [Backup MongoDB](docs/BACKUP_STRATEGY.md)
+- [Tests](TESTS.md)
 
----
+## Comptes de démonstration
 
-## Workflow de réservation
+Après `npm run seed` :
 
+| Rôle | Email | Mot de passe |
+| --- | --- | --- |
+| Admin | `admin@sailingloc.fr` | `Admin123!` |
+| Propriétaire | `owner1@sailingloc.fr` à `owner14@sailingloc.fr` | `Owner123!` |
+| Locataire | `tenant1@sailingloc.fr` à `tenant20@sailingloc.fr` | `Tenant123!` |
+
+## Limites MVP
+
+La page `/mvp-limitations` clarifie les limites pour la soutenance :
+
+- paiement simulé ;
+- envoi SMTP actif uniquement si les variables SMTP sont configurées ;
+- upload local à remplacer par du cloud en production ;
+- vérification documentaire manuelle ;
+- pas encore de messagerie temps réel, application mobile, assurance partenaire ni arbitrage complet.
+
+## Backup MongoDB
+
+Documentation : [docs/BACKUP_STRATEGY.md](docs/BACKUP_STRATEGY.md)
+
+Scripts :
+
+```bash
+scripts/backup-mongo.sh
+scripts/restore-mongo.sh backups/sailingloc-YYYYMMDD/sailingloc
 ```
-pending → accepted → confirmed → completed
-         ↓
-       rejected
-pending/accepted → cancelled
-```
-
-**Paiement simulé** : `PATCH /api/bookings/:id/pay` fait passer le statut de `accepted` à `confirmed` et `paymentStatus` à `paid`.
-
----
-
-## Limitations MVP
-
-- Pas de vrai paiement Stripe (simulé)
-- Pas de système de messagerie interne
-- Pas d'upload d'images (URLs externes uniquement)
-- Pas d'email de notification
-- Pas de carte interactive
-- Pas de vérification d'identité automatisée
-
----
-
-## Améliorations futures
-
-- Application mobile (React Native)
-- Messagerie interne entre propriétaires et locataires
-- Vérification automatique d'identité
-- Intégration Stripe Connect complète
-- Caution de sécurité
-- Génération automatique de contrats de location
-- Intégration partenaire assurance
-- Notifications par email (confirmation, rappel)
-- Favoris
-- Carte interactive avec géolocalisation
-- Recherche par géolocalisation
-- Gestion des litiges

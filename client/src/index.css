@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --navy:   #07192E;
-    --navy2:  #0E2540;
-    --ocean:  #155374;
-    --cyan:   #00C6E0;
-    --cyanL:  #4DDFF0;
-    --gold:   #C9A84C;
-    --off:    #F7F5F2;
-    --smoke:  #EDF1F5;
-    --gray:   #8896A8;
-    --text:   #3D4D61;
+    --navy: #07192e;
+    --navy2: #0e2540;
+    --ocean: #155374;
+    --cyan: #00c6e0;
+    --cyanL: #4ddff0;
+    --gold: #c9a84c;
+    --off: #f7f5f2;
+    --smoke: #edf1f5;
+    --gray: #8896a8;
+    --text: #3d4d61;
   }
 
   html {
@@ -22,11 +22,13 @@
 
   body {
     font-family: 'Outfit', system-ui, sans-serif;
-    background-color: #F7F5F2;
-    color: #3D4D61;
+    background-color: #f7f5f2;
+    color: #3d4d61;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: 'Playfair Display', Georgia, serif;
   }
 }
@@ -66,7 +68,7 @@
   /* ── Cards ── */
   .card {
     @apply bg-white rounded-2xl overflow-hidden;
-    box-shadow: 0 4px 24px rgba(7,25,46,0.08);
+    box-shadow: 0 4px 24px rgba(7, 25, 46, 0.08);
   }
 
   /* ── Layout ── */
@@ -103,19 +105,42 @@
   }
 
   /* ── Status badges ── */
-  .badge-pending   { @apply bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-approved  { @apply bg-green-100  text-green-800  px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-rejected  { @apply bg-red-100    text-red-800    px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-confirmed { @apply bg-blue-100   text-blue-800   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-completed { @apply bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-cancelled { @apply bg-gray-100   text-gray-600   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-accepted  { @apply bg-teal-100   text-teal-800   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-paid      { @apply bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-draft     { @apply bg-gray-100   text-gray-600   px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .badge-pending {
+    @apply bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-approved {
+    @apply bg-green-100  text-green-800  px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-rejected {
+    @apply bg-red-100    text-red-800    px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-confirmed {
+    @apply bg-blue-100   text-blue-800   px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-completed {
+    @apply bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-cancelled {
+    @apply bg-gray-100   text-gray-600   px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-accepted {
+    @apply bg-teal-100   text-teal-800   px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-paid {
+    @apply bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-draft {
+    @apply bg-gray-100   text-gray-600   px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
 
   /* ── Scrollbar hide (filter tabs horizontal scroll on mobile) ── */
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
   .home-shell {
     background: #f4f8fb;
@@ -126,18 +151,26 @@
     overflow: hidden;
     min-height: 430px;
     background:
-      radial-gradient(circle at 82% 25%, rgba(0,198,224,0.45), transparent 26%),
+      radial-gradient(circle at 82% 24%, rgba(0, 198, 224, 0.22), transparent 28%),
       linear-gradient(135deg, #07192e 0%, #0d3145 55%, #00a9c8 130%);
   }
 
   .home-hero-orb {
     position: absolute;
-    width: 340px;
-    height: 340px;
+    width: clamp(260px, 31vw, 420px);
+    height: clamp(260px, 31vw, 420px);
     border-radius: 999px;
-    right: 10%;
-    top: 52px;
-    background: rgba(0,198,224,0.22);
+    right: clamp(22px, 8vw, 132px);
+    top: 34px;
+    overflow: hidden;
+    background-image: url('/images/hero-boat.jpeg');
+    background-size: 118%;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 32px 80px rgba(0, 0, 0, 0.24),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 
   .home-hero-inner {
@@ -159,8 +192,8 @@
     gap: 7px;
     padding: 7px 13px;
     border-radius: 999px;
-    background: rgba(0,198,224,0.17);
-    border: 1px solid rgba(0,198,224,0.32);
+    background: rgba(0, 198, 224, 0.17);
+    border: 1px solid rgba(0, 198, 224, 0.32);
     color: #7eeafa;
     font-size: 11px;
     font-weight: 800;
@@ -183,7 +216,7 @@
   .home-hero p {
     max-width: 530px;
     margin-top: 16px;
-    color: rgba(255,255,255,0.76);
+    color: rgba(255, 255, 255, 0.76);
     font-size: 16px;
     line-height: 1.65;
   }
@@ -269,7 +302,7 @@
   }
 
   .home-stats-grid span {
-    color: rgba(255,255,255,0.62);
+    color: rgba(255, 255, 255, 0.62);
     font-size: 12px;
   }
 
@@ -333,7 +366,7 @@
     background: #f4f8fb;
     border: 1px solid #e4edf3;
     padding: 22px;
-    box-shadow: 0 8px 22px rgba(7,25,46,0.05);
+    box-shadow: 0 8px 22px rgba(7, 25, 46, 0.05);
   }
 
   .home-step-card svg {
@@ -399,7 +432,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: rgba(255,255,255,0.78);
+    color: rgba(255, 255, 255, 0.78);
     font-size: 13px;
     font-weight: 700;
   }

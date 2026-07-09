@@ -7,20 +7,24 @@ import PaginationControls from '../../components/PaginationControls';
 import { formatPrice } from '../../utils/formatPrice';
 import { formatDate } from '../../utils/formatDate';
 import { Clock3, MapPin } from 'lucide-react';
+import { useUiFeedback } from '../../components/ToastProvider';
 
 const typeLabels = { sailboat: 'Voilier', motorboat: 'Moteur', catamaran: 'Catamaran', rib: 'Semi-rigide' };
 
 const AdminBoatsPage = () => {
-  const [boats,        setBoats]        = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [search,       setSearch]       = useState('');
+  const { toast, requestApproval } = useUiFeedback();
+  const [boats, setBoats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
 
   const fetchBoats = async (page = 1) => {
     setLoading(true);
     try {
-      const { data } = await api.get('/admin/boats', { params: { page, limit: 10, status: statusFilter || undefined } });
+      const { data } = await api.get('/admin/boats', {
+        params: { page, limit: 10, status: statusFilter || undefined },
+      });
       const items = Array.isArray(data) ? data : data.items || data.boats || [];
       setBoats(items);
       setMeta({ page: data.page || page, totalPages: data.totalPages || 1, total: data.total ?? items.length });
@@ -31,36 +35,56 @@ const AdminBoatsPage = () => {
     }
   };
 
-  useEffect(() => { fetchBoats(1); }, [statusFilter]);
+  useEffect(() => {
+    fetchBoats(1);
+  }, [statusFilter]);
 
   const handleApprove = async (id) => {
     try {
       const { data } = await api.patch(`/admin/boats/${id}/approve`);
-      setBoats(prev => prev.map(b => b._id === id ? { ...b, status: data.status } : b));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setBoats((prev) => prev.map((b) => (b._id === id ? { ...b, status: data.status } : b)));
+      toast('Bateau approuvé.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
   const handleReject = async (id) => {
     try {
       const { data } = await api.patch(`/admin/boats/${id}/reject`);
-      setBoats(prev => prev.map(b => b._id === id ? { ...b, status: data.status } : b));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setBoats((prev) => prev.map((b) => (b._id === id ? { ...b, status: data.status } : b)));
+      toast('Bateau rejeté.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer définitivement ce bateau ?')) return;
+    if (
+      !(await requestApproval('Supprimer définitivement ce bateau ?', {
+        title: 'Suppression bateau',
+        variant: 'danger',
+        confirmLabel: 'Supprimer',
+      }))
+    )
+      return;
     try {
       await api.delete(`/admin/boats/${id}`);
-      setBoats(prev => prev.filter(b => b._id !== id));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setBoats((prev) => prev.filter((b) => b._id !== id));
+      toast('Bateau supprimé.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
-  const filtered = boats.filter(b => {
-    const matchesSearch  = `${b.title} ${b.location} ${b.owner?.firstName} ${b.owner?.lastName}`.toLowerCase().includes(search.toLowerCase());
+  const filtered = boats.filter((b) => {
+    const matchesSearch = `${b.title} ${b.location} ${b.owner?.firstName} ${b.owner?.lastName}`
+      .toLowerCase()
+      .includes(search.toLowerCase());
     return matchesSearch;
   });
 
-  const pendingCount = boats.filter(b => b.status === 'pending').length;
+  const pendingCount = boats.filter((b) => b.status === 'pending').length;
 
   if (loading) return <LoadingSpinner text="Chargement des bateaux…" />;
 
@@ -81,7 +105,7 @@ const AdminBoatsPage = () => {
         <div className="flex gap-3">
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="input-field text-sm"
             style={{ maxWidth: 160 }}
           >
@@ -95,7 +119,7 @@ const AdminBoatsPage = () => {
             type="search"
             placeholder="Rechercher…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="input-field text-sm"
             style={{ maxWidth: 220 }}
           />
@@ -103,21 +127,53 @@ const AdminBoatsPage = () => {
       </div>
 
       {/* Table */}
-      <div
-        className="bg-white rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
-      >
+      <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: '#EDF1F5', borderBottom: '1px solid rgba(7,25,46,0.06)' }}>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Bateau</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Propriétaire</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Type</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Prix/jour</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Statut</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Créé le</th>
-                <th className="text-right px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Actions</th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Bateau
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Propriétaire
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Type
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Prix/jour
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Statut
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Créé le
+                </th>
+                <th
+                  className="text-right px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -128,7 +184,7 @@ const AdminBoatsPage = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map(boat => (
+                filtered.map((boat) => (
                   <tr
                     key={boat._id}
                     style={{
@@ -136,21 +192,33 @@ const AdminBoatsPage = () => {
                       background: boat.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent',
                       transition: 'background 0.15s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F7F5F2'}
-                    onMouseLeave={e => e.currentTarget.style.background = boat.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent'}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#F7F5F2')}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background =
+                        boat.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent')
+                    }
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0" style={{ background: '#EDF1F5' }}>
+                        <div
+                          className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
+                          style={{ background: '#EDF1F5' }}
+                        >
                           <img
-                            src={boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80'}
+                            src={
+                              boat.images?.[0] || 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80'
+                            }
                             alt={boat.title}
                             className="w-full h-full object-cover"
-                            onError={e => { e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80'; }}
+                            onError={(e) => {
+                              e.target.src = 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=80';
+                            }}
                           />
                         </div>
                         <div>
-                          <p className="font-semibold" style={{ color: '#07192E' }}>{boat.title}</p>
+                          <p className="font-semibold" style={{ color: '#07192E' }}>
+                            {boat.title}
+                          </p>
                           <p className="inline-flex items-center gap-1 text-xs" style={{ color: '#8896A8' }}>
                             <MapPin size={12} /> {boat.location}
                           </p>
@@ -158,17 +226,30 @@ const AdminBoatsPage = () => {
                       </div>
                     </td>
                     <td className="px-5 py-3">
-                      <p style={{ color: '#3D4D61' }}>{boat.owner?.firstName} {boat.owner?.lastName}</p>
-                      <p className="text-xs" style={{ color: '#8896A8' }}>{boat.owner?.email}</p>
+                      <p style={{ color: '#3D4D61' }}>
+                        {boat.owner?.firstName} {boat.owner?.lastName}
+                      </p>
+                      <p className="text-xs" style={{ color: '#8896A8' }}>
+                        {boat.owner?.email}
+                      </p>
                     </td>
                     <td className="px-5 py-3">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: 'rgba(0,198,224,0.1)', color: '#155374' }}>
+                      <span
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                        style={{ background: 'rgba(0,198,224,0.1)', color: '#155374' }}
+                      >
                         {typeLabels[boat.type] || boat.type}
                       </span>
                     </td>
-                    <td className="px-5 py-3 font-bold" style={{ color: '#07192E' }}>{formatPrice(boat.pricePerDay)}</td>
-                    <td className="px-5 py-3"><StatusBadge status={boat.status} /></td>
-                    <td className="px-5 py-3" style={{ color: '#8896A8' }}>{formatDate(boat.createdAt)}</td>
+                    <td className="px-5 py-3 font-bold" style={{ color: '#07192E' }}>
+                      {formatPrice(boat.pricePerDay)}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={boat.status} />
+                    </td>
+                    <td className="px-5 py-3" style={{ color: '#8896A8' }}>
+                      {formatDate(boat.createdAt)}
+                    </td>
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-2 flex-wrap">
                         <Link

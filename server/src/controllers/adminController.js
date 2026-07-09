@@ -139,11 +139,19 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
-  if (!user) { res.status(404); throw new Error('Utilisateur introuvable'); }
+  if (!user) {
+    res.status(404);
+    throw new Error('Utilisateur introuvable');
+  }
 
   const { firstName, lastName, role, isActive } = req.body;
   try {
-    await assertAdminChangeAllowed({ targetUser: user, currentAdminId: req.user._id, nextRole: role, nextIsActive: isActive });
+    await assertAdminChangeAllowed({
+      targetUser: user,
+      currentAdminId: req.user._id,
+      nextRole: role,
+      nextIsActive: isActive,
+    });
   } catch (error) {
     handlePolicyError(res, error);
   }
@@ -182,7 +190,10 @@ const updateUser = asyncHandler(async (req, res) => {
 
 const disableUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
-  if (!user) { res.status(404); throw new Error('Utilisateur introuvable'); }
+  if (!user) {
+    res.status(404);
+    throw new Error('Utilisateur introuvable');
+  }
   try {
     await assertAdminChangeAllowed({ targetUser: user, currentAdminId: req.user._id, nextIsActive: false });
   } catch (error) {
@@ -212,29 +223,59 @@ const getAdminBoats = asyncHandler(async (req, res) => {
 
 const approveBoat = asyncHandler(async (req, res) => {
   const boat = await Boat.findById(req.params.id);
-  if (!boat) { res.status(404); throw new Error('Bateau introuvable'); }
+  if (!boat) {
+    res.status(404);
+    throw new Error('Bateau introuvable');
+  }
   const rejectedDocs = await OwnerDocument.countDocuments({ boat: boat._id, status: 'rejected' });
-  if (rejectedDocs > 0) { res.status(400); throw new Error('Des documents lies a ce bateau sont rejetes'); }
+  if (rejectedDocs > 0) {
+    res.status(400);
+    throw new Error('Des documents lies a ce bateau sont rejetes');
+  }
   boat.status = 'approved';
   await boat.save();
-  await logAdminAction({ admin: req.user._id, action: 'approve_boat', entityType: 'boat', entityId: boat._id, description: `${adminName(req)} a approuve ${boat.title}` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'approve_boat',
+    entityType: 'boat',
+    entityId: boat._id,
+    description: `${adminName(req)} a approuve ${boat.title}`,
+  });
   res.json(boat);
 });
 
 const rejectBoat = asyncHandler(async (req, res) => {
   const boat = await Boat.findById(req.params.id);
-  if (!boat) { res.status(404); throw new Error('Bateau introuvable'); }
+  if (!boat) {
+    res.status(404);
+    throw new Error('Bateau introuvable');
+  }
   boat.status = 'rejected';
   await boat.save();
-  await logAdminAction({ admin: req.user._id, action: 'reject_boat', entityType: 'boat', entityId: boat._id, description: `${adminName(req)} a rejete ${boat.title}` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'reject_boat',
+    entityType: 'boat',
+    entityId: boat._id,
+    description: `${adminName(req)} a rejete ${boat.title}`,
+  });
   res.json(boat);
 });
 
 const deleteBoat = asyncHandler(async (req, res) => {
   const boat = await Boat.findById(req.params.id);
-  if (!boat) { res.status(404); throw new Error('Bateau introuvable'); }
+  if (!boat) {
+    res.status(404);
+    throw new Error('Bateau introuvable');
+  }
   await boat.deleteOne();
-  await logAdminAction({ admin: req.user._id, action: 'delete_boat', entityType: 'boat', entityId: req.params.id, description: `${adminName(req)} a supprime ${boat.title}` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'delete_boat',
+    entityType: 'boat',
+    entityId: req.params.id,
+    description: `${adminName(req)} a supprime ${boat.title}`,
+  });
   res.json({ message: 'Bateau supprime' });
 });
 
@@ -278,7 +319,10 @@ const refundBookingPayment = async ({ booking, adminId }) => {
 
 const cancelAdminBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Reservation introuvable'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Reservation introuvable');
+  }
   if (['cancelled', 'completed', 'rejected'].includes(booking.status)) {
     res.status(400);
     throw new Error('La reservation ne peut pas etre annulee dans son etat actuel');
@@ -297,7 +341,10 @@ const cancelAdminBooking = asyncHandler(async (req, res) => {
 
 const completeAdminBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Reservation introuvable'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Reservation introuvable');
+  }
   if (booking.status !== 'confirmed') {
     res.status(400);
     throw new Error('La reservation doit etre confirmee avant cloture');
@@ -324,31 +371,58 @@ const getReviews = asyncHandler(async (req, res) => {
 
 const approveReview = asyncHandler(async (req, res) => {
   const review = await Review.findById(req.params.id);
-  if (!review) { res.status(404); throw new Error('Avis introuvable'); }
+  if (!review) {
+    res.status(404);
+    throw new Error('Avis introuvable');
+  }
   review.status = 'approved';
   await review.save();
   await recalculateBoatRating(review.boat);
-  await logAdminAction({ admin: req.user._id, action: 'approve_review', entityType: 'review', entityId: review._id, description: `${adminName(req)} a approuve un avis` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'approve_review',
+    entityType: 'review',
+    entityId: review._id,
+    description: `${adminName(req)} a approuve un avis`,
+  });
   res.json(review);
 });
 
 const hideReview = asyncHandler(async (req, res) => {
   const review = await Review.findById(req.params.id);
-  if (!review) { res.status(404); throw new Error('Avis introuvable'); }
+  if (!review) {
+    res.status(404);
+    throw new Error('Avis introuvable');
+  }
   review.status = 'hidden';
   await review.save();
   await recalculateBoatRating(review.boat);
-  await logAdminAction({ admin: req.user._id, action: 'hide_review', entityType: 'review', entityId: review._id, description: `${adminName(req)} a masque un avis` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'hide_review',
+    entityType: 'review',
+    entityId: review._id,
+    description: `${adminName(req)} a masque un avis`,
+  });
   res.json(review);
 });
 
 const deleteReview = asyncHandler(async (req, res) => {
   const review = await Review.findById(req.params.id);
-  if (!review) { res.status(404); throw new Error('Avis introuvable'); }
+  if (!review) {
+    res.status(404);
+    throw new Error('Avis introuvable');
+  }
   const boatId = review.boat;
   await review.deleteOne();
   await recalculateBoatRating(boatId);
-  await logAdminAction({ admin: req.user._id, action: 'delete_review', entityType: 'review', entityId: req.params.id, description: `${adminName(req)} a supprime un avis` });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'delete_review',
+    entityType: 'review',
+    entityId: req.params.id,
+    description: `${adminName(req)} a supprime un avis`,
+  });
   res.json({ message: 'Avis supprime' });
 });
 
@@ -370,7 +444,7 @@ const getAdminPayments = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
 
   const allPayments = await query;
-  const filtered = req.query.bookingStatus ? allPayments.filter(payment => payment.booking) : allPayments;
+  const filtered = req.query.bookingStatus ? allPayments.filter((payment) => payment.booking) : allPayments;
   const items = filtered.slice(skip, skip + limit);
 
   const [paid, fees, pending, refunded] = await Promise.all([
@@ -393,10 +467,19 @@ const getAdminPayments = asyncHandler(async (req, res) => {
 
 const refundPayment = asyncHandler(async (req, res) => {
   const payment = await Payment.findById(req.params.id);
-  if (!payment) { res.status(404); throw new Error('Paiement introuvable'); }
-  if (payment.status !== 'succeeded') { res.status(400); throw new Error('Seul un paiement reussi peut etre rembourse'); }
+  if (!payment) {
+    res.status(404);
+    throw new Error('Paiement introuvable');
+  }
+  if (payment.status !== 'succeeded') {
+    res.status(400);
+    throw new Error('Seul un paiement reussi peut etre rembourse');
+  }
   const booking = await Booking.findById(payment.booking);
-  if (!booking) { res.status(404); throw new Error('Reservation introuvable'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Reservation introuvable');
+  }
   await refundBookingPayment({ booking, adminId: req.user._id });
   await logAdminAction({
     admin: req.user._id,
@@ -414,7 +497,11 @@ const getActionLogs = asyncHandler(async (req, res) => {
   if (req.query.action) filter.action = req.query.action;
   if (req.query.entityType) filter.entityType = req.query.entityType;
   const [items, total] = await Promise.all([
-    AdminActionLog.find(filter).populate('admin', 'firstName lastName email').sort({ createdAt: -1 }).skip(skip).limit(limit),
+    AdminActionLog.find(filter)
+      .populate('admin', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
     AdminActionLog.countDocuments(filter),
   ]);
   res.json(paginatedResponse(items, page, limit, total));

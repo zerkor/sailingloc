@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
 import PaginationControls from '../../components/PaginationControls';
 import { formatDate } from '../../utils/formatDate';
 import { Clock3, Star } from 'lucide-react';
+import { useUiFeedback } from '../../components/ToastProvider';
 
 const Stars = ({ rating }) => (
   <span className="inline-flex items-center gap-0.5" aria-label={`${rating} sur 5`}>
@@ -20,15 +21,18 @@ const Stars = ({ rating }) => (
 );
 
 const AdminReviewsPage = () => {
-  const [reviews,      setReviews]      = useState([]);
-  const [loading,      setLoading]      = useState(true);
+  const { toast, requestApproval } = useUiFeedback();
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
 
   const fetchReviews = async (page = 1) => {
     setLoading(true);
     try {
-      const { data } = await api.get('/admin/reviews', { params: { page, limit: 10, status: statusFilter || undefined } });
+      const { data } = await api.get('/admin/reviews', {
+        params: { page, limit: 10, status: statusFilter || undefined },
+      });
       const items = Array.isArray(data) ? data : data.items || [];
       setReviews(items);
       setMeta({ page: data.page || page, totalPages: data.totalPages || 1, total: data.total ?? items.length });
@@ -39,34 +43,52 @@ const AdminReviewsPage = () => {
     }
   };
 
-  useEffect(() => { fetchReviews(1); }, [statusFilter]);
+  useEffect(() => {
+    fetchReviews(1);
+  }, [statusFilter]);
 
   const handleApprove = async (id) => {
     try {
       await api.patch(`/admin/reviews/${id}/approve`);
-      setReviews(prev => prev.map(r => r._id === id ? { ...r, status: 'approved' } : r));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setReviews((prev) => prev.map((r) => (r._id === id ? { ...r, status: 'approved' } : r)));
+      toast('Avis approuvé.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
   const handleHide = async (id) => {
     try {
       await api.patch(`/admin/reviews/${id}/hide`);
-      setReviews(prev => prev.map(r => r._id === id ? { ...r, status: 'hidden' } : r));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setReviews((prev) => prev.map((r) => (r._id === id ? { ...r, status: 'hidden' } : r)));
+      toast('Avis masqué.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer définitivement cet avis ?')) return;
+    if (
+      !(await requestApproval('Supprimer définitivement cet avis ?', {
+        title: 'Supprimer l avis',
+        variant: 'danger',
+        confirmLabel: 'Supprimer',
+      }))
+    )
+      return;
     try {
       await api.delete(`/admin/reviews/${id}`);
-      setReviews(prev => prev.filter(r => r._id !== id));
-    } catch (err) { alert(err.response?.data?.message || 'Erreur.'); }
+      setReviews((prev) => prev.filter((r) => r._id !== id));
+      toast('Avis supprimé.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
   };
 
-  const filtered      = reviews;
-  const pendingCount  = reviews.filter(r => r.status === 'pending').length;
+  const filtered = reviews;
+  const pendingCount = reviews.filter((r) => r.status === 'pending').length;
 
-  if (loading) return <LoadingSpinner text="Chargement des avis…" />;
+  if (loading) return <LoadingSpinner text="Chargement des avis..." />;
 
   return (
     <div className="space-y-6">
@@ -84,7 +106,7 @@ const AdminReviewsPage = () => {
         </div>
         <select
           value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
+          onChange={(e) => setStatusFilter(e.target.value)}
           className="input-field text-sm"
           style={{ maxWidth: 180 }}
         >
@@ -96,21 +118,53 @@ const AdminReviewsPage = () => {
       </div>
 
       {/* Table */}
-      <div
-        className="bg-white rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
-      >
+      <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: '#EDF1F5', borderBottom: '1px solid rgba(7,25,46,0.06)' }}>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Auteur</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Bateau</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Note</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Commentaire</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Statut</th>
-                <th className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Date</th>
-                <th className="text-right px-5 py-3 font-bold uppercase tracking-wider text-xs" style={{ color: '#3D4D61' }}>Actions</th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Auteur
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Bateau
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Note
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Commentaire
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Statut
+                </th>
+                <th
+                  className="text-left px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Date
+                </th>
+                <th
+                  className="text-right px-5 py-3 font-bold uppercase tracking-wider text-xs"
+                  style={{ color: '#3D4D61' }}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +175,7 @@ const AdminReviewsPage = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map(r => (
+                filtered.map((r) => (
                   <tr
                     key={r._id}
                     style={{
@@ -129,8 +183,11 @@ const AdminReviewsPage = () => {
                       background: r.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent',
                       transition: 'background 0.15s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F7F5F2'}
-                    onMouseLeave={e => e.currentTarget.style.background = r.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent'}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#F7F5F2')}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background =
+                        r.status === 'pending' ? 'rgba(234,179,8,0.04)' : 'transparent')
+                    }
                   >
                     <td className="px-5 py-3 font-semibold whitespace-nowrap" style={{ color: '#07192E' }}>
                       {r.author?.firstName} {r.author?.lastName}
@@ -140,7 +197,9 @@ const AdminReviewsPage = () => {
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap">
                       <Stars rating={r.rating} />
-                      <span className="ml-1 text-xs font-bold" style={{ color: '#07192E' }}>{r.rating}/5</span>
+                      <span className="ml-1 text-xs font-bold" style={{ color: '#07192E' }}>
+                        {r.rating}/5
+                      </span>
                     </td>
                     <td className="px-5 py-3" style={{ color: '#3D4D61', maxWidth: 240 }}>
                       <p className="truncate">{r.comment}</p>

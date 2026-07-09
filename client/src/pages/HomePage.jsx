@@ -127,8 +127,8 @@ const HomePage = () => {
               <span> entre particuliers</span>
             </h1>
             <p>
-              Louez un voilier ou un bateau a moteur directement aupres de proprietaires verifies,
-              avec disponibilites, avis et reservation en ligne.
+              Louez un voilier ou un bateau a moteur directement aupres de proprietaires verifies, avec disponibilites,
+              avis et reservation en ligne.
             </p>
             <HeroSearchBar />
           </div>
@@ -210,10 +210,18 @@ const HomePage = () => {
 
       <section className="home-trust">
         <div className="container-max home-trust-grid">
-          <div><ShieldCheck size={20} /> Proprietaires verifies</div>
-          <div><Users size={20} /> Support reservation</div>
-          <div><ShipWheel size={20} /> Bateaux valides</div>
-          <div><Waves size={20} /> Paiement trace</div>
+          <div>
+            <ShieldCheck size={20} /> Proprietaires verifies
+          </div>
+          <div>
+            <Users size={20} /> Support reservation
+          </div>
+          <div>
+            <ShipWheel size={20} /> Bateaux valides
+          </div>
+          <div>
+            <Waves size={20} /> Paiement trace
+          </div>
         </div>
       </section>
     </div>

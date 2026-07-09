@@ -6,7 +6,11 @@ const LoadingSpinner = ({ size = 'md', text = '' }) => {
         className={`${sizes[size]} animate-spin rounded-full border-4`}
         style={{ borderColor: 'rgba(0,198,224,0.2)', borderTopColor: '#00C6E0' }}
       />
-      {text && <p className="mt-3 text-sm" style={{ color: '#8896A8' }}>{text}</p>}
+      {text && (
+        <p className="mt-3 text-sm" style={{ color: '#8896A8' }}>
+          {text}
+        </p>
+      )}
     </div>
   );
 };

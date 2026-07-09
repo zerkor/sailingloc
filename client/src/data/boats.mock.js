@@ -140,7 +140,7 @@ export const mockBoats = [
   },
   {
     _id: 'boat-009',
-    title: "Élysée des Mers",
+    title: 'Élysée des Mers',
     type: 'rib',
     location: 'Monaco',
     port: 'Port Hercule',

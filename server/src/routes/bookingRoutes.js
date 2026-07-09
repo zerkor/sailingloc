@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { createBooking, getTenantBookings, getOwnerBookings, acceptBooking, rejectBooking, cancelBooking, payBooking, completeBooking } = require('../controllers/bookingController');
+const {
+  createBooking,
+  getTenantBookings,
+  getOwnerBookings,
+  acceptBooking,
+  rejectBooking,
+  cancelBooking,
+  payBooking,
+  completeBooking,
+} = require('../controllers/bookingController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');

@@ -30,7 +30,11 @@ const createBooking = asyncHandler(async (req, res) => {
 
   await assertBoatAvailable({ boat, startDate: start, endDate: end });
 
-  const { numberOfDays, pricePerDay, serviceFee, totalPrice } = calculateBookingPrice(startDate, endDate, boat.pricePerDay);
+  const { numberOfDays, pricePerDay, serviceFee, totalPrice } = calculateBookingPrice(
+    startDate,
+    endDate,
+    boat.pricePerDay
+  );
   const booking = await Booking.create({
     boat: boatId,
     tenant: req.user._id,
@@ -75,9 +79,18 @@ const getOwnerBookings = asyncHandler(async (req, res) => {
 
 const acceptBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id).populate('boat');
-  if (!booking) { res.status(404); throw new Error('Booking not found'); }
-  if (booking.owner.toString() !== req.user._id.toString()) { res.status(403); throw new Error('Not authorized'); }
-  if (booking.status !== 'pending') { res.status(400); throw new Error('Booking cannot be accepted in its current state'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+  if (booking.owner.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+  if (booking.status !== 'pending') {
+    res.status(400);
+    throw new Error('Booking cannot be accepted in its current state');
+  }
   await assertBoatAvailable({
     boat: booking.boat,
     startDate: booking.startDate,
@@ -99,9 +112,18 @@ const acceptBooking = asyncHandler(async (req, res) => {
 
 const rejectBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Booking not found'); }
-  if (booking.owner.toString() !== req.user._id.toString()) { res.status(403); throw new Error('Not authorized'); }
-  if (!['pending'].includes(booking.status)) { res.status(400); throw new Error('Booking cannot be rejected in its current state'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+  if (booking.owner.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+  if (!['pending'].includes(booking.status)) {
+    res.status(400);
+    throw new Error('Booking cannot be rejected in its current state');
+  }
   booking.status = 'rejected';
   await booking.save();
   await createNotification({
@@ -117,11 +139,17 @@ const rejectBooking = asyncHandler(async (req, res) => {
 
 const cancelBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Booking not found'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
   const isTenant = booking.tenant.toString() === req.user._id.toString();
   const isOwner = booking.owner.toString() === req.user._id.toString();
   const isAdmin = req.user.role === 'admin';
-  if (!isTenant && !isOwner && !isAdmin) { res.status(403); throw new Error('Not authorized'); }
+  if (!isTenant && !isOwner && !isAdmin) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
   if (!['pending', 'accepted', 'confirmed'].includes(booking.status)) {
     res.status(400);
     throw new Error('Booking cannot be cancelled in its current state');
@@ -146,22 +174,33 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
 const payBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Booking not found'); }
-  if (booking.tenant.toString() !== req.user._id.toString()) { res.status(403); throw new Error('Not authorized'); }
-  if (booking.status !== 'accepted') { res.status(400); throw new Error('Booking must be accepted before payment'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+  if (booking.tenant.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+  if (booking.status !== 'accepted') {
+    res.status(400);
+    throw new Error('Booking must be accepted before payment');
+  }
   const existingPayment = await Payment.findOne({ booking: booking._id });
   if (existingPayment && existingPayment.status === 'succeeded') {
     res.status(400);
     throw new Error('Booking already paid');
   }
-  const payment = existingPayment || await Payment.create({
-    booking: booking._id,
-    tenant: booking.tenant,
-    owner: booking.owner,
-    amount: booking.totalPrice,
-    serviceFee: booking.serviceFee,
-    providerReference: `sim_stripe_${booking._id.toString()}`,
-  });
+  const payment =
+    existingPayment ||
+    (await Payment.create({
+      booking: booking._id,
+      tenant: booking.tenant,
+      owner: booking.owner,
+      amount: booking.totalPrice,
+      serviceFee: booking.serviceFee,
+      providerReference: `sim_stripe_${booking._id.toString()}`,
+    }));
   payment.status = 'succeeded';
   payment.paidAt = new Date();
   await payment.save();
@@ -182,14 +221,32 @@ const payBooking = asyncHandler(async (req, res) => {
 
 const completeBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  if (!booking) { res.status(404); throw new Error('Booking not found'); }
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
   const isOwner = booking.owner.toString() === req.user._id.toString();
   const isAdmin = req.user.role === 'admin';
-  if (!isOwner && !isAdmin) { res.status(403); throw new Error('Not authorized'); }
-  if (booking.status !== 'confirmed') { res.status(400); throw new Error('Booking must be confirmed before completing'); }
+  if (!isOwner && !isAdmin) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+  if (booking.status !== 'confirmed') {
+    res.status(400);
+    throw new Error('Booking must be confirmed before completing');
+  }
   booking.status = 'completed';
   await booking.save();
   res.json(booking);
 });
 
-module.exports = { createBooking, getTenantBookings, getOwnerBookings, acceptBooking, rejectBooking, cancelBooking, payBooking, completeBooking };
+module.exports = {
+  createBooking,
+  getTenantBookings,
+  getOwnerBookings,
+  acceptBooking,
+  rejectBooking,
+  cancelBooking,
+  payBooking,
+  completeBooking,
+};

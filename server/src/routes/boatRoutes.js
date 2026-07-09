@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { getBoats, getBoatById, getBoatBySlug, createBoat, updateBoat, deleteBoat, getOwnerBoats } = require('../controllers/boatController');
+const {
+  getBoats,
+  getBoatById,
+  getBoatBySlug,
+  createBoat,
+  updateBoat,
+  deleteBoat,
+  getOwnerBoats,
+} = require('../controllers/boatController');
 const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');

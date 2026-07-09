@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FileCheck2, Link as LinkIcon, Send } from 'lucide-react';
 import { createDocument, getMyDocuments } from '../../services/documentService';
 import { getOwnerBoats } from '../../services/boatService';
+import { uploadDocumentFile } from '../../services/uploadService';
 import ErrorMessage from '../../components/ErrorMessage';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import StatusBadge from '../../components/StatusBadge';
@@ -20,6 +21,7 @@ const OwnerDocumentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [file, setFile] = useState(null);
   const [form, setForm] = useState({ boatId: '', type: 'insurance', title: '', fileUrl: '' });
 
   const refresh = async () => {
@@ -39,8 +41,14 @@ const OwnerDocumentsPage = () => {
     setSubmitting(true);
     setError('');
     try {
-      await createDocument({ ...form, boatId: form.boatId || undefined });
+      let fileUrl = form.fileUrl;
+      if (file) {
+        const { data } = await uploadDocumentFile(file);
+        fileUrl = data.url;
+      }
+      await createDocument({ ...form, fileUrl, boatId: form.boatId || undefined });
       setForm({ boatId: '', type: 'insurance', title: '', fileUrl: '' });
+      setFile(null);
       await refresh();
     } catch (err) {
       setError(err.response?.data?.message || 'Impossible d envoyer ce document.');
@@ -63,33 +71,92 @@ const OwnerDocumentsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 space-y-4 xl:col-span-1" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl p-6 space-y-4 xl:col-span-1"
+          style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+        >
           <div className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: '#07192E' }}>
             <FileCheck2 size={18} /> Nouveau document
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>Bateau lie</label>
-            <select className="input-field" value={form.boatId} onChange={(event) => setForm(prev => ({ ...prev, boatId: event.target.value }))}>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
+              Bateau lie
+            </label>
+            <select
+              className="input-field"
+              value={form.boatId}
+              onChange={(event) => setForm((prev) => ({ ...prev, boatId: event.target.value }))}
+            >
               <option value="">Compte proprietaire</option>
-              {boats.map(boat => <option key={boat._id} value={boat._id}>{boat.title}</option>)}
+              {boats.map((boat) => (
+                <option key={boat._id} value={boat._id}>
+                  {boat.title}
+                </option>
+              ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>Type</label>
-            <select className="input-field" value={form.type} onChange={(event) => setForm(prev => ({ ...prev, type: event.target.value }))}>
-              {Object.entries(typeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
+              Type
+            </label>
+            <select
+              className="input-field"
+              value={form.type}
+              onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
+            >
+              {Object.entries(typeLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>Titre</label>
-            <input className="input-field" value={form.title} onChange={(event) => setForm(prev => ({ ...prev, title: event.target.value }))} placeholder="Attestation assurance 2026" required />
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
+              Titre
+            </label>
+            <input
+              className="input-field"
+              value={form.title}
+              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+              placeholder="Attestation assurance 2026"
+              required
+            />
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>URL du fichier</label>
-            <input className="input-field" type="url" value={form.fileUrl} onChange={(event) => setForm(prev => ({ ...prev, fileUrl: event.target.value }))} placeholder="https://..." required />
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
+              Fichier
+            </label>
+            <input
+              className="block w-full text-sm"
+              type="file"
+              accept="application/pdf,image/jpeg,image/png"
+              onChange={(event) => setFile(event.target.files?.[0] || null)}
+            />
+            <p className="text-xs mt-2" style={{ color: '#8896A8' }}>
+              PDF, JPG ou PNG. Vous pouvez aussi renseigner une URL ci-dessous.
+            </p>
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#3D4D61' }}>
+              URL du fichier
+            </label>
+            <input
+              className="input-field"
+              type="url"
+              value={form.fileUrl}
+              onChange={(event) => setForm((prev) => ({ ...prev, fileUrl: event.target.value }))}
+              placeholder="https://... ou upload local"
+              required={!file}
+            />
           </div>
           <ErrorMessage message={error} />
-          <button type="submit" disabled={submitting} className="btn-ocean w-full inline-flex items-center justify-center gap-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-ocean w-full inline-flex items-center justify-center gap-2"
+          >
             <Send size={16} /> {submitting ? 'Envoi...' : 'Envoyer pour validation'}
           </button>
         </form>
@@ -100,25 +167,43 @@ const OwnerDocumentsPage = () => {
           </h2>
           <div className="space-y-3">
             {documents.length === 0 ? (
-              <p className="text-sm" style={{ color: '#8896A8' }}>Aucun document envoye pour le moment.</p>
-            ) : documents.map(document => (
-              <div key={document._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl p-4" style={{ background: '#F7F9FB', border: '1px solid #EDF1F5' }}>
-                <div>
-                  <p className="font-bold" style={{ color: '#07192E' }}>{document.title}</p>
-                  <p className="text-xs mt-1" style={{ color: '#8896A8' }}>
-                    {typeLabels[document.type] || document.type}
-                    {document.boat?.title ? ` - ${document.boat.title}` : ' - Compte proprietaire'}
-                  </p>
-                  {document.rejectionReason && <p className="text-xs mt-1 text-red-600">{document.rejectionReason}</p>}
+              <p className="text-sm" style={{ color: '#8896A8' }}>
+                Aucun document envoye pour le moment.
+              </p>
+            ) : (
+              documents.map((document) => (
+                <div
+                  key={document._id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl p-4"
+                  style={{ background: '#F7F9FB', border: '1px solid #EDF1F5' }}
+                >
+                  <div>
+                    <p className="font-bold" style={{ color: '#07192E' }}>
+                      {document.title}
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: '#8896A8' }}>
+                      {typeLabels[document.type] || document.type}
+                      {document.boat?.title ? ` - ${document.boat.title}` : ' - Compte proprietaire'}
+                    </p>
+                    {document.rejectionReason && (
+                      <p className="text-xs mt-1 text-red-600">{document.rejectionReason}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <StatusBadge status={document.status} />
+                    <a
+                      href={document.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold hover:underline"
+                      style={{ color: '#07192E' }}
+                    >
+                      <LinkIcon size={14} /> Ouvrir
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={document.status} />
-                  <a href={document.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold hover:underline" style={{ color: '#07192E' }}>
-                    <LinkIcon size={14} /> Ouvrir
-                  </a>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
