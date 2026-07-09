@@ -21,6 +21,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -42,7 +43,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.resolve(uploadRoot)));
 
-app.get('/', (req, res) =>
+app.get('/api', (req, res) =>
   res.json({
     name: 'SailingLoc API',
     status: 'online',
@@ -77,6 +78,13 @@ app.use('/api/uploads', uploadRoutes);
 // Add boat reviews route
 const { getBoatReviews } = require('./controllers/reviewController');
 app.get('/api/boats/:id/reviews', getBoatReviews);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(clientDistPath));
+  app.get(/^\/(?!api|api-docs|uploads).*/, (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
