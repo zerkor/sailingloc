@@ -32,16 +32,17 @@ const getDemoImage = (boat, index = 0) => {
   return pool[(seed + index) % pool.length] || FALLBACK_BOAT_IMAGE;
 };
 
-const isGenericSeedImage = (image = '') => image === FALLBACK_BOAT_IMAGE || image.endsWith('/images/hero-boat.jpeg');
+const isDemoSeedImage = (image = '') =>
+  image === FALLBACK_BOAT_IMAGE || image.endsWith('/images/hero-boat.jpeg') || image.includes('images.unsplash.com');
 
 export const getBoatImage = (boat, index = 0) => {
   const image = boat?.images?.[index];
-  if (!image || isGenericSeedImage(image)) return getDemoImage(boat, index);
+  if (!image || isDemoSeedImage(image)) return getDemoImage(boat, index);
   return image;
 };
 
 export const getBoatImages = (boat) => {
   const images = boat?.images?.length ? boat.images : [FALLBACK_BOAT_IMAGE];
-  const normalized = images.map((image, index) => (isGenericSeedImage(image) ? getDemoImage(boat, index) : image));
+  const normalized = images.map((image, index) => (isDemoSeedImage(image) ? getDemoImage(boat, index) : image));
   return [...new Set(normalized.filter(Boolean))];
 };
