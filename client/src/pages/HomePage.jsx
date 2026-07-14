@@ -115,7 +115,6 @@ const HomePage = () => {
         description="Louez un voilier, catamaran ou bateau a moteur entre particuliers avec proprietaires verifies, avis et reservation en ligne."
       />
       <section className="home-hero">
-        <div className="home-hero-orb" aria-hidden="true" />
         <div className="container-max home-hero-inner">
           <div className="home-hero-copy">
             <span className="home-pill">
@@ -132,6 +131,7 @@ const HomePage = () => {
             </p>
             <HeroSearchBar />
           </div>
+          <div className="home-hero-orb" aria-hidden="true" />
         </div>
       </section>
 
