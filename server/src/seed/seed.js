@@ -36,24 +36,32 @@ const calculatePrice = (boat, startDate, endDate) => {
 
 const imageByType = {
   sailboat: [
-    'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1471922694854-ff1b63b20054?w=900&q=85&auto=format&fit=crop',
+    '/images/boats/sailboat/bavaria-cruiser-46.jpg',
+    '/images/boats/sailboat/dufour-390.jpg',
+    '/images/boats/sailboat/first-36.jpg',
+    '/images/boats/sailboat/oceanis-38-1.jpg',
+    '/images/boats/sailboat/sun-odyssey-349.jpg',
   ],
   motorboat: [
-    'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&q=85&auto=format&fit=crop',
+    '/images/boats/motorboat/beneteau-antares-9.jpg',
+    '/images/boats/motorboat/cap-camarat-7-5.jpg',
+    '/images/boats/motorboat/jeanneau-leader-30.jpg',
+    '/images/boats/motorboat/merry-fisher-895.jpg',
+    '/images/boats/motorboat/prestige-420.jpg',
   ],
   catamaran: [
-    'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1588401667987-e06480c453b9?w=900&q=85&auto=format&fit=crop',
+    '/images/boats/catamaran/bali-catspace.jpg',
+    '/images/boats/catamaran/fountaine-pajot-isla-40.jpg',
+    '/images/boats/catamaran/lagoon-380.jpg',
+    '/images/boats/catamaran/lagoon-42.jpg',
+    '/images/boats/catamaran/nautitech-46-open.jpg',
   ],
   rib: [
-    'https://images.unsplash.com/photo-1524932558893-59ebaffc7d58?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1564762861003-b1d22a3e1369?w=900&q=85&auto=format&fit=crop',
+    '/images/boats/rib/bombard-explorer-650.jpg',
+    '/images/boats/rib/capelli-tempest-700.jpg',
+    '/images/boats/rib/highfield-sport-760.jpg',
+    '/images/boats/rib/zar-65-suite.jpg',
+    '/images/boats/rib/zodiac-medline-7.jpg',
   ],
 };
 
