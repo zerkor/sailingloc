@@ -204,7 +204,7 @@ const OwnerBoatFormPage = () => {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="type">Type *</Label>
                 <select id="type" name="type" value={form.type} onChange={handleChange} className="input-field">
@@ -245,7 +245,7 @@ const OwnerBoatFormPage = () => {
 
         {/* Specs */}
         <Section title="Caractéristiques">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <div>
               <Label htmlFor="pricePerDay">Prix/jour (€) *</Label>
               <input

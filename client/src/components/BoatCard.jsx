@@ -15,10 +15,10 @@ const typeLabels = {
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 export const BoatCardSkeleton = () => (
   <div
-    className="bg-white rounded-2xl overflow-hidden animate-pulse"
-    style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.06)' }}
+    className="bg-white rounded-2xl overflow-hidden animate-pulse border border-navy-900/[0.04]"
+    style={{ boxShadow: 'var(--shadow-card)' }}
   >
-    <div className="bg-gray-200" style={{ height: 220 }} />
+    <div className="aspect-[4/3] bg-gray-200" />
     <div className="p-5 space-y-3">
       <div className="h-2.5 bg-gray-200 rounded-full w-1/3" />
       <div className="h-5 bg-gray-200 rounded-full w-2/3" />
@@ -51,19 +51,19 @@ const BoatCard = ({ boat }) => {
   return (
     <Link
       to={`/bateaux/${buildBoatSlug(boat)}`}
-      className="group block bg-white rounded-2xl overflow-hidden transition-all duration-300"
-      style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+      className="group block h-full bg-white rounded-2xl overflow-hidden border border-navy-900/[0.04] transition-all duration-300"
+      style={{ boxShadow: 'var(--shadow-card)' }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,198,224,0.15), 0 8px 24px rgba(7,25,46,0.12)')
+        (e.currentTarget.style.boxShadow = '0 18px 48px rgba(0,198,224,0.14), 0 8px 24px rgba(7,25,46,0.12)')
       }
-      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 4px 24px rgba(7,25,46,0.08)')}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-card)')}
     >
       {/* ── Image ── */}
-      <div className="relative overflow-hidden" style={{ height: 220 }}>
+      <div className="relative aspect-[4/3] overflow-hidden bg-smoke">
         <img
           src={imageUrl}
           alt={boat.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           onError={(e) => {
             e.target.src = FALLBACK_BOAT_IMAGE;
           }}
@@ -79,7 +79,7 @@ const BoatCard = ({ boat }) => {
         {/* Type badge — top left */}
         <div className="absolute top-3 left-3">
           <span
-            className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full"
+            className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full shadow-sm"
             style={{ background: 'rgba(0,198,224,0.95)', color: '#07192E', backdropFilter: 'blur(8px)' }}
           >
             {typeLabels[boat.type] || boat.type}
@@ -90,7 +90,7 @@ const BoatCard = ({ boat }) => {
         {isVerified ? (
           <div className="absolute top-3 right-3">
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full flex items-center gap-1"
+              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
               <Star size={12} fill="currentColor" /> Vérifié
@@ -99,7 +99,7 @@ const BoatCard = ({ boat }) => {
         ) : boat.skipperAvailable ? (
           <div className="absolute top-3 right-3">
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full"
+              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full shadow-sm"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
               Skipper
@@ -118,7 +118,7 @@ const BoatCard = ({ boat }) => {
       </div>
 
       {/* ── Body ── */}
-      <div className="p-5">
+      <div className="flex min-h-[250px] flex-col p-5">
         <div className="text-[10px] font-bold uppercase tracking-[1.5px] mb-1" style={{ color: '#00C6E0' }}>
           <span className="inline-flex items-center gap-1.5">
             <MapPin size={12} /> {boat.port || boat.location}
@@ -133,7 +133,7 @@ const BoatCard = ({ boat }) => {
         </h3>
 
         {/* Specs row */}
-        <div className="flex items-center gap-3 text-xs mb-3" style={{ color: '#8896A8' }}>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mb-3" style={{ color: '#8896A8' }}>
           {boat.capacity && (
             <span className="inline-flex items-center gap-1">
               <Users size={13} /> {boat.capacity} pers.
@@ -175,7 +175,7 @@ const BoatCard = ({ boat }) => {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-gray-100">
           <div>
             <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
               {formatPrice(boat.pricePerDay)}
@@ -185,8 +185,7 @@ const BoatCard = ({ boat }) => {
             </span>
           </div>
           <span
-            className="text-xs font-bold px-4 py-2 rounded-full transition-all duration-200"
-            style={{ background: '#07192E', color: '#fff' }}
+            className="shrink-0 bg-navy-900 text-white text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900"
           >
             <span className="inline-flex items-center gap-1">
               Voir <ArrowRight size={13} />

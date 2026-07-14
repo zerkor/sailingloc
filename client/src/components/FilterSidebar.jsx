@@ -19,7 +19,7 @@ const FilterSidebar = ({ filters, onChange }) => {
   const labelStyle = { color: '#3D4D61' };
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
           Filtres
@@ -71,7 +71,7 @@ const FilterSidebar = ({ filters, onChange }) => {
           <label className={labelClass} style={labelStyle}>
             Prix par jour (€)
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
               placeholder="Min"

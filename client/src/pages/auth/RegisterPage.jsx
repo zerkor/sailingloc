@@ -75,7 +75,7 @@ const RegisterPage = () => {
           <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label
                     htmlFor="firstName"
@@ -165,7 +165,7 @@ const RegisterPage = () => {
                 <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#3D4D61' }}>
                   Je souhaite…
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: 'tenant', icon: Waves, label: 'Louer un bateau', sub: 'Je suis locataire' },
                     { value: 'owner', icon: Sailboat, label: 'Louer mon bateau', sub: 'Je suis propriétaire' },

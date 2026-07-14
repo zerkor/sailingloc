@@ -15,7 +15,10 @@ const SearchBar = ({ initialValues = {} }) => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-xl p-4 flex flex-col sm:flex-row gap-3">
+    <form
+      onSubmit={handleSearch}
+      className="bg-white rounded-2xl border border-navy-900/[0.06] shadow-xl p-4 flex flex-col sm:flex-row gap-3"
+    >
       <div className="flex-1">
         <label htmlFor="location" className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
           Destination
@@ -26,7 +29,7 @@ const SearchBar = ({ initialValues = {} }) => {
           placeholder="Marseille, Nice, Brest..."
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-full border-none outline-none text-gray-800 placeholder-gray-400 text-base"
+          className="w-full border-none outline-none text-navy-900 placeholder-gray-400 text-base"
         />
       </div>
       <div className="sm:border-l sm:border-gray-200 sm:pl-4 flex-1">
@@ -37,7 +40,7 @@ const SearchBar = ({ initialValues = {} }) => {
           id="type"
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="w-full border-none outline-none text-gray-800 bg-white text-base"
+          className="w-full border-none outline-none text-navy-900 bg-white text-base"
         >
           <option value="">Tous les types</option>
           <option value="sailboat">Voilier</option>
@@ -46,7 +49,7 @@ const SearchBar = ({ initialValues = {} }) => {
           <option value="rib">Semi-rigide</option>
         </select>
       </div>
-      <button type="submit" className="btn-primary whitespace-nowrap flex items-center gap-2 justify-center">
+      <button type="submit" className="btn-primary whitespace-nowrap">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"

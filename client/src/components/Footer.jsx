@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => (
   <footer style={{ background: '#07192E' }} className="text-white">
-    <div className="container-max px-4 sm:px-6 lg:px-14 pt-16 pb-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+    <div className="container-max px-4 sm:px-6 lg:px-10 xl:px-14 pt-14 sm:pt-16 pb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9 lg:gap-12 mb-12">
         <div className="lg:col-span-1">
           <div
             style={{
@@ -16,7 +16,7 @@ const Footer = () => (
           >
             Sailing<span style={{ color: '#00C6E0' }}>Loc</span>
           </div>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)', maxWidth: 260 }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.62)', maxWidth: 280 }}>
             La première plateforme de location de voiliers et bateaux entre particuliers en France et en Europe.
           </p>
         </div>
@@ -33,8 +33,8 @@ const Footer = () => (
               <li key={label}>
                 <Link
                   to={to}
-                  className="text-sm transition-colors hover:text-cyan-500"
-                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                  className="text-sm transition-colors hover:text-cyan-300"
+                  style={{ color: 'rgba(255,255,255,0.62)' }}
                 >
                   {label}
                 </Link>
@@ -57,8 +57,8 @@ const Footer = () => (
               <li key={label}>
                 <Link
                   to={to}
-                  className="text-sm transition-colors hover:text-cyan-500"
-                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                  className="text-sm transition-colors hover:text-cyan-300"
+                  style={{ color: 'rgba(255,255,255,0.62)' }}
                 >
                   {label}
                 </Link>
@@ -71,7 +71,7 @@ const Footer = () => (
           <h4 className="text-sm font-bold text-white mb-4 tracking-wide">Contact</h4>
           <ul className="space-y-2.5">
             {['support@sailingloc.fr', '+33 1 23 45 67 89', 'FAQ', 'Lun-Ven · 9h-18h'].map((item) => (
-              <li key={item} className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              <li key={item} className="text-sm" style={{ color: 'rgba(255,255,255,0.62)' }}>
                 {item}
               </li>
             ))}
@@ -80,10 +80,10 @@ const Footer = () => (
       </div>
 
       <div
-        className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-7"
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-7"
         style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
       >
-        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
           © {new Date().getFullYear()} SailingLoc · Tous droits réservés
         </span>
         <span className="text-xs" style={{ color: '#00C6E0' }}>

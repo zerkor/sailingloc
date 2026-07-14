@@ -15,7 +15,7 @@ const AdminLayout = () => {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: '#EDF1F5' }}>
       <AdminSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header
           className="px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between flex-shrink-0"
@@ -42,7 +42,7 @@ const AdminLayout = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <Link
               to="/"
               className="inline-flex items-center gap-1.5 text-xs font-medium hover:underline"
@@ -61,7 +61,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-4 sm:p-6 overflow-auto">
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

@@ -107,11 +107,11 @@ const BoatDetailPage = () => {
         {/* ── Gallery ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
           {/* Main image */}
-          <div className="md:col-span-2 rounded-2xl overflow-hidden relative" style={{ height: 380 }}>
+          <div className="md:col-span-2 rounded-2xl overflow-hidden relative aspect-[4/3] md:aspect-[16/10] bg-smoke">
             <img
               src={images[selectedImage]}
               alt={boat.title}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
               onError={(e) => {
                 e.target.src = FALLBACK_BOAT_IMAGE;
               }}
@@ -124,12 +124,12 @@ const BoatDetailPage = () => {
 
           {/* Thumbs */}
           {images.length > 1 && (
-            <div className="grid grid-rows-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-1 md:grid-rows-2 gap-3">
               {images.slice(1, 3).map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i + 1)}
-                  className="rounded-2xl overflow-hidden transition-all"
+                  className="aspect-[4/3] rounded-2xl overflow-hidden bg-smoke transition-all"
                   style={{
                     outline: selectedImage === i + 1 ? '3px solid #00C6E0' : '3px solid transparent',
                     outlineOffset: 2,
@@ -138,8 +138,7 @@ const BoatDetailPage = () => {
                   <img
                     src={img}
                     alt={`Vue ${i + 2}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    style={{ height: '100%', maxHeight: 180 }}
+                    className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
                       e.target.src = FALLBACK_BOAT_IMAGE;
                     }}

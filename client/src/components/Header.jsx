@@ -51,7 +51,7 @@ const Header = () => {
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-7">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-7">
             {navLinks.map((link) => (
               <NavLink key={link.to} to={link.to} end={link.to === '/'} className={navLinkClass}>
                 {link.label}
@@ -158,9 +158,10 @@ const Header = () => {
           </div>
 
           <button
-            className="lg:hidden flex flex-col gap-[5px] p-2 rounded-lg"
+            className="lg:hidden flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04]"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
+            aria-expanded={menuOpen}
           >
             <span
               className={`block w-[22px] h-[2px] bg-white rounded-sm transition-all duration-200 origin-left ${menuOpen ? 'rotate-45' : ''}`}
@@ -175,12 +176,12 @@ const Header = () => {
         </div>
 
         {menuOpen && (
-          <div className="lg:hidden pb-5 border-t border-white/10 pt-4 space-y-0.5">
+          <div className="lg:hidden pb-5 border-t border-white/10 pt-4 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5"
+                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -189,7 +190,7 @@ const Header = () => {
             {user?.role === 'owner' && (
               <Link
                 to="/owner/dashboard"
-                className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5"
+                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
                 onClick={() => setMenuOpen(false)}
               >
                 Mon espace
@@ -198,7 +199,7 @@ const Header = () => {
             {user?.role === 'admin' && (
               <Link
                 to="/admin/dashboard"
-                className="block px-3 py-3 text-sm font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5"
+                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
                 onClick={() => setMenuOpen(false)}
               >
                 Administration
@@ -228,17 +229,17 @@ const Header = () => {
                   </button>
                 </>
               ) : (
-                <div className="flex gap-3 px-2 pt-3">
+                <div className="grid grid-cols-1 gap-3 px-2 pt-3 sm:grid-cols-2">
                   <Link
                     to="/login"
-                    className="flex-1 text-center text-sm font-medium text-white border border-white/20 py-2.5 rounded-full hover:bg-white/10"
+                    className="text-center text-sm font-semibold text-white border border-white/20 py-2.5 rounded-full hover:bg-white/10"
                     onClick={() => setMenuOpen(false)}
                   >
                     Connexion
                   </Link>
                   <Link
                     to="/register"
-                    className="flex-1 text-center text-sm font-bold py-2.5 rounded-full"
+                    className="text-center text-sm font-bold py-2.5 rounded-full"
                     style={{ background: '#00C6E0', color: '#07192E' }}
                     onClick={() => setMenuOpen(false)}
                   >

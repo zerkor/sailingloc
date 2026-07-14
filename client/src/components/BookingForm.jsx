@@ -84,7 +84,7 @@ const BookingForm = ({ boat }) => {
 
   return (
     <div
-      className="rounded-3xl p-7 sticky"
+      className="rounded-3xl p-5 sm:p-7 lg:sticky"
       style={{
         top: 96,
         background: '#fff',
@@ -141,7 +141,7 @@ const BookingForm = ({ boat }) => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Date fields */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
             <div
               className="rounded-xl p-3 transition-all"
               style={{ background: '#EDF1F5', border: '1.5px solid transparent' }}
@@ -192,7 +192,7 @@ const BookingForm = ({ boat }) => {
 
           {/* Price breakdown */}
           <div className="rounded-2xl p-4" style={{ background: '#F8FAFC', border: '1px solid #EDF1F5' }}>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <span className="text-xs font-bold uppercase tracking-[1.5px]" style={{ color: '#8896A8' }}>
                 Disponibilites
               </span>
@@ -222,13 +222,13 @@ const BookingForm = ({ boat }) => {
 
           {priceCalc && (
             <div className="rounded-2xl p-4 space-y-2" style={{ background: '#EDF1F5' }}>
-              <div className="flex justify-between text-sm" style={{ color: '#8896A8' }}>
+              <div className="flex justify-between gap-3 text-sm" style={{ color: '#8896A8' }}>
                 <span>
                   {formatPrice(boat.pricePerDay)} × {priceCalc.numberOfDays} jour{priceCalc.numberOfDays > 1 ? 's' : ''}
                 </span>
                 <span>{formatPrice(priceCalc.subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm" style={{ color: '#8896A8' }}>
+              <div className="flex justify-between gap-3 text-sm" style={{ color: '#8896A8' }}>
                 <span>Frais de service (10 %)</span>
                 <span>{formatPrice(priceCalc.serviceFee)}</span>
               </div>

@@ -50,7 +50,7 @@ const BoatListPage = () => {
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
       {/* ── Page header ── */}
       <div
-        className="relative overflow-hidden px-4 sm:px-6 lg:px-14 py-14"
+        className="relative overflow-hidden px-4 sm:px-6 lg:px-10 xl:px-14 py-12 sm:py-14"
         style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}
       >
         <div
@@ -82,7 +82,7 @@ const BoatListPage = () => {
 
       {/* ── Filter bar ── */}
       <div
-        className="sticky z-30 px-4 sm:px-6 lg:px-14 py-3 flex flex-wrap items-center gap-3"
+        className="sticky z-30 px-4 sm:px-6 lg:px-10 xl:px-14 py-3 flex flex-wrap items-center gap-3"
         style={{
           top: 76,
           background: '#fff',
@@ -93,7 +93,7 @@ const BoatListPage = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="lg:hidden flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full border transition-all"
+          className="lg:hidden inline-flex min-h-10 items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition-all"
           style={{ border: '1.5px solid rgba(7,25,46,0.15)', color: '#07192E' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@ const BoatListPage = () => {
           )}
         </div>
 
-        <span className="ml-auto text-sm" style={{ color: '#8896A8' }}>
+        <span className="ml-auto text-sm whitespace-nowrap" style={{ color: '#8896A8' }}>
           <strong style={{ color: '#07192E' }}>{total}</strong> bateau{total !== 1 ? 'x' : ''}
         </span>
       </div>
@@ -185,7 +185,7 @@ const BoatListPage = () => {
           </div>
         )}
 
-        <div className="flex gap-8">
+        <div className="flex min-w-0 gap-8">
           {/* Desktop sidebar */}
           <div className="hidden lg:block w-64 flex-shrink-0">
             <div
@@ -197,7 +197,7 @@ const BoatListPage = () => {
           </div>
 
           {/* Grid */}
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             {loading ? (
               <LoadingSpinner text="Recherche de bateaux..." />
             ) : boats.length === 0 ? (
@@ -211,7 +211,7 @@ const BoatListPage = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
                 {boats.map((boat) => (
                   <BoatCard key={boat._id} boat={boat} />
                 ))}

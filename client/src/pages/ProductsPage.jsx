@@ -31,7 +31,7 @@ const ProductsPage = () => {
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
       <section
-        className="px-4 sm:px-6 lg:px-14 py-14"
+        className="px-4 sm:px-6 lg:px-10 xl:px-14 py-12 sm:py-14"
         style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}
       >
         <div className="container-max">
@@ -92,7 +92,7 @@ const ProductsPage = () => {
             Aucun bateau approuvé disponible pour le moment.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
             {boats.map((boat) => (
               <BoatCard key={boat._id} boat={boat} />
             ))}

@@ -14,16 +14,25 @@
     --smoke: #edf1f5;
     --gray: #8896a8;
     --text: #3d4d61;
+    --surface: #ffffff;
+    --line: rgba(7, 25, 46, 0.1);
+    --shadow-card: 0 4px 24px rgba(7, 25, 46, 0.08);
+    --shadow-card-hover: 0 18px 48px rgba(7, 25, 46, 0.14);
+    --radius-card: 16px;
   }
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     font-family: 'Outfit', system-ui, sans-serif;
     background-color: #f7f5f2;
     color: #3d4d61;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -31,27 +40,55 @@
   h3 {
     font-family: 'Playfair Display', Georgia, serif;
   }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  img {
+    height: auto;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid rgba(0, 198, 224, 0.55);
+    outline-offset: 3px;
+  }
 }
 
 @layer components {
   /* ── Buttons ── */
   .btn-primary {
-    @apply bg-navy-900 text-white px-6 py-3 rounded-full font-semibold text-sm
+    @apply inline-flex items-center justify-center gap-2 bg-navy-900 text-white px-6 py-3 rounded-full font-semibold text-sm
            hover:bg-navy-700 transition-colors duration-200
            disabled:opacity-50 disabled:cursor-not-allowed;
+    min-height: 44px;
   }
   .btn-secondary {
-    @apply bg-white text-navy-900 border border-navy-900/20 px-6 py-3 rounded-full
+    @apply inline-flex items-center justify-center gap-2 bg-white text-navy-900 border border-navy-900/20 px-6 py-3 rounded-full
            font-semibold text-sm hover:bg-navy-900 hover:text-white
            transition-colors duration-200;
+    min-height: 44px;
   }
   .btn-ocean {
-    @apply bg-cyan-500 text-navy-900 px-6 py-3 rounded-full font-bold text-sm
+    @apply inline-flex items-center justify-center gap-2 bg-cyan-500 text-navy-900 px-6 py-3 rounded-full font-bold text-sm
            hover:bg-cyan-300 transition-colors duration-200;
+    min-height: 44px;
   }
   .btn-danger {
-    @apply bg-red-600 text-white px-4 py-2 rounded-full font-semibold text-sm
+    @apply inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full font-semibold text-sm
            hover:bg-red-700 transition-colors duration-200;
+    min-height: 40px;
   }
   .btn-sm {
     @apply px-4 py-2 text-xs;
@@ -63,20 +100,27 @@
            font-sans text-navy-900 text-sm
            focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500
            transition-all duration-200;
+    min-height: 44px;
+    box-shadow: 0 1px 0 rgba(7, 25, 46, 0.02);
+  }
+
+  .input-field::placeholder {
+    color: #94a3b8;
   }
 
   /* ── Cards ── */
   .card {
-    @apply bg-white rounded-2xl overflow-hidden;
-    box-shadow: 0 4px 24px rgba(7, 25, 46, 0.08);
+    @apply bg-white overflow-hidden;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
   }
 
   /* ── Layout ── */
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-14;
+    @apply py-14 px-4 sm:px-6 lg:px-10 xl:px-14;
   }
   .container-max {
-    @apply max-w-7xl mx-auto;
+    @apply w-full max-w-7xl mx-auto;
   }
 
   /* ── Section labels ── */
@@ -85,7 +129,7 @@
   }
   .sec-title {
     font-family: 'Playfair Display', Georgia, serif;
-    @apply text-4xl font-extrabold text-navy-900 leading-tight mb-3;
+    @apply text-3xl sm:text-4xl font-extrabold text-navy-900 leading-tight mb-3;
   }
 
   /* ── Meta pill ── */
@@ -149,7 +193,7 @@
   .home-hero {
     position: relative;
     overflow: hidden;
-    min-height: 430px;
+    min-height: clamp(430px, 47vw, 540px);
     background:
       radial-gradient(circle at 82% 24%, rgba(0, 198, 224, 0.22), transparent 28%),
       linear-gradient(135deg, #07192e 0%, #0d3145 55%, #00a9c8 130%);
@@ -178,10 +222,10 @@
   .home-hero-inner {
     position: relative;
     z-index: 1;
-    min-height: 430px;
+    min-height: clamp(430px, 47vw, 540px);
     display: flex;
     align-items: center;
-    padding: 72px 16px 54px;
+    padding: clamp(48px, 6vw, 76px) 16px clamp(42px, 5vw, 58px);
   }
 
   .home-hero-copy {
@@ -235,6 +279,7 @@
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 18px 48px rgba(4, 16, 31, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .home-search-field {
@@ -275,6 +320,7 @@
     font-size: 13px;
     font-weight: 900;
     transition: opacity 160ms ease;
+    min-height: 58px;
   }
 
   .home-search-button:hover {
@@ -366,7 +412,7 @@
 
   .home-step-card,
   .home-review-card {
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     background: #f4f8fb;
     border: 1px solid #e4edf3;
     padding: 22px;
@@ -455,7 +501,7 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 28px;
-      padding-top: 48px;
+      padding-top: 42px;
       padding-bottom: 42px;
     }
 
@@ -505,7 +551,7 @@
     }
 
     .home-hero h1 {
-      font-size: clamp(34px, 13vw, 48px);
+      font-size: clamp(34px, 12vw, 46px);
     }
 
     .home-hero p {
@@ -520,6 +566,7 @@
 
     .home-search {
       grid-template-columns: 1fr;
+      border-radius: 14px;
     }
 
     .home-search-field {
@@ -534,6 +581,45 @@
     .home-section-heading {
       align-items: start;
       flex-direction: column;
+    }
+
+    .home-stats-grid {
+      gap: 14px 10px;
+    }
+
+    .home-stats-grid strong {
+      font-size: 22px;
+    }
+  }
+
+  .overflow-x-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(7, 25, 46, 0.24) transparent;
+  }
+
+  .overflow-x-auto table {
+    min-width: 720px;
+  }
+
+  @media (max-width: 480px) {
+    .section-padding {
+      @apply py-10 px-4;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-ocean {
+      @apply px-5;
+      width: 100%;
+    }
+
+    .card,
+    .rounded-3xl {
+      border-radius: var(--radius-card);
+    }
+
+    .input-field {
+      font-size: 16px;
     }
   }
 }
