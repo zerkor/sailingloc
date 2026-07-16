@@ -143,6 +143,11 @@ Les fichiers sont servis depuis `/uploads`. Pour une vraie production, remplacer
 - [Production](docs/PRODUCTION.md)
 - [Logging et monitoring](docs/LOGGING_MONITORING.md)
 - [Backup MongoDB](docs/BACKUP_STRATEGY.md)
+- [Audit final soutenance](docs/AUDIT_FINAL_SOUTENANCE.md)
+- [Identifiants de recette](docs/IDENTIFIANTS_RECETTE.md)
+- [SMTP Render](docs/SMTP_RENDER.md)
+- [Lighthouse et accessibilité](docs/LIGHTHOUSE_ACCESSIBILITY.md)
+- [Tests de montée en charge](docs/TEST_CHARGE.md)
 - [Tests](TESTS.md)
 
 ## Comptes de démonstration
@@ -164,6 +169,29 @@ La page `/mvp-limitations` clarifie les limites pour la soutenance :
 - upload local à remplacer par du cloud en production ;
 - vérification documentaire manuelle ;
 - pas encore de messagerie temps réel, application mobile, assurance partenaire ni arbitrage complet.
+
+## Captures écran soutenance
+
+Installer les dépendances Playwright du client puis lancer :
+
+```bash
+cd client
+npx playwright install chromium
+cd ..
+npm run screenshots
+```
+
+Les captures sont générées dans `docs/reports/screenshots`.
+
+## Test de charge
+
+Installer k6 puis lancer :
+
+```bash
+k6 run load-tests/k6/sailingloc-smoke.js
+```
+
+Voir [docs/TEST_CHARGE.md](docs/TEST_CHARGE.md).
 
 ## Backup MongoDB
 
