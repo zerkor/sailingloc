@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Anchor,
@@ -19,38 +20,39 @@ import { getBoats } from '../services/boatService';
 import { mockBoats } from '../data/boats.mock';
 
 const STATS = [
-  ['1 200+', 'Bateaux'],
-  ['320', 'Ports'],
-  ['15 000+', 'Navigations'],
-  ['4.9/5', 'Note moyenne'],
+  ['1 200+', 'home.stats.boats'],
+  ['320', 'home.stats.ports'],
+  ['15 000+', 'home.stats.navigations'],
+  ['4.9/5', 'home.stats.rating'],
 ];
 
 const STEPS = [
   {
     icon: Search,
-    title: 'Rechercher',
-    text: 'Filtrez par destination, dates, type de bateau et budget.',
+    titleKey: 'home.steps.searchTitle',
+    textKey: 'home.steps.searchText',
   },
   {
     icon: CalendarDays,
-    title: 'Reservez',
-    text: 'Envoyez une demande au proprietaire et suivez son acceptation.',
+    titleKey: 'home.steps.bookTitle',
+    textKey: 'home.steps.bookText',
   },
   {
     icon: Sailboat,
-    title: 'Naviguez',
-    text: 'Prenez le large avec une reservation securisee et verifiee.',
+    titleKey: 'home.steps.sailTitle',
+    textKey: 'home.steps.sailText',
   },
 ];
 
 const REVIEWS = [
-  ['Marie D.', 'Le voilier etait impeccable. Reservation simple et proprietaire tres reactif.'],
-  ['Thomas L.', 'Parfait pour une sortie en famille. Le bateau correspondait exactement a l annonce.'],
-  ['Sarah B.', 'Tres bonne experience, paiement clair et support rassurant avant le depart.'],
+  ['Marie D.', 'home.reviews.marie'],
+  ['Thomas L.', 'home.reviews.thomas'],
+  ['Sarah B.', 'home.reviews.sarah'],
 ];
 
 const HeroSearchBar = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
 
@@ -63,38 +65,39 @@ const HeroSearchBar = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="home-search" aria-label="Rechercher un bateau">
+    <form onSubmit={handleSubmit} className="home-search" aria-label={t('home.searchAria')}>
       <label className="home-search-field">
-        <span>Destination</span>
+        <span>{t('home.destination')}</span>
         <input
           value={location}
           onChange={(event) => setLocation(event.target.value)}
-          placeholder="Marseille, Nice..."
+          placeholder={t('home.destinationPlaceholder')}
         />
       </label>
       <label className="home-search-field">
-        <span>Dates</span>
-        <input type="text" placeholder="Arrivee - depart" aria-label="Dates souhaitees" />
+        <span>{t('home.dates')}</span>
+        <input type="text" placeholder={t('home.datesPlaceholder')} aria-label={t('home.dateAria')} />
       </label>
       <label className="home-search-field">
-        <span>Type</span>
-        <select value={type} onChange={(event) => setType(event.target.value)} aria-label="Type de bateau">
-          <option value="">Tous types</option>
-          <option value="sailboat">Voilier</option>
-          <option value="motorboat">Moteur</option>
-          <option value="catamaran">Catamaran</option>
-          <option value="rib">Semi-rigide</option>
+        <span>{t('boatTypes.label')}</span>
+        <select value={type} onChange={(event) => setType(event.target.value)} aria-label={t('home.typeAria')}>
+          <option value="">{t('boatTypes.all')}</option>
+          <option value="sailboat">{t('boatTypes.sailboat')}</option>
+          <option value="motorboat">{t('boatTypes.motorboat')}</option>
+          <option value="catamaran">{t('boatTypes.catamaran')}</option>
+          <option value="rib">{t('boatTypes.rib')}</option>
         </select>
       </label>
       <button type="submit" className="home-search-button">
         <Search size={16} />
-        <span>Rechercher</span>
+        <span>{t('common.search')}</span>
       </button>
     </form>
   );
 };
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const [featuredBoats, setFeaturedBoats] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -110,37 +113,31 @@ const HomePage = () => {
 
   return (
     <div className="home-shell">
-      <SEO
-        title="SailingLoc - Location de bateaux entre particuliers"
-        description="Louez un voilier, catamaran ou bateau a moteur entre particuliers avec proprietaires verifies, avis et reservation en ligne."
-      />
+      <SEO title={t('home.seoTitle')} description={t('home.seoDescription')} />
       <section className="home-hero">
         <div className="container-max home-hero-inner">
           <div className="home-hero-copy">
             <span className="home-pill">
               <Anchor size={13} />
-              Plateforme n 1 en France
+              {t('home.pill')}
             </span>
             <h1>
-              Naviguez librement,
-              <span> entre particuliers</span>
+              {t('home.heroTitle')}
+              <span>{t('home.heroHighlight')}</span>
             </h1>
-            <p>
-              Louez un voilier ou un bateau a moteur directement aupres de proprietaires verifies, avec disponibilites,
-              avis et reservation en ligne.
-            </p>
+            <p>{t('home.heroSubtitle')}</p>
             <HeroSearchBar />
           </div>
           <div className="home-hero-orb" aria-hidden="true" />
         </div>
       </section>
 
-      <section className="home-stats" aria-label="Chiffres cles SailingLoc">
+      <section className="home-stats" aria-label={t('home.statsAria')}>
         <div className="container-max home-stats-grid">
-          {STATS.map(([value, label]) => (
-            <div key={label}>
+          {STATS.map(([value, labelKey]) => (
+            <div key={labelKey}>
               <strong>{value}</strong>
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </div>
           ))}
         </div>
@@ -150,17 +147,17 @@ const HomePage = () => {
         <div className="container-max">
           <div className="home-section-heading">
             <div>
-              <span className="sec-eyebrow">Nos bateaux</span>
-              <h2>Trouvez votre embarcation ideale</h2>
+              <span className="sec-eyebrow">{t('home.boatsEyebrow')}</span>
+              <h2>{t('home.boatsTitle')}</h2>
             </div>
             <Link to="/boats" className="home-text-link">
-              Voir tous les bateaux <ArrowRight size={15} />
+              {t('home.viewAllBoats')} <ArrowRight size={15} />
             </Link>
           </div>
           <BoatGrid boats={featuredBoats} loading={loading} />
           <div className="text-center mt-9">
             <Link to="/boats" className="home-dark-cta">
-              Voir tous les bateaux <ArrowRight size={15} />
+              {t('home.viewAllBoats')} <ArrowRight size={15} />
             </Link>
           </div>
         </div>
@@ -168,16 +165,16 @@ const HomePage = () => {
 
       <section className="section-padding home-section home-how">
         <div className="container-max">
-          <span className="sec-eyebrow">Comment ca marche</span>
-          <h2>Simple, rapide et securise</h2>
+          <span className="sec-eyebrow">{t('home.howEyebrow')}</span>
+          <h2>{t('home.howTitle')}</h2>
           <div className="home-step-grid">
             {STEPS.map((step) => {
               const Icon = step.icon;
               return (
-                <article key={step.title} className="home-step-card">
+                <article key={step.titleKey} className="home-step-card">
                   <Icon size={25} />
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
+                  <h3>{t(step.titleKey)}</h3>
+                  <p>{t(step.textKey)}</p>
                 </article>
               );
             })}
@@ -187,17 +184,17 @@ const HomePage = () => {
 
       <section className="section-padding home-section">
         <div className="container-max">
-          <span className="sec-eyebrow">Temoignages</span>
-          <h2>Ils ont navigue avec SailingLoc</h2>
+          <span className="sec-eyebrow">{t('home.reviewsEyebrow')}</span>
+          <h2>{t('home.reviewsTitle')}</h2>
           <div className="home-review-grid">
-            {REVIEWS.map(([name, text]) => (
+            {REVIEWS.map(([name, textKey]) => (
               <article key={name} className="home-review-card">
-                <div className="home-stars" aria-label="5 sur 5">
+                <div className="home-stars" aria-label={t('home.reviewAria')}>
                   {Array.from({ length: 5 }, (_, index) => (
                     <Star key={index} size={14} fill="#F4A01A" color="#F4A01A" />
                   ))}
                 </div>
-                <p>{text}</p>
+                <p>{t(textKey)}</p>
                 <div className="home-review-user">
                   <span>{name.slice(0, 1)}</span>
                   <strong>{name}</strong>
@@ -211,16 +208,16 @@ const HomePage = () => {
       <section className="home-trust">
         <div className="container-max home-trust-grid">
           <div>
-            <ShieldCheck size={20} /> Proprietaires verifies
+            <ShieldCheck size={20} /> {t('home.trust.owners')}
           </div>
           <div>
-            <Users size={20} /> Support reservation
+            <Users size={20} /> {t('home.trust.support')}
           </div>
           <div>
-            <ShipWheel size={20} /> Bateaux valides
+            <ShipWheel size={20} /> {t('home.trust.boats')}
           </div>
           <div>
-            <Waves size={20} /> Paiement trace
+            <Waves size={20} /> {t('home.trust.payment')}
           </div>
         </div>
       </section>

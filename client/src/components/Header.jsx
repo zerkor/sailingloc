@@ -1,17 +1,20 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LanguageSelector from './LanguageSelector';
 
 const navLinks = [
-  { to: '/', label: 'Accueil' },
-  { to: '/boats', label: 'Bateaux' },
-  { to: '/categories', label: 'Catégories' },
-  { to: '/products', label: 'Produits' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/', labelKey: 'navbar.home' },
+  { to: '/boats', labelKey: 'navbar.boats' },
+  { to: '/categories', labelKey: 'navbar.categories' },
+  { to: '/products', labelKey: 'navbar.products' },
+  { to: '/contact', labelKey: 'navbar.contact' },
 ];
 
 const Header = () => {
   const { user, logoutUser } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,7 +39,7 @@ const Header = () => {
       style={{ background: 'rgba(7,25,46,0.97)', backdropFilter: 'blur(20px)' }}
     >
       <nav className="container-max px-4 sm:px-6 lg:px-14">
-        <div className="flex items-center justify-between h-[76px]">
+        <div className="flex h-[76px] items-center justify-between">
           <Link to="/" className="flex-shrink-0">
             <span
               style={{
@@ -51,89 +54,90 @@ const Header = () => {
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-6 xl:gap-7">
+          <div className="hidden items-center gap-6 lg:flex xl:gap-7">
             {navLinks.map((link) => (
               <NavLink key={link.to} to={link.to} end={link.to === '/'} className={navLinkClass}>
-                {link.label}
+                {t(link.labelKey)}
               </NavLink>
             ))}
             {user?.role === 'owner' && (
               <NavLink to="/owner/dashboard" className={navLinkClass}>
-                Mon espace
+                {t('navbar.ownerSpace')}
               </NavLink>
             )}
             {user?.role === 'admin' && (
               <NavLink to="/admin/dashboard" className={navLinkClass}>
-                Administration
+                {t('navbar.admin')}
               </NavLink>
             )}
           </div>
 
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden items-center gap-3 lg:flex">
+            <LanguageSelector />
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/15 border border-white/15 rounded-full px-4 py-2 transition-all"
+                  className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/15 hover:text-white"
                 >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                    className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
                     style={{ background: '#00C6E0', color: '#07192E' }}
                   >
                     {user.firstName?.charAt(0)}
                     {user.lastName?.charAt(0)}
                   </div>
                   <span>{user.firstName}</span>
-                  <svg className="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
                 {dropdownOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-52 bg-white rounded-2xl border border-navy-900/10 py-1.5 z-50"
+                    className="absolute right-0 z-50 mt-2 w-52 rounded-2xl border border-navy-900/10 bg-white py-1.5"
                     style={{ boxShadow: '0 12px 48px rgba(7,25,46,0.14)' }}
                   >
                     <Link
                       to="/profile"
-                      className="block px-4 py-2.5 text-sm text-navy-900 hover:bg-[#EDF1F5] transition-colors"
+                      className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      Mon profil
+                      {t('navbar.profile')}
                     </Link>
                     {user.role === 'tenant' && (
                       <Link
                         to="/my-bookings"
-                        className="block px-4 py-2.5 text-sm text-navy-900 hover:bg-[#EDF1F5] transition-colors"
+                        className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Mes réservations
+                        {t('navbar.bookings')}
                       </Link>
                     )}
                     {user.role === 'owner' && (
                       <Link
                         to="/owner/dashboard"
-                        className="block px-4 py-2.5 text-sm text-navy-900 hover:bg-[#EDF1F5] transition-colors"
+                        className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Tableau de bord
+                        {t('navbar.dashboard')}
                       </Link>
                     )}
                     {user.role === 'admin' && (
                       <Link
                         to="/admin/dashboard"
-                        className="block px-4 py-2.5 text-sm text-navy-900 hover:bg-[#EDF1F5] transition-colors"
+                        className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Administration
+                        {t('navbar.admin')}
                       </Link>
                     )}
                     <hr className="my-1.5 border-navy-900/10" />
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-red-500 transition-colors hover:bg-red-50"
                     >
-                      Déconnexion
+                      {t('navbar.logout')}
                     </button>
                   </div>
                 )}
@@ -142,70 +146,73 @@ const Header = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/50 px-5 py-2 rounded-full transition-all duration-200"
+                  className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/70 transition-all duration-200 hover:border-white/50 hover:text-white"
                 >
-                  Connexion
+                  {t('navbar.login')}
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-bold px-5 py-2 rounded-full transition-all duration-200 hover:opacity-90"
+                  className="rounded-full px-5 py-2 text-sm font-bold transition-all duration-200 hover:opacity-90"
                   style={{ background: '#00C6E0', color: '#07192E' }}
                 >
-                  S'inscrire
+                  {t('navbar.register')}
                 </Link>
               </>
             )}
           </div>
 
           <button
-            className="lg:hidden flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04]"
+            className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04] lg:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
+            aria-label={t('navbar.menu')}
             aria-expanded={menuOpen}
           >
             <span
-              className={`block w-[22px] h-[2px] bg-white rounded-sm transition-all duration-200 origin-left ${menuOpen ? 'rotate-45' : ''}`}
+              className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? 'rotate-45' : ''}`}
             />
             <span
-              className={`block w-[22px] h-[2px] bg-white rounded-sm transition-all duration-200 ${menuOpen ? 'opacity-0 -translate-x-2' : ''}`}
+              className={`block h-[2px] w-[22px] rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-translate-x-2 opacity-0' : ''}`}
             />
             <span
-              className={`block w-[22px] h-[2px] bg-white rounded-sm transition-all duration-200 origin-left ${menuOpen ? '-rotate-45' : ''}`}
+              className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-rotate-45' : ''}`}
             />
           </button>
         </div>
 
         {menuOpen && (
-          <div className="lg:hidden pb-5 border-t border-white/10 pt-4 space-y-1">
+          <div className="space-y-1 border-t border-white/10 pb-5 pt-4 lg:hidden">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
+                className="block rounded-xl px-3 py-3 text-sm font-semibold text-white/80 hover:bg-white/8 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
+            <div className="px-2 py-3">
+              <LanguageSelector compact />
+            </div>
             {user?.role === 'owner' && (
               <Link
                 to="/owner/dashboard"
-                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
+                className="block rounded-xl px-3 py-3 text-sm font-semibold text-white/80 hover:bg-white/8 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                Mon espace
+                {t('navbar.ownerSpace')}
               </Link>
             )}
             {user?.role === 'admin' && (
               <Link
                 to="/admin/dashboard"
-                className="block px-3 py-3 text-sm font-semibold text-white/80 hover:text-white rounded-xl hover:bg-white/8"
+                className="block rounded-xl px-3 py-3 text-sm font-semibold text-white/80 hover:bg-white/8 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                Administration
+                {t('navbar.admin')}
               </Link>
             )}
-            <div className="pt-2 border-t border-white/10 mt-2">
+            <div className="mt-2 border-t border-white/10 pt-2">
               {user ? (
                 <>
                   <Link
@@ -213,7 +220,7 @@ const Header = () => {
                     className="block px-3 py-3 text-sm text-white/70 hover:text-white"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Mon profil
+                    {t('navbar.profile')}
                   </Link>
                   {user.role === 'tenant' && (
                     <Link
@@ -221,29 +228,29 @@ const Header = () => {
                       className="block px-3 py-3 text-sm text-white/70 hover:text-white"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Mes réservations
+                      {t('navbar.bookings')}
                     </Link>
                   )}
-                  <button onClick={handleLogout} className="block w-full text-left px-3 py-3 text-sm text-red-400">
-                    Déconnexion
+                  <button onClick={handleLogout} className="block w-full px-3 py-3 text-left text-sm text-red-400">
+                    {t('navbar.logout')}
                   </button>
                 </>
               ) : (
                 <div className="grid grid-cols-1 gap-3 px-2 pt-3 sm:grid-cols-2">
                   <Link
                     to="/login"
-                    className="text-center text-sm font-semibold text-white border border-white/20 py-2.5 rounded-full hover:bg-white/10"
+                    className="rounded-full border border-white/20 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/10"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Connexion
+                    {t('navbar.login')}
                   </Link>
                   <Link
                     to="/register"
-                    className="text-center text-sm font-bold py-2.5 rounded-full"
+                    className="rounded-full py-2.5 text-center text-sm font-bold"
                     style={{ background: '#00C6E0', color: '#07192E' }}
                     onClick={() => setMenuOpen(false)}
                   >
-                    S'inscrire
+                    {t('navbar.register')}
                   </Link>
                 </div>
               )}

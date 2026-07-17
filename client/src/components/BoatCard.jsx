@@ -1,43 +1,35 @@
-// src/components/BoatCard.jsx
-import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarDays, MapPin, Ruler, Star, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../utils/boatImages';
 import { formatPrice } from '../utils/formatPrice';
 import { buildBoatSlug } from '../utils/slugifyBoat';
-import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../utils/boatImages';
 
-const typeLabels = {
-  sailboat: 'Voilier',
-  motorboat: 'Moteur',
-  catamaran: 'Catamaran',
-  rib: 'Yacht / Rigid',
-};
-
-// ── Skeleton ─────────────────────────────────────────────────────────────────
 export const BoatCardSkeleton = () => (
   <div
-    className="bg-white rounded-2xl overflow-hidden animate-pulse border border-navy-900/[0.04]"
+    className="animate-pulse overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white"
     style={{ boxShadow: 'var(--shadow-card)' }}
   >
     <div className="aspect-[4/3] bg-gray-200" />
-    <div className="p-5 space-y-3">
-      <div className="h-2.5 bg-gray-200 rounded-full w-1/3" />
-      <div className="h-5 bg-gray-200 rounded-full w-2/3" />
-      <div className="h-3 bg-gray-200 rounded-full w-1/2" />
+    <div className="space-y-3 p-5">
+      <div className="h-2.5 w-1/3 rounded-full bg-gray-200" />
+      <div className="h-5 w-2/3 rounded-full bg-gray-200" />
+      <div className="h-3 w-1/2 rounded-full bg-gray-200" />
       <div className="flex gap-2 pt-1">
-        <div className="h-6 bg-gray-100 rounded-full w-14" />
-        <div className="h-6 bg-gray-100 rounded-full w-16" />
-        <div className="h-6 bg-gray-100 rounded-full w-12" />
+        <div className="h-6 w-14 rounded-full bg-gray-100" />
+        <div className="h-6 w-16 rounded-full bg-gray-100" />
+        <div className="h-6 w-12 rounded-full bg-gray-100" />
       </div>
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-        <div className="h-6 bg-gray-200 rounded-full w-20" />
-        <div className="h-8 bg-gray-200 rounded-full w-20" />
+      <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+        <div className="h-6 w-20 rounded-full bg-gray-200" />
+        <div className="h-8 w-20 rounded-full bg-gray-200" />
       </div>
     </div>
   </div>
 );
 
-// ── Card ──────────────────────────────────────────────────────────────────────
 const BoatCard = ({ boat }) => {
+  const { t } = useTranslation();
   const imageUrl = getBoatImage(boat);
   const rating = boat.averageRating || 0;
   const reviewCount = boat.reviewCount || 0;
@@ -46,19 +38,16 @@ const BoatCard = ({ boat }) => {
   const extra = features.length - visible.length;
   const isVerified = boat.owner?.verified === true;
 
-  const filledStars = Math.round(rating);
-
   return (
     <Link
       to={`/bateaux/${buildBoatSlug(boat)}`}
-      className="group block h-full bg-white rounded-2xl overflow-hidden border border-navy-900/[0.04] transition-all duration-300"
+      className="group block h-full overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white transition-all duration-300"
       style={{ boxShadow: 'var(--shadow-card)' }}
       onMouseEnter={(e) =>
         (e.currentTarget.style.boxShadow = '0 18px 48px rgba(0,198,224,0.14), 0 8px 24px rgba(7,25,46,0.12)')
       }
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-card)')}
     >
-      {/* ── Image ── */}
       <div className="relative aspect-[4/3] overflow-hidden bg-smoke">
         <img
           src={imageUrl}
@@ -70,73 +59,71 @@ const BoatCard = ({ boat }) => {
           loading="lazy"
         />
 
-        {/* Gradient */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(7,25,46,0.65) 0%, transparent 55%)' }}
         />
 
-        {/* Type badge — top left */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute left-3 top-3">
           <span
-            className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full shadow-sm"
+            className="rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[1px] shadow-sm"
             style={{ background: 'rgba(0,198,224,0.95)', color: '#07192E', backdropFilter: 'blur(8px)' }}
           >
-            {typeLabels[boat.type] || boat.type}
+            {t(`boatTypes.${boat.type}`, boat.type)}
           </span>
         </div>
 
-        {/* Verified / Skipper badge — top right */}
         {isVerified ? (
-          <div className="absolute top-3 right-3">
+          <div className="absolute right-3 top-3">
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm"
+              className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[1px] shadow-sm"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
-              <Star size={12} fill="currentColor" /> Vérifié
+              <Star size={12} fill="currentColor" /> {t('common.verified')}
             </span>
           </div>
         ) : boat.skipperAvailable ? (
-          <div className="absolute top-3 right-3">
+          <div className="absolute right-3 top-3">
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[1px] px-3 py-1.5 rounded-full shadow-sm"
+              className="rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[1px] shadow-sm"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
-              Skipper
+              {t('common.skipper')}
             </span>
           </div>
         ) : null}
 
-        {/* Rating — bottom left */}
         {rating > 0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
             <Star size={14} fill="#F4A01A" color="#F4A01A" />
-            <span className="text-white text-sm font-semibold">{rating.toFixed(1)}</span>
-            {reviewCount > 0 && <span className="text-white/65 text-xs">({reviewCount} avis)</span>}
+            <span className="text-sm font-semibold text-white">{rating.toFixed(1)}</span>
+            {reviewCount > 0 && (
+              <span className="text-xs text-white/65">
+                ({reviewCount} {t('common.reviews')})
+              </span>
+            )}
           </div>
         )}
       </div>
 
-      {/* ── Body ── */}
       <div className="flex min-h-[250px] flex-col p-5">
-        <div className="text-[10px] font-bold uppercase tracking-[1.5px] mb-1" style={{ color: '#00C6E0' }}>
+        <div className="mb-1 text-[10px] font-bold uppercase tracking-[1.5px]" style={{ color: '#00C6E0' }}>
           <span className="inline-flex items-center gap-1.5">
             <MapPin size={12} /> {boat.port || boat.location}
           </span>
         </div>
 
         <h3
-          className="font-bold text-xl leading-tight truncate mb-2"
+          className="mb-2 truncate text-xl font-bold leading-tight"
           style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
         >
           {boat.title}
         </h3>
 
-        {/* Specs row */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mb-3" style={{ color: '#8896A8' }}>
+        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" style={{ color: '#8896A8' }}>
           {boat.capacity && (
             <span className="inline-flex items-center gap-1">
-              <Users size={13} /> {boat.capacity} pers.
+              <Users size={13} /> {boat.capacity} {t('common.personsShort')}
             </span>
           )}
           {boat.length && (
@@ -151,21 +138,20 @@ const BoatCard = ({ boat }) => {
           )}
         </div>
 
-        {/* Features */}
         {visible.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {visible.map((f) => (
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {visible.map((feature) => (
               <span
-                key={f}
-                className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                key={feature}
+                className="rounded-full px-2.5 py-1 text-[10px] font-semibold"
                 style={{ background: 'rgba(0,198,224,0.1)', color: '#155374' }}
               >
-                {f}
+                {feature}
               </span>
             ))}
             {extra > 0 && (
               <span
-                className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                className="rounded-full px-2.5 py-1 text-[10px] font-semibold"
                 style={{ background: '#EDF1F5', color: '#8896A8' }}
               >
                 +{extra}
@@ -174,19 +160,18 @@ const BoatCard = ({ boat }) => {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
           <div>
             <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
               {formatPrice(boat.pricePerDay)}
             </span>
-            <span className="text-sm ml-1" style={{ color: '#8896A8' }}>
-              /jour
+            <span className="ml-1 text-sm" style={{ color: '#8896A8' }}>
+              {t('common.perDay')}
             </span>
           </div>
-          <span className="shrink-0 bg-navy-900 text-white text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900">
+          <span className="shrink-0 rounded-full bg-navy-900 px-4 py-2 text-xs font-bold text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900">
             <span className="inline-flex items-center gap-1">
-              Voir <ArrowRight size={13} />
+              {t('common.view')} <ArrowRight size={13} />
             </span>
           </span>
         </div>

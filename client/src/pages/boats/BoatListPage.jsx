@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Sailboat, X } from 'lucide-react';
 import BoatCard from '../../components/BoatCard';
@@ -7,6 +8,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { getBoats } from '../../services/boatService';
 
 const BoatListPage = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [boats, setBoats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,20 +48,29 @@ const BoatListPage = () => {
     fetchBoats();
   }, [fetchBoats]);
 
+  const resetFilters = () =>
+    setFilters({
+      location: '',
+      type: '',
+      minPrice: '',
+      maxPrice: '',
+      capacity: '',
+      skipperAvailable: false,
+    });
+
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
-      {/* ── Page header ── */}
       <div
-        className="relative overflow-hidden px-4 sm:px-6 lg:px-10 xl:px-14 py-12 sm:py-14"
+        className="relative overflow-hidden px-4 py-12 sm:px-6 sm:py-14 lg:px-10 xl:px-14"
         style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}
       >
         <div
-          className="absolute -top-24 -right-24 w-96 h-96 rounded-full"
+          className="absolute -right-24 -top-24 h-96 w-96 rounded-full"
           style={{ background: 'rgba(0,198,224,0.06)' }}
         />
         <div className="container-max relative">
           <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
-            Catalogue
+            {t('boats.catalog')}
           </span>
           <h1
             className="mb-2 leading-tight"
@@ -70,19 +81,18 @@ const BoatListPage = () => {
               color: '#fff',
             }}
           >
-            Tous nos bateaux
+            {t('boats.titleA')}
             <br />
-            disponibles
+            {t('boats.titleB')}
           </h1>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            {total} annonce{total !== 1 ? 's' : ''} · France & Europe
+            {t('boats.listingCount', { count: total })} · {t('boats.zone')}
           </p>
         </div>
       </div>
 
-      {/* ── Filter bar ── */}
       <div
-        className="sticky z-30 px-4 sm:px-6 lg:px-10 xl:px-14 py-3 flex flex-wrap items-center gap-3"
+        className="sticky z-30 flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-10 xl:px-14"
         style={{
           top: 76,
           background: '#fff',
@@ -90,13 +100,12 @@ const BoatListPage = () => {
           boxShadow: '0 2px 16px rgba(7,25,46,0.06)',
         }}
       >
-        {/* Mobile toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="lg:hidden inline-flex min-h-10 items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition-all"
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all lg:hidden"
           style={{ border: '1.5px solid rgba(7,25,46,0.15)', color: '#07192E' }}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -104,81 +113,69 @@ const BoatListPage = () => {
               d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
             />
           </svg>
-          Filtres {showFilters ? '▲' : '▼'}
+          {t('common.filters')} {showFilters ? '▲' : '▼'}
         </button>
 
-        {/* Desktop quick filters */}
-        <div className="hidden lg:flex items-center gap-2 flex-wrap flex-1">
+        <div className="hidden flex-1 flex-wrap items-center gap-2 lg:flex">
           <select
             value={filters.type}
             onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
-            className="px-4 py-2 rounded-full border text-sm font-medium cursor-pointer outline-none transition-all"
+            className="cursor-pointer rounded-full border px-4 py-2 text-sm font-medium outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
-            <option value="">Type de bateau</option>
-            <option value="sailboat">Voilier</option>
-            <option value="motorboat">Bateau à moteur</option>
-            <option value="catamaran">Catamaran</option>
-            <option value="rib">Semi-rigide</option>
+            <option value="">{t('boatTypes.label')}</option>
+            <option value="sailboat">{t('boatTypes.sailboat')}</option>
+            <option value="motorboat">{t('boatTypes.motorboat')}</option>
+            <option value="catamaran">{t('boatTypes.catamaran')}</option>
+            <option value="rib">{t('boatTypes.rib')}</option>
           </select>
 
           <select
             value={filters.minPrice}
             onChange={(e) => setFilters((f) => ({ ...f, minPrice: e.target.value }))}
-            className="px-4 py-2 rounded-full border text-sm font-medium cursor-pointer outline-none transition-all"
+            className="cursor-pointer rounded-full border px-4 py-2 text-sm font-medium outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
-            <option value="">Budget / jour</option>
-            <option value="0">-200€</option>
-            <option value="200">200–500€</option>
-            <option value="500">+500€</option>
+            <option value="">{t('boats.budget')}</option>
+            <option value="0">{t('boats.budgetLow')}</option>
+            <option value="200">{t('boats.budgetMid')}</option>
+            <option value="500">{t('boats.budgetHigh')}</option>
           </select>
 
           <button
             onClick={() => setFilters((f) => ({ ...f, skipperAvailable: !f.skipperAvailable }))}
-            className="px-4 py-2 rounded-full border text-sm font-medium transition-all"
+            className="rounded-full border px-4 py-2 text-sm font-medium transition-all"
             style={
               filters.skipperAvailable
                 ? { background: '#07192E', color: '#fff', border: '1.5px solid #07192E' }
                 : { border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }
             }
           >
-            Avec skipper
+            {t('boats.withSkipper')}
           </button>
 
           {(filters.type || filters.location || filters.minPrice || filters.skipperAvailable) && (
             <button
-              onClick={() =>
-                setFilters({
-                  location: '',
-                  type: '',
-                  minPrice: '',
-                  maxPrice: '',
-                  capacity: '',
-                  skipperAvailable: false,
-                })
-              }
-              className="px-4 py-2 rounded-full text-sm font-medium transition-all"
+              onClick={resetFilters}
+              className="rounded-full px-4 py-2 text-sm font-medium transition-all"
               style={{ color: '#00C6E0', background: 'rgba(0,198,224,0.08)' }}
             >
               <span className="inline-flex items-center gap-1.5">
-                <X size={14} /> Effacer
+                <X size={14} /> {t('common.clear')}
               </span>
             </button>
           )}
         </div>
 
-        <span className="ml-auto text-sm whitespace-nowrap" style={{ color: '#8896A8' }}>
-          <strong style={{ color: '#07192E' }}>{total}</strong> bateau{total !== 1 ? 'x' : ''}
+        <span className="ml-auto whitespace-nowrap text-sm" style={{ color: '#8896A8' }}>
+          {t('boats.boatCount', { count: total })}
         </span>
       </div>
 
-      {/* ── Main content ── */}
       <div className="container-max section-padding">
-        {/* Mobile filters panel */}
         {showFilters && (
           <div
-            className="lg:hidden mb-6 p-5 bg-white rounded-2xl"
+            className="mb-6 rounded-2xl bg-white p-5 lg:hidden"
             style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
           >
             <FilterSidebar filters={filters} onChange={setFilters} />
@@ -186,32 +183,30 @@ const BoatListPage = () => {
         )}
 
         <div className="flex min-w-0 gap-8">
-          {/* Desktop sidebar */}
-          <div className="hidden lg:block w-64 flex-shrink-0">
+          <div className="hidden w-64 flex-shrink-0 lg:block">
             <div
-              className="bg-white rounded-2xl p-5 sticky"
+              className="sticky rounded-2xl bg-white p-5"
               style={{ top: 140, boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
             >
               <FilterSidebar filters={filters} onChange={setFilters} />
             </div>
           </div>
 
-          {/* Grid */}
           <div className="min-w-0 flex-1">
             {loading ? (
-              <LoadingSpinner text="Recherche de bateaux..." />
+              <LoadingSpinner text={t('boats.loading')} />
             ) : boats.length === 0 ? (
-              <div className="text-center py-20">
+              <div className="py-20 text-center">
                 <Sailboat size={48} className="mx-auto mb-4" color="#00C6E0" />
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>
-                  Aucun résultat
+                <h3 className="mb-2 text-xl font-bold" style={{ color: '#07192E' }}>
+                  {t('boats.emptyTitle')}
                 </h3>
                 <p className="text-sm" style={{ color: '#8896A8' }}>
-                  Essayez de modifier vos critères de recherche.
+                  {t('boats.emptyText')}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
                 {boats.map((boat) => (
                   <BoatCard key={boat._id} boat={boat} />
                 ))}

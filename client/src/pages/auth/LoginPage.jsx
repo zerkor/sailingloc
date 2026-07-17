@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { login } from '../../services/authService';
-import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ErrorMessage from '../../components/ErrorMessage';
+import { useAuth } from '../../context/AuthContext';
+import { login } from '../../services/authService';
 
 const EyeIcon = ({ open }) =>
   open ? (
@@ -41,6 +42,7 @@ const EyeIcon = ({ open }) =>
 const HERO = 'https://images.unsplash.com/photo-1548793428-9e9e1e37e84c?w=900&q=85&auto=format&fit=crop';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const { loginUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,19 +66,17 @@ const LoginPage = () => {
         data.user.role === 'admin' ? '/admin/dashboard' : data.user.role === 'owner' ? '/owner/dashboard' : from;
       navigate(dest, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Email ou mot de passe incorrect.');
+      setError(err.response?.data?.message || t('auth.invalidLogin'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      {/* Left: form */}
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       <div className="flex items-center justify-center px-6 py-16" style={{ background: '#F7F5F2' }}>
         <div className="w-full max-w-md">
-          {/* Logo */}
-          <Link to="/" className="block mb-10">
+          <Link to="/" className="mb-10 block">
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#07192E' }}>
               Sailing<span style={{ color: '#00C6E0' }}>Loc</span>
             </span>
@@ -86,21 +86,21 @@ const LoginPage = () => {
             className="mb-2"
             style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 800, color: '#07192E' }}
           >
-            Connexion
+            {t('auth.loginTitle')}
           </h1>
-          <p className="text-sm mb-8" style={{ color: '#8896A8' }}>
-            Bienvenue ! Connectez-vous à votre compte.
+          <p className="mb-8 text-sm" style={{ color: '#8896A8' }}>
+            {t('auth.loginSubtitle')}
           </p>
 
-          <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+          <div className="rounded-3xl bg-white p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-xs font-bold uppercase tracking-wider mb-2"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wider"
                   style={{ color: '#3D4D61' }}
                 >
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -116,20 +116,20 @@ const LoginPage = () => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <label
                     htmlFor="password"
                     className="block text-xs font-bold uppercase tracking-wider"
                     style={{ color: '#3D4D61' }}
                   >
-                    Mot de passe
+                    {t('auth.password')}
                   </label>
                   <Link
                     to="/forgot-password"
                     className="text-xs font-semibold hover:underline"
                     style={{ color: '#00C6E0' }}
                   >
-                    Mot de passe oublié ?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
                 <div className="relative">
@@ -150,7 +150,7 @@ const LoginPage = () => {
                     className="absolute inset-y-0 right-3 flex items-center transition-colors"
                     style={{ color: '#8896A8' }}
                     tabIndex={-1}
-                    aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                    aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                   >
                     <EyeIcon open={showPassword} />
                   </button>
@@ -162,49 +162,46 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
+                className="w-full rounded-full py-3.5 text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ background: '#07192E', color: '#fff' }}
               >
-                {loading ? 'Connexion…' : 'Se connecter'}
+                {loading ? t('auth.loginLoading') : t('auth.loginCta')}
               </button>
             </form>
 
-            {/* Demo accounts hint */}
-            <div className="mt-5 p-3 rounded-2xl text-xs" style={{ background: '#EDF1F5', color: '#8896A8' }}>
-              <p className="font-semibold mb-1" style={{ color: '#3D4D61' }}>
-                Comptes démo :
+            <div className="mt-5 rounded-2xl p-3 text-xs" style={{ background: '#EDF1F5', color: '#8896A8' }}>
+              <p className="mb-1 font-semibold" style={{ color: '#3D4D61' }}>
+                {t('auth.demoAccounts')}
               </p>
               <p>tenant1@sailingloc.fr / Tenant123!</p>
               <p>owner1@sailingloc.fr / Owner123!</p>
               <p>admin@sailingloc.fr / Admin123!</p>
             </div>
 
-            <p className="text-center text-sm mt-5" style={{ color: '#8896A8' }}>
-              Pas encore de compte ?{' '}
+            <p className="mt-5 text-center text-sm" style={{ color: '#8896A8' }}>
+              {t('auth.noAccount')}{' '}
               <Link to="/register" className="font-bold hover:underline" style={{ color: '#07192E' }}>
-                S'inscrire
+                {t('auth.registerLink')}
               </Link>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right: image */}
       <div
-        className="hidden lg:block relative"
+        className="relative hidden lg:block"
         style={{ backgroundImage: `url(${HERO})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         <div className="absolute inset-0" style={{ background: 'rgba(7,25,46,0.55)' }} />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
-            className="text-white mb-3 leading-tight"
+            className="mb-3 leading-tight text-white"
             style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800 }}
           >
-            Naviguez <em style={{ color: '#00C6E0' }}>librement</em>,<br />
-            entre particuliers.
+            {t('auth.loginHeroTitle')}
           </p>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            +1 200 bateaux disponibles dans toute la France et l'Europe.
+            {t('auth.loginHeroText')}
           </p>
         </div>
       </div>

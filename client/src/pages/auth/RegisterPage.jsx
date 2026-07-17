@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sailboat, Waves } from 'lucide-react';
-import { register } from '../../services/authService';
-import { useAuth } from '../../context/AuthContext';
 import ErrorMessage from '../../components/ErrorMessage';
+import { useAuth } from '../../context/AuthContext';
+import { register } from '../../services/authService';
 
 const HERO = 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=900&q=85&auto=format&fit=crop';
 
 const RegisterPage = () => {
+  const { t } = useTranslation();
   const { loginUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -30,11 +32,11 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      setError(t('auth.passwordTooShort'));
       return;
     }
     if (!form.privacyConsent) {
-      setError('Vous devez accepter la politique de confidentialite pour creer un compte.');
+      setError(t('auth.privacyRequired'));
       return;
     }
     setLoading(true);
@@ -44,19 +46,22 @@ const RegisterPage = () => {
       loginUser(data.token, data.user);
       navigate(data.user.role === 'owner' ? '/owner/dashboard' : '/', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors de l'inscription.");
+      setError(err.response?.data?.message || t('auth.registerError'));
     } finally {
       setLoading(false);
     }
   };
 
+  const roles = [
+    { value: 'tenant', icon: Waves, label: t('auth.rentBoat'), sub: t('auth.tenantSub') },
+    { value: 'owner', icon: Sailboat, label: t('auth.rentMyBoat'), sub: t('auth.ownerSub') },
+  ];
+
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      {/* Left: form */}
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       <div className="flex items-center justify-center px-6 py-12" style={{ background: '#F7F5F2' }}>
         <div className="w-full max-w-md">
-          {/* Logo */}
-          <Link to="/" className="block mb-8">
+          <Link to="/" className="mb-8 block">
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#07192E' }}>
               Sailing<span style={{ color: '#00C6E0' }}>Loc</span>
             </span>
@@ -66,23 +71,22 @@ const RegisterPage = () => {
             className="mb-1"
             style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 800, color: '#07192E' }}
           >
-            Créer un compte
+            {t('auth.registerTitle')}
           </h1>
-          <p className="text-sm mb-6" style={{ color: '#8896A8' }}>
-            Rejoignez la communauté SailingLoc.
+          <p className="mb-6 text-sm" style={{ color: '#8896A8' }}>
+            {t('auth.registerSubtitle')}
           </p>
 
-          <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+          <div className="rounded-3xl bg-white p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-xs font-bold uppercase tracking-wider mb-2"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider"
                     style={{ color: '#3D4D61' }}
                   >
-                    Prénom
+                    {t('auth.firstName')}
                   </label>
                   <input
                     id="firstName"
@@ -98,10 +102,10 @@ const RegisterPage = () => {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-xs font-bold uppercase tracking-wider mb-2"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider"
                     style={{ color: '#3D4D61' }}
                   >
-                    Nom
+                    {t('auth.lastName')}
                   </label>
                   <input
                     id="lastName"
@@ -116,14 +120,13 @@ const RegisterPage = () => {
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-xs font-bold uppercase tracking-wider mb-2"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wider"
                   style={{ color: '#3D4D61' }}
                 >
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -138,14 +141,13 @@ const RegisterPage = () => {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-xs font-bold uppercase tracking-wider mb-2"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wider"
                   style={{ color: '#3D4D61' }}
                 >
-                  Mot de passe
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"
@@ -154,27 +156,23 @@ const RegisterPage = () => {
                   value={form.password}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder="Min. 6 caractères"
+                  placeholder={t('auth.passwordPlaceholder')}
                   required
                   autoComplete="new-password"
                 />
               </div>
 
-              {/* Role selector */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#3D4D61' }}>
-                  Je souhaite…
+                <label className="mb-3 block text-xs font-bold uppercase tracking-wider" style={{ color: '#3D4D61' }}>
+                  {t('auth.roleLabel')}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { value: 'tenant', icon: Waves, label: 'Louer un bateau', sub: 'Je suis locataire' },
-                    { value: 'owner', icon: Sailboat, label: 'Louer mon bateau', sub: 'Je suis propriétaire' },
-                  ].map((opt) => {
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {roles.map((opt) => {
                     const Icon = opt.icon;
                     return (
                       <label
                         key={opt.value}
-                        className="flex flex-col items-center p-4 rounded-2xl cursor-pointer transition-all"
+                        className="flex cursor-pointer flex-col items-center rounded-2xl p-4 transition-all"
                         style={
                           form.role === opt.value
                             ? { background: 'rgba(7,25,46,0.06)', border: '2px solid #07192E' }
@@ -193,7 +191,7 @@ const RegisterPage = () => {
                         <span className="text-sm font-bold" style={{ color: '#07192E' }}>
                           {opt.label}
                         </span>
-                        <span className="text-xs mt-0.5 text-center" style={{ color: '#8896A8' }}>
+                        <span className="mt-0.5 text-center text-xs" style={{ color: '#8896A8' }}>
                           {opt.sub}
                         </span>
                       </label>
@@ -213,11 +211,11 @@ const RegisterPage = () => {
                     required
                   />
                   <span>
-                    J'accepte la{' '}
+                    {t('auth.privacyTextStart')}{' '}
                     <Link to="/legal/privacy" className="font-bold hover:underline" style={{ color: '#07192E' }}>
-                      politique de confidentialite
+                      {t('auth.privacyLink')}
                     </Link>{' '}
-                    et le traitement de mes donnees pour utiliser SailingLoc.
+                    {t('auth.privacyTextEnd')}
                   </span>
                 </label>
                 <label className="flex items-start gap-3 text-sm" style={{ color: '#3D4D61' }}>
@@ -228,7 +226,7 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     className="mt-1"
                   />
-                  <span>J'accepte de recevoir des conseils et offres SailingLoc par email.</span>
+                  <span>{t('auth.marketingConsent')}</span>
                 </label>
               </div>
 
@@ -237,42 +235,37 @@ const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
+                className="w-full rounded-full py-3.5 text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ background: '#07192E', color: '#fff' }}
               >
-                {loading ? 'Création…' : 'Créer mon compte'}
+                {loading ? t('auth.registerLoading') : t('auth.registerCta')}
               </button>
             </form>
 
-            <p className="text-center text-sm mt-5" style={{ color: '#8896A8' }}>
-              Déjà un compte ?{' '}
+            <p className="mt-5 text-center text-sm" style={{ color: '#8896A8' }}>
+              {t('auth.alreadyAccount')}{' '}
               <Link to="/login" className="font-bold hover:underline" style={{ color: '#07192E' }}>
-                Se connecter
+                {t('auth.loginCta')}
               </Link>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right: image */}
       <div
-        className="hidden lg:block relative"
+        className="relative hidden lg:block"
         style={{ backgroundImage: `url(${HERO})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         <div className="absolute inset-0" style={{ background: 'rgba(7,25,46,0.55)' }} />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
-            className="text-white mb-3 leading-tight"
+            className="mb-3 leading-tight text-white"
             style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800 }}
           >
-            Rejoignez
-            <br />
-            <em style={{ color: '#00C6E0' }}>+1 200</em> propriétaires
-            <br />
-            et locataires
+            {t('auth.registerHeroTitle')}
           </p>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            Inscription gratuite en moins de 2 minutes.
+            {t('auth.registerHeroText')}
           </p>
         </div>
       </div>

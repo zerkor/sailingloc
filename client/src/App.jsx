@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -47,6 +49,14 @@ import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminActionLogsPage from './pages/admin/AdminActionLogsPage';
 
 function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const language = (i18n.resolvedLanguage || i18n.language || 'fr').split('-')[0];
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  }, [i18n.language, i18n.resolvedLanguage]);
+
   return (
     <BrowserRouter>
       <AuthProvider>

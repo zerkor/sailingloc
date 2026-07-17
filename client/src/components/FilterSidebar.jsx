@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const FilterSidebar = ({ filters, onChange }) => {
+  const { t } = useTranslation();
   const [localFilters, setLocalFilters] = useState(filters);
 
   const handleChange = (key, value) => {
@@ -15,66 +17,63 @@ const FilterSidebar = ({ filters, onChange }) => {
     onChange(reset);
   };
 
-  const labelClass = 'block text-xs font-bold uppercase tracking-wider mb-2';
+  const labelClass = 'mb-2 block text-xs font-bold uppercase tracking-wider';
   const labelStyle = { color: '#3D4D61' };
 
   return (
     <div className="min-w-0">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
-          Filtres
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
+          {t('common.filters')}
         </h2>
         <button
           onClick={handleReset}
           className="text-xs font-semibold transition-colors hover:underline"
           style={{ color: '#00C6E0' }}
         >
-          Réinitialiser
+          {t('common.reset')}
         </button>
       </div>
 
       <div className="space-y-5">
-        {/* Location */}
         <div>
           <label className={labelClass} style={labelStyle}>
-            Destination
+            {t('home.destination')}
           </label>
           <input
             type="text"
-            placeholder="Ville ou port…"
+            placeholder={t('boats.locationPlaceholder')}
             value={localFilters.location || ''}
             onChange={(e) => handleChange('location', e.target.value)}
             className="input-field text-sm"
           />
         </div>
 
-        {/* Type */}
         <div>
           <label className={labelClass} style={labelStyle}>
-            Type de bateau
+            {t('boatTypes.label')}
           </label>
           <select
             value={localFilters.type || ''}
             onChange={(e) => handleChange('type', e.target.value)}
             className="input-field text-sm"
           >
-            <option value="">Tous les types</option>
-            <option value="sailboat">Voilier</option>
-            <option value="motorboat">Bateau à moteur</option>
-            <option value="catamaran">Catamaran</option>
-            <option value="rib">Semi-rigide</option>
+            <option value="">{t('boatTypes.allLong')}</option>
+            <option value="sailboat">{t('boatTypes.sailboat')}</option>
+            <option value="motorboat">{t('boatTypes.motorboat')}</option>
+            <option value="catamaran">{t('boatTypes.catamaran')}</option>
+            <option value="rib">{t('boatTypes.rib')}</option>
           </select>
         </div>
 
-        {/* Price */}
         <div>
           <label className={labelClass} style={labelStyle}>
-            Prix par jour (€)
+            {t('boats.pricePerDay')}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
-              placeholder="Min"
+              placeholder={t('boats.min')}
               value={localFilters.minPrice || ''}
               onChange={(e) => handleChange('minPrice', e.target.value)}
               className="input-field text-sm"
@@ -82,7 +81,7 @@ const FilterSidebar = ({ filters, onChange }) => {
             />
             <input
               type="number"
-              placeholder="Max"
+              placeholder={t('boats.max')}
               value={localFilters.maxPrice || ''}
               onChange={(e) => handleChange('maxPrice', e.target.value)}
               className="input-field text-sm"
@@ -91,14 +90,13 @@ const FilterSidebar = ({ filters, onChange }) => {
           </div>
         </div>
 
-        {/* Capacity */}
         <div>
           <label className={labelClass} style={labelStyle}>
-            Capacité (pers.)
+            {t('boats.capacity')}
           </label>
           <input
             type="number"
-            placeholder="Minimum"
+            placeholder={t('boats.minimum')}
             value={localFilters.capacity || ''}
             onChange={(e) => handleChange('capacity', e.target.value)}
             className="input-field text-sm"
@@ -106,9 +104,8 @@ const FilterSidebar = ({ filters, onChange }) => {
           />
         </div>
 
-        {/* Skipper */}
         <label
-          className="flex items-center gap-3 cursor-pointer p-3 rounded-xl transition-all"
+          className="flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all"
           style={
             localFilters.skipperAvailable
               ? { background: 'rgba(0,198,224,0.1)', border: '1.5px solid rgba(0,198,224,0.3)' }
@@ -120,11 +117,11 @@ const FilterSidebar = ({ filters, onChange }) => {
             type="checkbox"
             checked={localFilters.skipperAvailable || false}
             onChange={(e) => handleChange('skipperAvailable', e.target.checked)}
-            className="w-4 h-4 rounded"
+            className="h-4 w-4 rounded"
             style={{ accentColor: '#00C6E0' }}
           />
           <span className="text-sm font-medium" style={{ color: '#07192E' }}>
-            Skipper disponible
+            {t('boats.skipperAvailable')}
           </span>
         </label>
       </div>
