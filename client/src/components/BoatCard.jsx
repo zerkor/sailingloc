@@ -184,9 +184,7 @@ const BoatCard = ({ boat }) => {
               /jour
             </span>
           </div>
-          <span
-            className="shrink-0 bg-navy-900 text-white text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900"
-          >
+          <span className="shrink-0 bg-navy-900 text-white text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900">
             <span className="inline-flex items-center gap-1">
               Voir <ArrowRight size={13} />
             </span>

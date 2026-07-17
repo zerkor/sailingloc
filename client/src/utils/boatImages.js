@@ -31,8 +31,7 @@ export const BOAT_IMAGES_BY_TYPE = {
   ],
 };
 
-const hashString = (value = '') =>
-  [...value].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 1000003, 7);
+const hashString = (value = '') => [...value].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 1000003, 7);
 
 const isLegacyDemoImage = (image = '') =>
   image === FALLBACK_BOAT_IMAGE || image.endsWith('/images/hero-boat.jpeg') || image.includes('images.unsplash.com');

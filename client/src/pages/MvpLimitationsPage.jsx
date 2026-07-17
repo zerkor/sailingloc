@@ -49,7 +49,12 @@ const MvpLimitationsPage = () => (
       </p>
       <h1
         className="mb-4"
-        style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(32px,5vw,48px)', fontWeight: 800, color: '#07192E' }}
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 'clamp(32px,5vw,48px)',
+          fontWeight: 800,
+          color: '#07192E',
+        }}
       >
         Perimetre et limites du MVP
       </h1>
@@ -60,8 +65,15 @@ const MvpLimitationsPage = () => (
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {sections.map((section) => (
-          <article key={section.title} className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-            <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
+          <article
+            key={section.title}
+            className="bg-white rounded-2xl p-6"
+            style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+          >
+            <h2
+              className="text-xl font-bold mb-3"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
+            >
               {section.title}
             </h2>
             <p className="text-sm leading-relaxed mb-5" style={{ color: '#64748B' }}>

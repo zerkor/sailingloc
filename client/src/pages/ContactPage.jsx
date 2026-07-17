@@ -116,7 +116,10 @@ const ContactPage = () => {
       <div className="container-max section-padding">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           {/* ── Left: form ── */}
-          <div className="bg-white rounded-3xl p-5 sm:p-8 lg:p-10" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+          <div
+            className="bg-white rounded-3xl p-5 sm:p-8 lg:p-10"
+            style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+          >
             <h2
               className="mb-6"
               style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 700, color: '#07192E' }}
@@ -240,7 +243,10 @@ const ContactPage = () => {
 
           {/* ── Right: info + deco ── */}
           <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-5 sm:p-8 lg:p-10" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+            <div
+              className="bg-white rounded-3xl p-5 sm:p-8 lg:p-10"
+              style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
+            >
               <h2
                 className="mb-6"
                 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 700, color: '#07192E' }}
