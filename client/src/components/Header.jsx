@@ -72,6 +72,26 @@ const Header = () => {
             )}
           </div>
 
+          <div className="flex items-center gap-2 lg:hidden">
+            <LanguageSelector />
+            <button
+              className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04]"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={t('navbar.menu')}
+              aria-expanded={menuOpen}
+            >
+              <span
+                className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? 'rotate-45' : ''}`}
+              />
+              <span
+                className={`block h-[2px] w-[22px] rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-translate-x-2 opacity-0' : ''}`}
+              />
+              <span
+                className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-rotate-45' : ''}`}
+              />
+            </button>
+          </div>
+
           <div className="hidden items-center gap-3 lg:flex">
             <LanguageSelector />
             {user ? (
@@ -160,23 +180,6 @@ const Header = () => {
               </>
             )}
           </div>
-
-          <button
-            className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04] lg:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={t('navbar.menu')}
-            aria-expanded={menuOpen}
-          >
-            <span
-              className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? 'rotate-45' : ''}`}
-            />
-            <span
-              className={`block h-[2px] w-[22px] rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-translate-x-2 opacity-0' : ''}`}
-            />
-            <span
-              className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? '-rotate-45' : ''}`}
-            />
-          </button>
         </div>
 
         {menuOpen && (
@@ -191,9 +194,6 @@ const Header = () => {
                 {t(link.labelKey)}
               </Link>
             ))}
-            <div className="px-2 py-3">
-              <LanguageSelector compact />
-            </div>
             {user?.role === 'owner' && (
               <Link
                 to="/owner/dashboard"

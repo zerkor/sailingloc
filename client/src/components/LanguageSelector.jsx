@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Globe2 } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'fr', label: 'FR' },
@@ -18,6 +19,9 @@ const LanguageSelector = ({ compact = false }) => {
       aria-label={t('navbar.language')}
       role="group"
     >
+      <span className="language-selector__icon" aria-hidden="true">
+        <Globe2 size={14} />
+      </span>
       {LANGUAGES.map((language) => (
         <button
           key={language.code}

@@ -636,11 +636,21 @@ html[dir='rtl'] select {
 .language-selector {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   padding: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(0, 198, 224, 0.35);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.language-selector__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 28px;
+  color: #00c6e0;
 }
 
 .language-selector button {
@@ -669,4 +679,21 @@ html[dir='rtl'] select {
 
 .language-selector--compact button {
   flex: 1;
+}
+
+@media (max-width: 420px) {
+  .language-selector {
+    gap: 1px;
+    padding: 2px;
+  }
+
+  .language-selector__icon {
+    width: 22px;
+  }
+
+  .language-selector button {
+    min-width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
 }
