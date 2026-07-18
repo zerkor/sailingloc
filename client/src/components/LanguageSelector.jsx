@@ -1,9 +1,10 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { Globe2 } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'fr', label: 'FR' },
   { code: 'de', label: 'DE' },
+  { code: 'en', label: 'EN' },
   { code: 'it', label: 'IT' },
   { code: 'ru', label: 'RU' },
   { code: 'ar', label: 'AR' },
