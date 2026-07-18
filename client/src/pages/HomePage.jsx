@@ -143,7 +143,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="section-padding home-section">
+      <section className="section-padding home-section home-section--boats">
         <div className="container-max">
           <div className="home-section-heading">
             <div>
@@ -155,7 +155,7 @@ const HomePage = () => {
             </Link>
           </div>
           <BoatGrid boats={featuredBoats} loading={loading} />
-          <div className="text-center mt-9">
+          <div className="home-boats-cta text-center">
             <Link to="/boats" className="home-dark-cta">
               {t('home.viewAllBoats')} <ArrowRight size={15} />
             </Link>
@@ -182,7 +182,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="section-padding home-section">
+      <section className="section-padding home-section home-section--reviews">
         <div className="container-max">
           <span className="sec-eyebrow">{t('home.reviewsEyebrow')}</span>
           <h2>{t('home.reviewsTitle')}</h2>
