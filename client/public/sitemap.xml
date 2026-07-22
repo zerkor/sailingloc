@@ -1,47 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost:5173/</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/boats</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/boats</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/login</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>http://localhost:5173/register</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/categories</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/legal/mentions-legales</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/products</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sailingloc-uwvo.onrender.com/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sailingloc-uwvo.onrender.com/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://sailingloc-uwvo.onrender.com/register</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sailingloc-uwvo.onrender.com/legal/mentions-legales</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/legal/cgu</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/legal/cgu</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/legal/cgv</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/legal/cgv</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/legal/privacy</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/legal/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>http://localhost:5173/legal/cookies</loc>
+    <loc>https://sailingloc-uwvo.onrender.com/legal/cookies</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://sailingloc-uwvo.onrender.com/mvp-limitations</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>

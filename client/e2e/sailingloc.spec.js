@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('homepage loads', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('SailingLoc').first()).toBeVisible();
 });
 
