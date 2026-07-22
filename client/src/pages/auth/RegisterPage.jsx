@@ -6,7 +6,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import { useAuth } from '../../context/AuthContext';
 import { register } from '../../services/authService';
 
-const HERO = 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=900&q=85&auto=format&fit=crop';
+const HERO = '/images/hero-boat.jpeg';
 
 const RegisterPage = () => {
   const { t } = useTranslation();
@@ -253,18 +253,41 @@ const RegisterPage = () => {
       </div>
 
       <div
-        className="relative hidden lg:block"
-        style={{ backgroundImage: `url(${HERO})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        className="relative hidden overflow-hidden lg:block"
+        style={{
+          background:
+            'linear-gradient(145deg, #07192E 0%, #0B3246 44%, #069BB0 100%)',
+        }}
       >
-        <div className="absolute inset-0" style={{ background: 'rgba(7,25,46,0.55)' }} />
+        <div
+          className="absolute inset-0 opacity-80"
+          style={{
+            backgroundImage: `linear-gradient(180deg, rgba(7,25,46,0.08) 0%, rgba(7,25,46,0.68) 100%), url(${HERO})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div
+          className="absolute right-[-12%] top-[8%] h-[360px] w-[360px] rounded-full"
+          style={{ background: 'rgba(0,198,224,0.24)', filter: 'blur(1px)' }}
+        />
+        <div
+          className="absolute bottom-[-18%] left-[-10%] h-[420px] w-[420px] rounded-full"
+          style={{ background: 'rgba(255,255,255,0.10)' }}
+        />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
             className="mb-3 leading-tight text-white"
-            style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800 }}
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 38,
+              fontWeight: 800,
+              textShadow: '0 8px 28px rgba(0,0,0,0.28)',
+            }}
           >
             {t('auth.registerHeroTitle')}
           </p>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.78)' }}>
             {t('auth.registerHeroText')}
           </p>
         </div>
