@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Euro,
   FileCheck2,
+  Mail,
   Menu,
   MessageSquareText,
   ScrollText,
@@ -23,6 +24,7 @@ const links = [
   { to: '/admin/documents', label: 'Documents', icon: FileCheck2 },
   { to: '/admin/payments', label: 'Paiements', icon: Euro },
   { to: '/admin/reports', label: 'Signalements', icon: ShieldAlert },
+  { to: '/admin/email-settings', label: 'Emails', icon: Mail },
   { to: '/admin/action-logs', label: 'Journal admin', icon: ScrollText },
 ];
 

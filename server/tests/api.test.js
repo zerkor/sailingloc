@@ -123,7 +123,7 @@ test('Auth API: sends a reset token and updates the password through the reset f
   try {
     const forgotResponse = await request(app).post('/api/auth/forgot-password').send({ email: user.email }).expect(200);
 
-    assert.match(forgotResponse.body.message, /reinitialisation/);
+    assert.match(forgotResponse.body.message, /réinitialisation/);
   } finally {
     crypto.randomBytes = originalRandomBytes;
   }

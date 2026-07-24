@@ -47,6 +47,7 @@ import AdminDocumentsPage from './pages/admin/AdminDocumentsPage';
 import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminActionLogsPage from './pages/admin/AdminActionLogsPage';
+import AdminEmailSettingsPage from './pages/admin/AdminEmailSettingsPage';
 
 function App() {
   const { i18n } = useTranslation();
@@ -133,6 +134,7 @@ function App() {
               <Route path="documents" element={<AdminDocumentsPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
               <Route path="reports" element={<AdminReportsPage />} />
+              <Route path="email-settings" element={<AdminEmailSettingsPage />} />
               <Route path="action-logs" element={<AdminActionLogsPage />} />
             </Route>
           </Routes>

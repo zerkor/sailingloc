@@ -19,11 +19,12 @@ const {
   getAdminPayments,
   refundPayment,
   getActionLogs,
+  testEmail,
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
-const { mongoId, updateUserRules } = require('../middleware/validators');
+const { mongoId, testEmailRules, updateUserRules } = require('../middleware/validators');
 
 router.use(protect, requireRole('admin'));
 
@@ -45,5 +46,6 @@ router.delete('/reviews/:id', mongoId(), validate, deleteReview);
 router.get('/payments', getAdminPayments);
 router.patch('/payments/:id/refund', mongoId(), validate, refundPayment);
 router.get('/action-logs', getActionLogs);
+router.post('/email/test', testEmailRules, validate, testEmail);
 
 module.exports = router;

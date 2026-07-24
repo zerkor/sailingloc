@@ -6,7 +6,8 @@ const swaggerDefinition = {
   info: {
     title: 'SailingLoc API',
     version: '1.0.0',
-    description: 'Documentation OpenAPI de la plateforme de location de bateaux entre particuliers SailingLoc.',
+    description:
+      'Documentation OpenAPI de la plateforme de location de bateaux entre particuliers SailingLoc. Les emails transactionnels utilisent Brevo SMTP via variables d environnement serveur.',
   },
   servers: [{ url: process.env.SERVER_URL || 'http://localhost:5000', description: 'API SailingLoc' }],
   tags: [
@@ -133,6 +134,48 @@ const swaggerDefinition = {
         responses: { 200: { description: 'JWT et utilisateur' }, 401: { description: 'Identifiants invalides' } },
       },
     },
+    '/api/auth/forgot-password': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Demande un lien de réinitialisation de mot de passe',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email'],
+                properties: { email: { type: 'string', format: 'email' } },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: 'Réponse générique envoyée' } },
+      },
+    },
+    '/api/auth/reset-password/{token}': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Réinitialise le mot de passe avec un token valide',
+        parameters: [{ name: 'token', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['password'],
+                properties: { password: { type: 'string', minLength: 6 } },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Mot de passe réinitialisé' },
+          400: { description: 'Token invalide ou expiré' },
+        },
+      },
+    },
     '/api/auth/me': {
       get: {
         tags: ['Auth'],
@@ -192,6 +235,26 @@ const swaggerDefinition = {
         security: [{ bearerAuth: [] }],
         summary: 'Liste les paiements admin',
         responses: { 200: { description: 'Paiements' } },
+      },
+    },
+    '/api/admin/email/test': {
+      post: {
+        tags: ['Admin'],
+        security: [{ bearerAuth: [] }],
+        summary: 'Envoie un email de test Brevo SMTP',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', required: ['to'], properties: { to: { type: 'string', format: 'email' } } },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Email envoyé ou simulé selon la configuration' },
+          403: { description: 'Admin requis' },
+          500: { description: 'Configuration SMTP invalide ou envoi impossible' },
+        },
       },
     },
     '/api/documents/admin': {

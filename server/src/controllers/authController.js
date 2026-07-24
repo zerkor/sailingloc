@@ -6,7 +6,7 @@ const Review = require('../models/Review');
 const Payment = require('../models/Payment');
 const OwnerDocument = require('../models/OwnerDocument');
 const generateToken = require('../utils/generateToken');
-const { sendPasswordResetEmail } = require('../utils/mailService');
+const { sendPasswordResetEmail, sendWelcomeOwnerEmail, sendWelcomeTenantEmail } = require('../services/emailService');
 
 const RESET_TOKEN_TTL_MINUTES = 30;
 
@@ -32,8 +32,9 @@ const register = asyncHandler(async (req, res) => {
     privacyConsentAt: new Date(),
     marketingConsent: marketingConsent === true || marketingConsent === 'true',
   });
+  const emailResult = user.role === 'owner' ? await sendWelcomeOwnerEmail(user) : await sendWelcomeTenantEmail(user);
   const token = generateToken(user._id);
-  res.status(201).json({ token, user });
+  res.status(201).json({ token, user, emailSent: emailResult.success === true });
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -62,7 +63,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const forgotPassword = asyncHandler(async (req, res) => {
   const genericResponse = {
-    message: 'Si un compte existe pour cet email, un lien de reinitialisation sera envoye.',
+    message: 'Si un compte existe pour cet email, un lien de réinitialisation sera envoyé.',
   };
   const user = await User.findOne({ email: req.body.email }).select('+passwordResetToken +passwordResetExpires');
 
@@ -79,13 +80,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
   const resetUrl = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
 
   try {
-    await sendPasswordResetEmail({ to: user.email, firstName: user.firstName, resetUrl });
+    const emailResult = await sendPasswordResetEmail({ user, resetUrl });
+    if (!emailResult.success) throw new Error(emailResult.error || 'EMAIL_NOT_SENT');
   } catch (error) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
     res.status(500);
-    throw new Error(`Impossible d envoyer l email de reinitialisation: ${error.message}`);
+    throw new Error("Impossible d'envoyer l'email de réinitialisation. Vérifiez la configuration SMTP.");
   }
 
   res.json(genericResponse);
@@ -101,7 +103,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   if (!user) {
     res.status(400);
-    throw new Error('Lien de reinitialisation invalide ou expire');
+    throw new Error('Lien de réinitialisation invalide ou expiré');
   }
 
   user.password = req.body.password;
@@ -109,7 +111,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  res.json({ message: 'Mot de passe reinitialise avec succes' });
+  res.json({ message: 'Mot de passe réinitialisé avec succès' });
 });
 
 const exportMyData = asyncHandler(async (req, res) => {

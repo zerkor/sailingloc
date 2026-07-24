@@ -65,3 +65,31 @@ Utiliser `mongodump`/`mongorestore` ou les backups automatiques du fournisseur M
 - Front: Netlify, Vercel, Nginx, Render static.
 - API: Render, Railway, Fly.io, VPS avec PM2.
 - DB: MongoDB Atlas ou MongoDB managé.
+
+## Brevo SMTP configuration on Render
+
+Les emails transactionnels utilisent Brevo SMTP via Nodemailer cote serveur. Les secrets doivent etre configures uniquement dans Render, onglet `Environment` du Web Service :
+
+```env
+EMAIL_PROVIDER=brevo
+EMAIL_MODE=smtp
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_PORT=587
+BREVO_SMTP_SECURE=false
+BREVO_SMTP_USER=your_brevo_smtp_login
+BREVO_SMTP_PASS=your_brevo_smtp_key
+BREVO_API_KEY=your_brevo_api_key_optional
+EMAIL_FROM_NAME=SailingLoc
+EMAIL_FROM_ADDRESS=contact@sailingloc.fr
+EMAIL_REPLY_TO=contact@sailingloc.fr
+CLIENT_URL=https://sailingloc-uwvo.onrender.com
+SERVER_URL=https://sailingloc-uwvo.onrender.com
+EMAIL_ENABLED=true
+EMAIL_LOG_ONLY=false
+```
+
+Ne jamais hardcoder les identifiants Brevo : Render Environment Variables est le bon emplacement pour les secrets de production.
+
+### Brevo IP / authorized sender note
+
+Le code ne peut pas forcer Brevo a accepter une IP Render dynamique. Si Brevo demande une validation d'expediteur ou de domaine, elle doit etre faite manuellement dans le dashboard Brevo. Si l'allowlist IP Brevo est activee, utiliser une IP sortante statique cote hebergement ou desactiver cette restriction et s'appuyer sur les identifiants SMTP authentifies avec domaine/expediteur verifie.

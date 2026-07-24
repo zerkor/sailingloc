@@ -99,6 +99,8 @@ const updateUserRules = [
   body('isActive').optional().isBoolean().withMessage('isActive doit etre un booleen'),
 ];
 
+const testEmailRules = [body('to').isEmail().withMessage('Adresse email invalide').normalizeEmail()];
+
 module.exports = {
   mongoId,
   pagination,
@@ -112,4 +114,5 @@ module.exports = {
   createReviewRules,
   updateProfileRules,
   updateUserRules,
+  testEmailRules,
 };

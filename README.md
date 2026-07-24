@@ -46,12 +46,19 @@ JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
 SERVER_URL=http://localhost:5000
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM="SailingLoc <no-reply@sailingloc.fr>"
-SMTP_SECURE=false
+EMAIL_PROVIDER=brevo
+EMAIL_MODE=smtp
+EMAIL_ENABLED=false
+EMAIL_LOG_ONLY=true
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_PORT=587
+BREVO_SMTP_SECURE=false
+BREVO_SMTP_USER=your_brevo_smtp_login
+BREVO_SMTP_PASS=your_brevo_smtp_key
+BREVO_API_KEY=your_brevo_api_key_optional
+EMAIL_FROM_NAME=SailingLoc
+EMAIL_FROM_ADDRESS=contact@sailingloc.fr
+EMAIL_REPLY_TO=contact@sailingloc.fr
 UPLOAD_DIR=uploads
 MAX_FILE_SIZE_MB=5
 RATE_LIMIT_WINDOW_MS=900000
@@ -60,6 +67,34 @@ LOG_LEVEL=debug
 ```
 
 Pour la production, voir `.env.production.example` et [docs/PRODUCTION.md](docs/PRODUCTION.md).
+
+## Brevo SMTP sur Render
+
+Les emails transactionnels SailingLoc utilisent Brevo SMTP via Nodemailer côté serveur. Les identifiants ne doivent jamais être écrits dans le code ni envoyés au frontend.
+
+Variables à ajouter dans Render :
+
+```env
+EMAIL_PROVIDER=brevo
+EMAIL_MODE=smtp
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_PORT=587
+BREVO_SMTP_SECURE=false
+BREVO_SMTP_USER=your_brevo_smtp_login
+BREVO_SMTP_PASS=your_brevo_smtp_key
+BREVO_API_KEY=your_brevo_api_key_optional
+EMAIL_FROM_NAME=SailingLoc
+EMAIL_FROM_ADDRESS=contact@sailingloc.fr
+EMAIL_REPLY_TO=contact@sailingloc.fr
+CLIENT_URL=https://sailingloc-uwvo.onrender.com
+SERVER_URL=https://sailingloc-uwvo.onrender.com
+EMAIL_ENABLED=true
+EMAIL_LOG_ONLY=false
+```
+
+En local, garder `EMAIL_ENABLED=false` ou `EMAIL_LOG_ONLY=true` pour tester sans envoyer de vrais emails.
+
+Note Brevo IP / expéditeur autorisé : l'application ne peut pas valider automatiquement un domaine, un expéditeur ou une IP dans Brevo. Ces réglages se font manuellement dans le dashboard Brevo. Sur Render, l'IP sortante peut changer sans option réseau dédiée ; si l'allowlist IP stricte est activée dans Brevo, il faut une solution d'IP sortante statique ou désactiver cette contrainte et s'appuyer sur SMTP authentifié avec expéditeur/domaine vérifié.
 
 ## Docker
 

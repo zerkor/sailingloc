@@ -9,10 +9,27 @@ const AdminActionLog = require('../models/AdminActionLog');
 const recalculateBoatRating = require('../utils/recalculateBoatRating');
 const logAdminAction = require('../utils/adminActionLog');
 const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const {
+  sendAdminTestEmail,
+  sendBoatApprovedEmail,
+  sendBoatRejectedEmail,
+  sendOwnerApprovedEmail,
+} = require('../services/emailService');
 
 const roleValues = ['tenant', 'owner', 'admin'];
 
 const adminName = (req) => `${req.user.firstName || 'Admin'} ${req.user.lastName || ''}`.trim();
+
+const logEmailAttempt = async ({ admin, result, subject, recipient }) => {
+  await logAdminAction({
+    admin,
+    action: result.success ? 'email_sent' : 'email_failed',
+    entityType: 'Email',
+    entityId: recipient,
+    description: `${subject} -> ${recipient}`,
+    metadata: { provider: result.provider, mode: result.mode, skipped: result.skipped, error: result.error },
+  });
+};
 
 const assertAdminChangeAllowed = async ({ targetUser, currentAdminId, nextRole, nextIsActive }) => {
   const isSelf = targetUser._id.toString() === currentAdminId.toString();
@@ -185,6 +202,16 @@ const updateUser = asyncHandler(async (req, res) => {
     });
   }
 
+  if (updated.role === 'owner' && previous.isActive === false && updated.isActive === true) {
+    const emailResult = await sendOwnerApprovedEmail(updated);
+    await logEmailAttempt({
+      admin: req.user._id,
+      result: emailResult,
+      subject: 'Votre compte propriétaire SailingLoc est validé',
+      recipient: updated.email,
+    });
+  }
+
   res.json(updated);
 });
 
@@ -222,7 +249,7 @@ const getAdminBoats = asyncHandler(async (req, res) => {
 });
 
 const approveBoat = asyncHandler(async (req, res) => {
-  const boat = await Boat.findById(req.params.id);
+  const boat = await Boat.findById(req.params.id).populate('owner', 'firstName lastName email');
   if (!boat) {
     res.status(404);
     throw new Error('Bateau introuvable');
@@ -241,11 +268,18 @@ const approveBoat = asyncHandler(async (req, res) => {
     entityId: boat._id,
     description: `${adminName(req)} a approuve ${boat.title}`,
   });
+  const emailResult = await sendBoatApprovedEmail({ owner: boat.owner, boat });
+  await logEmailAttempt({
+    admin: req.user._id,
+    result: emailResult,
+    subject: 'Votre annonce bateau a été validée',
+    recipient: boat.owner.email,
+  });
   res.json(boat);
 });
 
 const rejectBoat = asyncHandler(async (req, res) => {
-  const boat = await Boat.findById(req.params.id);
+  const boat = await Boat.findById(req.params.id).populate('owner', 'firstName lastName email');
   if (!boat) {
     res.status(404);
     throw new Error('Bateau introuvable');
@@ -259,7 +293,31 @@ const rejectBoat = asyncHandler(async (req, res) => {
     entityId: boat._id,
     description: `${adminName(req)} a rejete ${boat.title}`,
   });
+  const emailResult = await sendBoatRejectedEmail({ owner: boat.owner, boat, reason: req.body?.reason });
+  await logEmailAttempt({
+    admin: req.user._id,
+    result: emailResult,
+    subject: 'Votre annonce bateau nécessite une correction',
+    recipient: boat.owner.email,
+  });
   res.json(boat);
+});
+
+const testEmail = asyncHandler(async (req, res) => {
+  const result = await sendAdminTestEmail({ to: req.body.to });
+  await logEmailAttempt({
+    admin: req.user._id,
+    result,
+    subject: 'Test SMTP Brevo - SailingLoc',
+    recipient: req.body.to,
+  });
+  if (!result.success) {
+    return res.status(500).json({
+      success: false,
+      message: 'Email could not be sent. Check SMTP configuration.',
+    });
+  }
+  res.json({ success: true, provider: result.provider, mode: result.mode, skipped: result.skipped });
 });
 
 const deleteBoat = asyncHandler(async (req, res) => {
@@ -526,4 +584,5 @@ module.exports = {
   getAdminPayments,
   refundPayment,
   getActionLogs,
+  testEmail,
 };

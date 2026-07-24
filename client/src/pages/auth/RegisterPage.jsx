@@ -255,8 +255,7 @@ const RegisterPage = () => {
       <div
         className="relative hidden overflow-hidden lg:block"
         style={{
-          background:
-            'linear-gradient(145deg, #07192E 0%, #0B3246 44%, #069BB0 100%)',
+          background: 'linear-gradient(145deg, #07192E 0%, #0B3246 44%, #069BB0 100%)',
         }}
       >
         <div

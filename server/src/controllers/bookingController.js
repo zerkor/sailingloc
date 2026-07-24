@@ -5,6 +5,19 @@ const Payment = require('../models/Payment');
 const calculateBookingPrice = require('../utils/calculateBookingPrice');
 const { assertBoatAvailable } = require('../utils/bookingAvailability');
 const createNotification = require('../utils/createNotification');
+const {
+  sendBookingAcceptedEmail,
+  sendBookingCancelledEmail,
+  sendBookingConfirmedEmail,
+  sendBookingCreatedEmail,
+  sendBookingRejectedEmail,
+} = require('../services/emailService');
+
+const populateBookingForEmail = (id) =>
+  Booking.findById(id)
+    .populate('boat', 'title images location')
+    .populate('tenant', 'firstName lastName email')
+    .populate('owner', 'firstName lastName email');
 
 const createBooking = asyncHandler(async (req, res) => {
   const { boatId, startDate, endDate } = req.body;
@@ -58,6 +71,12 @@ const createBooking = asyncHandler(async (req, res) => {
     relatedBooking: booking._id,
     relatedBoat: boat._id,
   });
+  await sendBookingCreatedEmail({
+    tenant: populated.tenant,
+    owner: populated.owner,
+    boat: populated.boat,
+    booking: populated,
+  });
   res.status(201).json(populated);
 });
 
@@ -107,6 +126,13 @@ const acceptBooking = asyncHandler(async (req, res) => {
     relatedBooking: booking._id,
     relatedBoat: booking.boat._id,
   });
+  const populated = await populateBookingForEmail(booking._id);
+  await sendBookingAcceptedEmail({
+    tenant: populated.tenant,
+    owner: populated.owner,
+    boat: populated.boat,
+    booking: populated,
+  });
   res.json(booking);
 });
 
@@ -133,6 +159,13 @@ const rejectBooking = asyncHandler(async (req, res) => {
     message: 'Le proprietaire a refuse votre demande de reservation.',
     relatedBooking: booking._id,
     relatedBoat: booking.boat,
+  });
+  const populated = await populateBookingForEmail(booking._id);
+  await sendBookingRejectedEmail({
+    tenant: populated.tenant,
+    owner: populated.owner,
+    boat: populated.boat,
+    booking: populated,
   });
   res.json(booking);
 });
@@ -168,6 +201,13 @@ const cancelBooking = asyncHandler(async (req, res) => {
     message: 'Une reservation a ete annulee sur SailingLoc.',
     relatedBooking: booking._id,
     relatedBoat: booking.boat,
+  });
+  const populated = await populateBookingForEmail(booking._id);
+  await sendBookingCancelledEmail({
+    tenant: populated.tenant,
+    owner: populated.owner,
+    boat: populated.boat,
+    booking: populated,
   });
   res.json(booking);
 });
@@ -215,6 +255,13 @@ const payBooking = asyncHandler(async (req, res) => {
     message: 'Le paiement de la reservation a ete valide.',
     relatedBooking: booking._id,
     relatedBoat: booking.boat,
+  });
+  const populated = await populateBookingForEmail(booking._id);
+  await sendBookingConfirmedEmail({
+    tenant: populated.tenant,
+    owner: populated.owner,
+    boat: populated.boat,
+    booking: populated,
   });
   res.json(booking);
 });
