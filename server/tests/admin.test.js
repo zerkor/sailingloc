@@ -255,6 +255,52 @@ test('Admin bookings: repairs missing owner from boat owner and can accept pendi
   assert.equal(accepted.body.status, 'accepted');
 });
 
+test('Admin bookings: assigns active owner fallback when booking and boat owners are broken', async () => {
+  const owner = await createUser({ role: 'owner', email: 'owner-fallback-booking@sailingloc.test' });
+  const tenant = await createUser({ role: 'tenant', email: 'tenant-fallback-booking@sailingloc.test' });
+  const admin = await createUser({ role: 'admin', email: 'admin-fallback-booking@sailingloc.test' });
+  const token = await loginAs(admin.email);
+  const brokenOwnerId = new mongoose.Types.ObjectId();
+  const boat = await Boat.create({
+    owner: brokenOwnerId,
+    title: 'Nautitech fallback',
+    type: 'catamaran',
+    description: 'Bateau avec proprietaire casse pour test admin.',
+    location: 'Cannes',
+    pricePerDay: 350,
+    capacity: 8,
+    images: ['https://example.com/catamaran.jpg'],
+    status: 'approved',
+  });
+  const booking = await Booking.create({
+    boat: boat._id,
+    tenant: tenant._id,
+    owner: brokenOwnerId,
+    startDate: new Date('2026-11-10'),
+    endDate: new Date('2026-11-12'),
+    numberOfDays: 2,
+    pricePerDay: 350,
+    serviceFee: 70,
+    totalPrice: 770,
+    status: 'pending',
+    paymentStatus: 'unpaid',
+  });
+
+  const list = await request(app).get('/api/admin/bookings').set('Authorization', `Bearer ${token}`).expect(200);
+  assert.equal(list.body.items[0].owner.email, owner.email);
+
+  const repairedBooking = await Booking.findById(booking._id);
+  const repairedBoat = await Boat.findById(boat._id);
+  assert.equal(repairedBooking.owner.toString(), owner._id.toString());
+  assert.equal(repairedBoat.owner.toString(), owner._id.toString());
+
+  const rejected = await request(app)
+    .patch(`/api/admin/bookings/${booking._id}/reject`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  assert.equal(rejected.body.status, 'rejected');
+});
+
 test('Admin users endpoint supports pagination', async () => {
   const admin = await createUser({ role: 'admin', email: 'admin-pagination@sailingloc.test' });
   await Promise.all(Array.from({ length: 12 }, (_, index) => createUser({ email: `tenant-${index}@sailingloc.test` })));

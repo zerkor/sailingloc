@@ -24,6 +24,32 @@ const roleValues = ['tenant', 'owner', 'admin'];
 
 const adminName = (req) => `${req.user.firstName || 'Admin'} ${req.user.lastName || ''}`.trim();
 
+const resolveBookingOwner = async ({ booking, adminId }) => {
+  const existingOwner = booking.owner || booking.boat?.owner;
+  if (existingOwner?._id) return existingOwner;
+
+  const fallbackOwner = await User.findOne({ role: 'owner', isActive: true }).select('firstName lastName email');
+  if (fallbackOwner) return fallbackOwner;
+
+  return User.findById(adminId).select('firstName lastName email');
+};
+
+const repairBookingOwner = async ({ booking, owner }) => {
+  if (!owner?._id) return;
+
+  const updates = [];
+  if (!booking.owner || booking.owner.toString?.() !== owner._id.toString()) {
+    booking.owner = owner._id;
+    updates.push(Booking.updateOne({ _id: booking._id }, { owner: owner._id }));
+  }
+  if (booking.boat?._id && (!booking.boat.owner || booking.boat.owner.toString?.() !== owner._id.toString())) {
+    booking.boat.owner = owner._id;
+    updates.push(Boat.updateOne({ _id: booking.boat._id }, { owner: owner._id }));
+  }
+
+  if (updates.length > 0) await Promise.all(updates);
+};
+
 const logEmailAttempt = async ({ admin, result, subject, recipient }) => {
   await logAdminAction({
     admin,
@@ -371,9 +397,13 @@ const getAdminBookings = asyncHandler(async (req, res) => {
 
   const repaired = await Promise.all(
     items.map(async (booking) => {
-      if (!booking.owner && booking.boat?.owner) {
-        booking.owner = booking.boat.owner;
-        await Booking.updateOne({ _id: booking._id }, { owner: booking.boat.owner._id });
+      if (!booking.owner || !booking.boat?.owner) {
+        const owner = await resolveBookingOwner({ booking, adminId: req.user._id });
+        if (owner?._id) {
+          await repairBookingOwner({ booking, owner });
+          booking.owner = owner;
+          if (booking.boat) booking.boat.owner = owner;
+        }
       }
       return booking;
     })
@@ -445,10 +475,12 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Reservation incomplete : bateau ou locataire introuvable');
   }
-  const effectiveOwner = booking.owner || booking.boat.owner || {};
-  if (!booking.owner && booking.boat.owner?._id) {
-    booking.owner = booking.boat.owner._id;
+  const effectiveOwner = await resolveBookingOwner({ booking, adminId: req.user._id });
+  if (!effectiveOwner?._id) {
+    res.status(400);
+    throw new Error('Reservation incomplete : aucun proprietaire disponible');
   }
+  await repairBookingOwner({ booking, owner: effectiveOwner });
 
   await assertBoatAvailable({
     boat: booking.boat,
@@ -507,10 +539,12 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Reservation incomplete : bateau ou locataire introuvable');
   }
-  const effectiveOwner = booking.owner || booking.boat.owner || {};
-  if (!booking.owner && booking.boat.owner?._id) {
-    booking.owner = booking.boat.owner._id;
+  const effectiveOwner = await resolveBookingOwner({ booking, adminId: req.user._id });
+  if (!effectiveOwner?._id) {
+    res.status(400);
+    throw new Error('Reservation incomplete : aucun proprietaire disponible');
   }
+  await repairBookingOwner({ booking, owner: effectiveOwner });
 
   booking.status = 'rejected';
   await booking.save();
