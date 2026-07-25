@@ -5,6 +5,20 @@ const asBoolean = (value, defaultValue = false) => {
   return String(value).toLowerCase() === 'true';
 };
 
+const trimUrl = (value) => (value || '').replace(/\/$/, '');
+
+const resolvePublicClientUrl = () => {
+  const configured =
+    process.env.PUBLIC_SITE_URL ||
+    process.env.APP_URL ||
+    process.env.SERVER_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_URL;
+
+  if (configured) return trimUrl(configured);
+  return process.env.NODE_ENV === 'production' ? 'https://sailingloc-uwvo.onrender.com' : 'http://localhost:5173';
+};
+
 const emailConfig = {
   provider: process.env.EMAIL_PROVIDER || 'brevo',
   mode: process.env.EMAIL_MODE || 'smtp',
@@ -26,7 +40,7 @@ const emailConfig = {
   fromName: process.env.EMAIL_FROM_NAME || 'SailingLoc',
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'contact@sailingloc.fr',
   replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'contact@sailingloc.fr',
-  clientUrl: (process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
+  clientUrl: resolvePublicClientUrl(),
   serverUrl: (process.env.SERVER_URL || 'http://localhost:5000').replace(/\/$/, ''),
 };
 

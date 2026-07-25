@@ -7,6 +7,7 @@ const Payment = require('../models/Payment');
 const OwnerDocument = require('../models/OwnerDocument');
 const generateToken = require('../utils/generateToken');
 const { sendPasswordResetEmail, sendWelcomeOwnerEmail, sendWelcomeTenantEmail } = require('../services/emailService');
+const { emailConfig } = require('../config/email');
 
 const RESET_TOKEN_TTL_MINUTES = 30;
 
@@ -76,8 +77,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
   await user.save({ validateBeforeSave: false });
 
-  const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
-  const resetUrl = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
+  const resetUrl = `${emailConfig.clientUrl}/reset-password/${resetToken}`;
 
   try {
     const emailResult = await sendPasswordResetEmail({ user, resetUrl });
