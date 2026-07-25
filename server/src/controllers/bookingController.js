@@ -8,6 +8,7 @@ const createNotification = require('../utils/createNotification');
 const {
   sendBookingAcceptedEmail,
   sendBookingCancelledEmail,
+  sendBookingCompletedEmail,
   sendBookingConfirmedEmail,
   sendBookingCreatedEmail,
   sendBookingRejectedEmail,
@@ -284,6 +285,15 @@ const completeBooking = asyncHandler(async (req, res) => {
   }
   booking.status = 'completed';
   await booking.save();
+  const populated = await populateBookingForEmail(booking._id);
+  if (populated?.tenant && populated?.boat) {
+    await sendBookingCompletedEmail({
+      tenant: populated.tenant,
+      owner: populated.owner || {},
+      boat: populated.boat,
+      booking: populated,
+    });
+  }
   res.json(booking);
 });
 

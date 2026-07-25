@@ -16,6 +16,7 @@ const {
   sendBoatApprovedEmail,
   sendBoatRejectedEmail,
   sendBookingAcceptedEmail,
+  sendBookingCompletedEmail,
   sendBookingRejectedEmail,
   sendOwnerApprovedEmail,
 } = require('../services/emailService');
@@ -607,7 +608,10 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
 });
 
 const completeAdminBooking = asyncHandler(async (req, res) => {
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id)
+    .populate('boat', 'title images location')
+    .populate('tenant', 'firstName lastName email')
+    .populate('owner', 'firstName lastName email');
   if (!booking) {
     res.status(404);
     throw new Error('Reservation introuvable');
@@ -618,6 +622,14 @@ const completeAdminBooking = asyncHandler(async (req, res) => {
   }
   booking.status = 'completed';
   await booking.save();
+  if (booking.tenant && booking.boat) {
+    await sendBookingCompletedEmail({
+      tenant: booking.tenant,
+      owner: booking.owner || {},
+      boat: booking.boat,
+      booking,
+    });
+  }
   res.json(booking);
 });
 

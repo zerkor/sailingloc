@@ -171,12 +171,12 @@ const bookingCreated = ({ tenant, owner, boat, booking }) =>
 
 const bookingAccepted = ({ tenant, boat, booking }) =>
   buildTemplate({
-    subject: 'Votre demande de réservation a été acceptée',
-    title: 'Réservation acceptée',
+    subject: 'Votre réservation SailingLoc a bien été prise en compte',
+    title: 'Réservation validée',
     intro: [
       `Bonjour ${tenant.firstName || ''},`,
-      `Votre demande de réservation pour ${boat.title} a été acceptée.`,
-      'Vous pouvez maintenant finaliser le paiement simulé depuis votre espace.',
+      `Votre réservation pour ${boat.title} a bien été validée.`,
+      'Elle est désormais prise en compte dans votre espace SailingLoc.',
     ],
     details: bookingDetails({ tenant, boat, booking }),
     ctaLabel: 'Voir mes réservations',
@@ -221,6 +221,20 @@ const bookingCancelled = ({ tenant, boat, booking }) =>
     ctaUrl: `${emailConfig.clientUrl}/my-bookings`,
   });
 
+const bookingCompleted = ({ tenant, boat, booking }) =>
+  buildTemplate({
+    subject: 'Votre réservation SailingLoc est terminée',
+    title: 'Réservation terminée',
+    intro: [
+      `Bonjour ${tenant.firstName || ''},`,
+      `Votre réservation pour ${boat.title} est maintenant marquée comme terminée.`,
+      "Merci d'avoir utilisé SailingLoc. Vous pouvez retrouver le détail de cette réservation dans votre espace.",
+    ],
+    details: bookingDetails({ tenant, boat, booking }),
+    ctaLabel: 'Voir mes réservations',
+    ctaUrl: `${emailConfig.clientUrl}/my-bookings`,
+  });
+
 const passwordReset = ({ user, resetUrl }) =>
   buildTemplate({
     subject: 'Réinitialisation de votre mot de passe SailingLoc',
@@ -252,6 +266,7 @@ module.exports = {
   bookingRejected,
   bookingConfirmed,
   bookingCancelled,
+  bookingCompleted,
   passwordReset,
   testEmail,
 };

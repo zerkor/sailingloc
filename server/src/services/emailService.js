@@ -147,6 +147,13 @@ const sendBookingCancelledEmail = ({ tenant, owner, boat, booking }) =>
     template: templates.bookingCancelled({ tenant, owner, boat, booking }),
   });
 
+const sendBookingCompletedEmail = ({ tenant, owner, boat, booking }) =>
+  sendTemplate({
+    to: tenant.email,
+    templateName: 'bookingCompleted',
+    template: templates.bookingCompleted({ tenant, owner, boat, booking }),
+  });
+
 const sendPasswordResetEmail = ({ user, resetUrl }) =>
   sendTemplate({
     to: user.email,
@@ -168,6 +175,7 @@ module.exports = {
   sendBookingRejectedEmail,
   sendBookingConfirmedEmail,
   sendBookingCancelledEmail,
+  sendBookingCompletedEmail,
   sendPasswordResetEmail,
   sendAdminTestEmail,
 };
