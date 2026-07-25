@@ -356,7 +356,11 @@ const getAdminBookings = asyncHandler(async (req, res) => {
   if (req.query.status) filter.status = req.query.status;
   const [items, total] = await Promise.all([
     Booking.find(filter)
-      .populate('boat', 'title')
+      .populate({
+        path: 'boat',
+        select: 'title owner',
+        populate: { path: 'owner', select: 'firstName lastName email' },
+      })
       .populate('tenant', 'firstName lastName email')
       .populate('owner', 'firstName lastName email')
       .sort({ createdAt: -1 })
@@ -364,7 +368,18 @@ const getAdminBookings = asyncHandler(async (req, res) => {
       .limit(limit),
     Booking.countDocuments(filter),
   ]);
-  res.json(paginatedResponse(items, page, limit, total));
+
+  const repaired = await Promise.all(
+    items.map(async (booking) => {
+      if (!booking.owner && booking.boat?.owner) {
+        booking.owner = booking.boat.owner;
+        await Booking.updateOne({ _id: booking._id }, { owner: booking.boat.owner._id });
+      }
+      return booking;
+    })
+  );
+
+  res.json(paginatedResponse(repaired, page, limit, total));
 });
 
 const refundBookingPayment = async ({ booking, adminId }) => {
@@ -412,7 +427,10 @@ const cancelAdminBooking = asyncHandler(async (req, res) => {
 
 const acceptAdminBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id)
-    .populate('boat')
+    .populate({
+      path: 'boat',
+      populate: { path: 'owner', select: 'firstName lastName email' },
+    })
     .populate('tenant', 'firstName lastName email')
     .populate('owner', 'firstName lastName email');
   if (!booking) {
@@ -426,6 +444,10 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
   if (!booking.boat || !booking.tenant) {
     res.status(400);
     throw new Error('Reservation incomplete : bateau ou locataire introuvable');
+  }
+  const effectiveOwner = booking.owner || booking.boat.owner || {};
+  if (!booking.owner && booking.boat.owner?._id) {
+    booking.owner = booking.boat.owner._id;
   }
 
   await assertBoatAvailable({
@@ -447,7 +469,7 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
   });
   await sendBookingAcceptedEmail({
     tenant: booking.tenant,
-    owner: booking.owner || {},
+    owner: effectiveOwner,
     boat: booking.boat,
     booking,
   });
@@ -457,7 +479,7 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
     entityType: 'booking',
     entityId: booking._id,
     description: `${adminName(req)} a accepte la reservation ${booking._id}${
-      booking.owner ? '' : ' sans proprietaire rattache'
+      effectiveOwner?._id ? '' : ' sans proprietaire rattache'
     }`,
   });
 
@@ -466,7 +488,11 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
 
 const rejectAdminBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id)
-    .populate('boat', 'title')
+    .populate({
+      path: 'boat',
+      select: 'title owner',
+      populate: { path: 'owner', select: 'firstName lastName email' },
+    })
     .populate('tenant', 'firstName lastName email')
     .populate('owner', 'firstName lastName email');
   if (!booking) {
@@ -481,6 +507,10 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Reservation incomplete : bateau ou locataire introuvable');
   }
+  const effectiveOwner = booking.owner || booking.boat.owner || {};
+  if (!booking.owner && booking.boat.owner?._id) {
+    booking.owner = booking.boat.owner._id;
+  }
 
   booking.status = 'rejected';
   await booking.save();
@@ -494,7 +524,7 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
   });
   await sendBookingRejectedEmail({
     tenant: booking.tenant,
-    owner: booking.owner || {},
+    owner: effectiveOwner,
     boat: booking.boat,
     booking,
   });
@@ -504,7 +534,7 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
     entityType: 'booking',
     entityId: booking._id,
     description: `${adminName(req)} a refuse la reservation ${booking._id}${
-      booking.owner ? '' : ' sans proprietaire rattache'
+      effectiveOwner?._id ? '' : ' sans proprietaire rattache'
     }`,
   });
 
