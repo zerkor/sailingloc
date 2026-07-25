@@ -14,6 +14,8 @@ const {
   rejectBoat,
   deleteBoat,
   getAdminBookings,
+  acceptAdminBooking,
+  rejectAdminBooking,
   cancelAdminBooking,
   completeAdminBooking,
   getReviews,
@@ -41,6 +43,8 @@ router.patch('/boats/:id/approve', mongoId(), validate, approveBoat);
 router.patch('/boats/:id/reject', mongoId(), validate, rejectBoat);
 router.delete('/boats/:id', mongoId(), validate, deleteBoat);
 router.get('/bookings', getAdminBookings);
+router.patch('/bookings/:id/accept', mongoId(), validate, acceptAdminBooking);
+router.patch('/bookings/:id/reject', mongoId(), validate, rejectAdminBooking);
 router.patch('/bookings/:id/cancel', mongoId(), validate, cancelAdminBooking);
 router.patch('/bookings/:id/complete', mongoId(), validate, completeAdminBooking);
 router.get('/reviews', getReviews);

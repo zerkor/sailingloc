@@ -35,6 +35,41 @@ const AdminBookingsPage = () => {
     fetchBookings(1);
   }, [filter]);
 
+  const handleAccept = async (id) => {
+    if (
+      !(await requestApproval('Accepter cette demande de réservation ?', {
+        title: 'Validation réservation',
+        confirmLabel: 'Accepter',
+      }))
+    )
+      return;
+    try {
+      const { data } = await api.patch(`/admin/bookings/${id}/accept`);
+      setBookings((prev) => prev.map((b) => (b._id === id ? { ...b, status: data.status } : b)));
+      toast('Réservation acceptée.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
+  };
+
+  const handleReject = async (id) => {
+    if (
+      !(await requestApproval('Refuser cette demande de réservation ?', {
+        title: 'Refus réservation',
+        variant: 'danger',
+        confirmLabel: 'Refuser',
+      }))
+    )
+      return;
+    try {
+      const { data } = await api.patch(`/admin/bookings/${id}/reject`);
+      setBookings((prev) => prev.map((b) => (b._id === id ? { ...b, status: data.status } : b)));
+      toast('Réservation refusée.', 'success');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Erreur.', 'error');
+    }
+  };
+
   const handleCancel = async (id) => {
     if (
       !(await requestApproval('Annuler cette réservation ?', {
@@ -205,6 +240,24 @@ const AdminBookingsPage = () => {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-2 flex-wrap">
+                        {b.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleAccept(b._id)}
+                              className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
+                              style={{ background: 'rgba(22,163,74,0.1)', color: '#166534' }}
+                            >
+                              Accepter
+                            </button>
+                            <button
+                              onClick={() => handleReject(b._id)}
+                              className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
+                              style={{ background: 'rgba(234,88,12,0.1)', color: '#c2410c' }}
+                            >
+                              Refuser
+                            </button>
+                          </>
+                        )}
                         {b.status === 'confirmed' && (
                           <button
                             onClick={() => handleComplete(b._id)}

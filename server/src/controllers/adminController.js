@@ -8,11 +8,15 @@ const OwnerDocument = require('../models/OwnerDocument');
 const AdminActionLog = require('../models/AdminActionLog');
 const recalculateBoatRating = require('../utils/recalculateBoatRating');
 const logAdminAction = require('../utils/adminActionLog');
+const createNotification = require('../utils/createNotification');
+const { assertBoatAvailable } = require('../utils/bookingAvailability');
 const { parsePagination, paginatedResponse } = require('../utils/paginate');
 const {
   sendAdminTestEmail,
   sendBoatApprovedEmail,
   sendBoatRejectedEmail,
+  sendBookingAcceptedEmail,
+  sendBookingRejectedEmail,
   sendOwnerApprovedEmail,
 } = require('../services/emailService');
 
@@ -406,6 +410,103 @@ const cancelAdminBooking = asyncHandler(async (req, res) => {
   res.json(result.booking);
 });
 
+const acceptAdminBooking = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('boat')
+    .populate('tenant', 'firstName lastName email')
+    .populate('owner', 'firstName lastName email');
+  if (!booking) {
+    res.status(404);
+    throw new Error('Reservation introuvable');
+  }
+  if (booking.status !== 'pending') {
+    res.status(400);
+    throw new Error('La reservation doit etre en attente pour etre acceptee');
+  }
+  if (!booking.boat || !booking.tenant || !booking.owner) {
+    res.status(400);
+    throw new Error('Reservation incomplete : bateau, locataire ou proprietaire introuvable');
+  }
+
+  await assertBoatAvailable({
+    boat: booking.boat,
+    startDate: booking.startDate,
+    endDate: booking.endDate,
+    excludedBookingId: booking._id,
+  });
+
+  booking.status = 'accepted';
+  await booking.save();
+  await createNotification({
+    user: booking.tenant._id,
+    type: 'booking_accepted',
+    title: 'Reservation acceptee',
+    message: `Votre demande pour ${booking.boat.title} a ete acceptee par l'administration.`,
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat._id,
+  });
+  await sendBookingAcceptedEmail({
+    tenant: booking.tenant,
+    owner: booking.owner,
+    boat: booking.boat,
+    booking,
+  });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'accept_booking',
+    entityType: 'booking',
+    entityId: booking._id,
+    description: `${adminName(req)} a accepte la reservation ${booking._id}`,
+  });
+
+  res.json(booking);
+});
+
+const rejectAdminBooking = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('boat', 'title')
+    .populate('tenant', 'firstName lastName email')
+    .populate('owner', 'firstName lastName email');
+  if (!booking) {
+    res.status(404);
+    throw new Error('Reservation introuvable');
+  }
+  if (booking.status !== 'pending') {
+    res.status(400);
+    throw new Error('La reservation doit etre en attente pour etre refusee');
+  }
+  if (!booking.boat || !booking.tenant || !booking.owner) {
+    res.status(400);
+    throw new Error('Reservation incomplete : bateau, locataire ou proprietaire introuvable');
+  }
+
+  booking.status = 'rejected';
+  await booking.save();
+  await createNotification({
+    user: booking.tenant._id,
+    type: 'booking_rejected',
+    title: 'Reservation refusee',
+    message: "L'administration a refuse votre demande de reservation.",
+    relatedBooking: booking._id,
+    relatedBoat: booking.boat._id,
+  });
+  await sendBookingRejectedEmail({
+    tenant: booking.tenant,
+    owner: booking.owner,
+    boat: booking.boat,
+    booking,
+  });
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'reject_booking',
+    entityType: 'booking',
+    entityId: booking._id,
+    description: `${adminName(req)} a refuse la reservation ${booking._id}`,
+  });
+
+  res.json(booking);
+});
+
 const completeAdminBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
   if (!booking) {
@@ -584,6 +685,8 @@ module.exports = {
   rejectBoat,
   deleteBoat,
   getAdminBookings,
+  acceptAdminBooking,
+  rejectAdminBooking,
   cancelAdminBooking,
   completeAdminBooking,
   getReviews,
