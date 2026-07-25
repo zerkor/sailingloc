@@ -66,19 +66,21 @@ Utiliser `mongodump`/`mongorestore` ou les backups automatiques du fournisseur M
 - API: Render, Railway, Fly.io, VPS avec PM2.
 - DB: MongoDB Atlas ou MongoDB managé.
 
-## Brevo SMTP configuration on Render
+## Brevo API configuration on Render
 
-Les emails transactionnels utilisent Brevo SMTP via Nodemailer cote serveur. Les secrets doivent etre configures uniquement dans Render, onglet `Environment` du Web Service :
+Les emails transactionnels utilisent Brevo API par defaut sur Render. L'API HTTPS passe par le port 443 et evite les timeouts SMTP possibles sur certains hebergeurs. SMTP reste disponible en fallback avec `EMAIL_MODE=smtp`. Les secrets doivent etre configures uniquement dans Render, onglet `Environment` du Web Service :
 
 ```env
 EMAIL_PROVIDER=brevo
-EMAIL_MODE=smtp
+EMAIL_MODE=api
+BREVO_API_KEY=your_brevo_api_key
+BREVO_API_URL=https://api.brevo.com/v3/smtp/email
+EMAIL_API_TIMEOUT_MS=15000
 BREVO_SMTP_HOST=smtp-relay.brevo.com
 BREVO_SMTP_PORT=587
 BREVO_SMTP_SECURE=false
 BREVO_SMTP_USER=your_brevo_smtp_login
 BREVO_SMTP_PASS=your_brevo_smtp_key
-BREVO_API_KEY=your_brevo_api_key_optional
 EMAIL_FROM_NAME=SailingLoc
 EMAIL_FROM_ADDRESS=contact@sailingloc.fr
 EMAIL_REPLY_TO=contact@sailingloc.fr
@@ -92,4 +94,4 @@ Ne jamais hardcoder les identifiants Brevo : Render Environment Variables est le
 
 ### Brevo IP / authorized sender note
 
-Le code ne peut pas forcer Brevo a accepter une IP Render dynamique. Si Brevo demande une validation d'expediteur ou de domaine, elle doit etre faite manuellement dans le dashboard Brevo. Si l'allowlist IP Brevo est activee, utiliser une IP sortante statique cote hebergement ou desactiver cette restriction et s'appuyer sur les identifiants SMTP authentifies avec domaine/expediteur verifie.
+Le code ne peut pas forcer Brevo a accepter une IP Render dynamique. Si Brevo demande une validation d'expediteur ou de domaine, elle doit etre faite manuellement dans le dashboard Brevo. Le mode API limite les problemes de ports SMTP bloques, mais l'expediteur ou le domaine doit rester verifie dans Brevo.

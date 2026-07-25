@@ -7,7 +7,7 @@ const swaggerDefinition = {
     title: 'SailingLoc API',
     version: '1.0.0',
     description:
-      'Documentation OpenAPI de la plateforme de location de bateaux entre particuliers SailingLoc. Les emails transactionnels utilisent Brevo SMTP via variables d environnement serveur.',
+      'Documentation OpenAPI de la plateforme de location de bateaux entre particuliers SailingLoc. Les emails transactionnels utilisent Brevo API ou SMTP via variables d environnement serveur.',
   },
   servers: [{ url: process.env.SERVER_URL || 'http://localhost:5000', description: 'API SailingLoc' }],
   tags: [
@@ -241,7 +241,7 @@ const swaggerDefinition = {
       post: {
         tags: ['Admin'],
         security: [{ bearerAuth: [] }],
-        summary: 'Envoie un email de test Brevo SMTP',
+        summary: 'Envoie un email de test Brevo',
         requestBody: {
           required: true,
           content: {
@@ -253,7 +253,7 @@ const swaggerDefinition = {
         responses: {
           200: { description: 'Email envoyé ou simulé selon la configuration' },
           403: { description: 'Admin requis' },
-          500: { description: 'Configuration SMTP invalide ou envoi impossible' },
+          500: { description: 'Configuration email invalide ou envoi impossible' },
         },
       },
     },

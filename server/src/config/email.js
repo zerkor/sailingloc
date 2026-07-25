@@ -8,6 +8,9 @@ const asBoolean = (value, defaultValue = false) => {
 const emailConfig = {
   provider: process.env.EMAIL_PROVIDER || 'brevo',
   mode: process.env.EMAIL_MODE || 'smtp',
+  apiKey: process.env.BREVO_API_KEY,
+  apiUrl: process.env.BREVO_API_URL || 'https://api.brevo.com/v3/smtp/email',
+  apiTimeout: Number(process.env.EMAIL_API_TIMEOUT_MS || 15000),
   enabled: asBoolean(process.env.EMAIL_ENABLED, process.env.NODE_ENV === 'production'),
   logOnly: asBoolean(process.env.EMAIL_LOG_ONLY, process.env.NODE_ENV !== 'production'),
   smtp: {
@@ -30,10 +33,14 @@ const emailConfig = {
 const validateEmailConfig = () => {
   if (!emailConfig.enabled || emailConfig.logOnly) return [];
   const missing = [];
-  if (!emailConfig.smtp.host) missing.push('BREVO_SMTP_HOST');
-  if (!emailConfig.smtp.port) missing.push('BREVO_SMTP_PORT');
-  if (!emailConfig.smtp.user) missing.push('BREVO_SMTP_USER');
-  if (!emailConfig.smtp.pass) missing.push('BREVO_SMTP_PASS');
+  if (emailConfig.mode === 'api') {
+    if (!emailConfig.apiKey) missing.push('BREVO_API_KEY');
+  } else {
+    if (!emailConfig.smtp.host) missing.push('BREVO_SMTP_HOST');
+    if (!emailConfig.smtp.port) missing.push('BREVO_SMTP_PORT');
+    if (!emailConfig.smtp.user) missing.push('BREVO_SMTP_USER');
+    if (!emailConfig.smtp.pass) missing.push('BREVO_SMTP_PASS');
+  }
   if (!emailConfig.fromAddress) missing.push('EMAIL_FROM_ADDRESS');
   return missing;
 };

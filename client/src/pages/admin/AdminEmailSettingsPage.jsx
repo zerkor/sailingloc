@@ -13,7 +13,7 @@ const AdminEmailSettingsPage = () => {
     event.preventDefault();
     if (!to || loading) return;
     setLoading(true);
-    setStatus('Test SMTP en cours. La réponse peut prendre quelques secondes...');
+    setStatus('Test email en cours. La réponse peut prendre quelques secondes...');
     setMessage('');
     setError('');
 
@@ -26,7 +26,7 @@ const AdminEmailSettingsPage = () => {
       }
     } catch (err) {
       if (err.code === 'ECONNABORTED') {
-        setError('Timeout SMTP : aucune réponse après 20 secondes. Vérifie les variables Brevo, le port 587 et Render Logs.');
+        setError('Timeout email : aucune réponse après 20 secondes. Vérifie BREVO_API_KEY, EMAIL_MODE et Render Logs.');
       } else {
         const apiMessage = err.response?.data?.message || "L'email de test n'a pas pu être envoyé.";
         const errorCode = err.response?.data?.errorCode;
@@ -51,7 +51,7 @@ const AdminEmailSettingsPage = () => {
           Emails transactionnels
         </h1>
         <p className="mt-2 max-w-2xl text-sm" style={{ color: '#66758A' }}>
-          Les identifiants Brevo SMTP sont configurés uniquement dans les variables d'environnement Render. Aucun mot de
+          Les identifiants Brevo sont configurés uniquement dans les variables d'environnement Render. Aucun mot de
           passe SMTP ni clé API n'est affiché dans l'interface.
         </p>
       </div>
@@ -63,7 +63,7 @@ const AdminEmailSettingsPage = () => {
             Fournisseur
           </h2>
           <p className="mt-1 text-sm" style={{ color: '#66758A' }}>
-            Brevo SMTP via Nodemailer côté serveur.
+            Brevo API recommandé sur Render, SMTP disponible en fallback.
           </p>
         </div>
         <div className="rounded-2xl bg-white p-5 shadow-sm lg:col-span-2">

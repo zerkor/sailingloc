@@ -5,7 +5,7 @@ Plateforme full-stack de location de bateaux entre particuliers, avec espaces vi
 ## Fonctionnalités
 
 - Catalogue public avec filtres, fiches bateaux et avis.
-- Mot de passe oublie avec token hashe en base et envoi SMTP configurable.
+- Mot de passe oublie avec token hashe en base et envoi Brevo configurable.
 - Authentification JWT avec rôles `tenant`, `owner`, `admin`.
 - Réservations, acceptation propriétaire et paiement simulé.
 - Back-office admin : utilisateurs, bateaux, réservations, avis, documents, paiements, signalements, journal d actions.
@@ -47,15 +47,17 @@ CLIENT_URL=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
 SERVER_URL=http://localhost:5000
 EMAIL_PROVIDER=brevo
-EMAIL_MODE=smtp
+EMAIL_MODE=api
 EMAIL_ENABLED=false
 EMAIL_LOG_ONLY=true
+BREVO_API_KEY=your_brevo_api_key
+BREVO_API_URL=https://api.brevo.com/v3/smtp/email
+EMAIL_API_TIMEOUT_MS=15000
 BREVO_SMTP_HOST=smtp-relay.brevo.com
 BREVO_SMTP_PORT=587
 BREVO_SMTP_SECURE=false
 BREVO_SMTP_USER=your_brevo_smtp_login
 BREVO_SMTP_PASS=your_brevo_smtp_key
-BREVO_API_KEY=your_brevo_api_key_optional
 EMAIL_FROM_NAME=SailingLoc
 EMAIL_FROM_ADDRESS=contact@sailingloc.fr
 EMAIL_REPLY_TO=contact@sailingloc.fr
@@ -68,21 +70,23 @@ LOG_LEVEL=debug
 
 Pour la production, voir `.env.production.example` et [docs/PRODUCTION.md](docs/PRODUCTION.md).
 
-## Brevo SMTP sur Render
+## Brevo API sur Render
 
-Les emails transactionnels SailingLoc utilisent Brevo SMTP via Nodemailer côté serveur. Les identifiants ne doivent jamais être écrits dans le code ni envoyés au frontend.
+Les emails transactionnels SailingLoc utilisent Brevo API par défaut sur Render, car l'API HTTPS passe par le port 443 et évite les timeouts SMTP possibles sur certains hébergements. SMTP reste disponible en fallback avec `EMAIL_MODE=smtp`. Les identifiants ne doivent jamais être écrits dans le code ni envoyés au frontend.
 
 Variables à ajouter dans Render :
 
 ```env
 EMAIL_PROVIDER=brevo
-EMAIL_MODE=smtp
+EMAIL_MODE=api
+BREVO_API_KEY=your_brevo_api_key
+BREVO_API_URL=https://api.brevo.com/v3/smtp/email
+EMAIL_API_TIMEOUT_MS=15000
 BREVO_SMTP_HOST=smtp-relay.brevo.com
 BREVO_SMTP_PORT=587
 BREVO_SMTP_SECURE=false
 BREVO_SMTP_USER=your_brevo_smtp_login
 BREVO_SMTP_PASS=your_brevo_smtp_key
-BREVO_API_KEY=your_brevo_api_key_optional
 EMAIL_FROM_NAME=SailingLoc
 EMAIL_FROM_ADDRESS=contact@sailingloc.fr
 EMAIL_REPLY_TO=contact@sailingloc.fr
@@ -94,7 +98,7 @@ EMAIL_LOG_ONLY=false
 
 En local, garder `EMAIL_ENABLED=false` ou `EMAIL_LOG_ONLY=true` pour tester sans envoyer de vrais emails.
 
-Note Brevo IP / expéditeur autorisé : l'application ne peut pas valider automatiquement un domaine, un expéditeur ou une IP dans Brevo. Ces réglages se font manuellement dans le dashboard Brevo. Sur Render, l'IP sortante peut changer sans option réseau dédiée ; si l'allowlist IP stricte est activée dans Brevo, il faut une solution d'IP sortante statique ou désactiver cette contrainte et s'appuyer sur SMTP authentifié avec expéditeur/domaine vérifié.
+Note Brevo IP / expéditeur autorisé : l'application ne peut pas valider automatiquement un domaine, un expéditeur ou une IP dans Brevo. Ces réglages se font manuellement dans le dashboard Brevo. En mode API, la connexion sortante utilise HTTPS 443, mais l'expéditeur/domaine doit quand même être vérifié dans Brevo.
 
 ## Docker
 
@@ -200,7 +204,7 @@ Après `npm run seed` :
 La page `/mvp-limitations` clarifie les limites pour la soutenance :
 
 - paiement simulé ;
-- envoi SMTP actif uniquement si les variables SMTP sont configurées ;
+- envoi email actif uniquement si les variables Brevo sont configurées ;
 - upload local à remplacer par du cloud en production ;
 - vérification documentaire manuelle ;
 - pas encore de messagerie temps réel, application mobile, assurance partenaire ni arbitrage complet.
