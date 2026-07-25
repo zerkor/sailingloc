@@ -20,6 +20,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const demoRoutes = require('./routes/demoRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
@@ -76,6 +77,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/demo', demoRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Add boat reviews route
 const { getBoatReviews } = require('./controllers/reviewController');

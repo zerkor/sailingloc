@@ -101,6 +101,18 @@ const updateUserRules = [
 
 const testEmailRules = [body('to').isEmail().withMessage('Adresse email invalide').normalizeEmail()];
 
+const contactMessageRules = [
+  body('name').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 120 }),
+  body('email').isEmail().withMessage('Email invalide').normalizeEmail().isLength({ max: 160 }),
+  body('subject').isIn(['technique', 'location', 'partenariat', 'autre']).withMessage('Sujet invalide'),
+  body('message').trim().isLength({ min: 10, max: 4000 }).withMessage('Le message doit contenir entre 10 et 4000 caracteres'),
+];
+
+const updateContactMessageRules = [
+  body('status').optional().isIn(['new', 'read', 'resolved', 'archived']).withMessage('Statut invalide'),
+  body('adminNote').optional({ checkFalsy: true }).trim().isLength({ max: 1000 }),
+];
+
 module.exports = {
   mongoId,
   pagination,
@@ -115,4 +127,6 @@ module.exports = {
   updateProfileRules,
   updateUserRules,
   testEmailRules,
+  contactMessageRules,
+  updateContactMessageRules,
 };

@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const {
+  getAdminContactMessages,
+  updateAdminContactMessage,
+} = require('../controllers/contactController');
+const {
   getStats,
   getUsers,
   updateUser,
@@ -24,7 +28,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
-const { mongoId, testEmailRules, updateUserRules } = require('../middleware/validators');
+const { mongoId, testEmailRules, updateContactMessageRules, updateUserRules } = require('../middleware/validators');
 
 router.use(protect, requireRole('admin'));
 
@@ -47,5 +51,7 @@ router.get('/payments', getAdminPayments);
 router.patch('/payments/:id/refund', mongoId(), validate, refundPayment);
 router.get('/action-logs', getActionLogs);
 router.post('/email/test', testEmailRules, validate, testEmail);
+router.get('/contact-messages', getAdminContactMessages);
+router.patch('/contact-messages/:id', mongoId(), updateContactMessageRules, validate, updateAdminContactMessage);
 
 module.exports = router;

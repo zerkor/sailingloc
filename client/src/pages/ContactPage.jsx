@@ -1,6 +1,8 @@
 // src/pages/ContactPage.jsx
 import { useState } from 'react';
 import { ArrowRight, Check, Clock, Mail, MapPin, Phone } from 'lucide-react';
+import api from '../services/api';
+import ErrorMessage from '../components/ErrorMessage';
 
 const SUBJECTS = [
   { value: '', label: 'Choisir un sujet…', disabled: true },
@@ -33,6 +35,7 @@ const LABEL_CLS = 'block text-xs font-bold uppercase tracking-wider mb-2';
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -61,11 +64,17 @@ const ContactPage = () => {
     }
 
     setLoading(true);
-    await new Promise((res) => setTimeout(res, 1500));
-    setLoading(false);
-    setSuccess(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
-    setTimeout(() => setSuccess(false), 4000);
+    setSubmitError('');
+    try {
+      await api.post('/contact', form);
+      setSuccess(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setSuccess(false), 4000);
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || "Impossible d'envoyer le message pour le moment.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fieldStyle = (name) =>
@@ -128,6 +137,8 @@ const ContactPage = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+              <ErrorMessage message={submitError} />
+
               {/* Name */}
               <div>
                 <label htmlFor="ct-name" className={LABEL_CLS} style={{ color: '#3D4D61' }}>

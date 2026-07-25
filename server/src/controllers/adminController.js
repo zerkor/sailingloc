@@ -254,6 +254,10 @@ const approveBoat = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Bateau introuvable');
   }
+  if (!boat.owner) {
+    res.status(400);
+    throw new Error('Impossible d approuver ce bateau : proprietaire introuvable');
+  }
   const rejectedDocs = await OwnerDocument.countDocuments({ boat: boat._id, status: 'rejected' });
   if (rejectedDocs > 0) {
     res.status(400);
@@ -283,6 +287,10 @@ const rejectBoat = asyncHandler(async (req, res) => {
   if (!boat) {
     res.status(404);
     throw new Error('Bateau introuvable');
+  }
+  if (!boat.owner) {
+    res.status(400);
+    throw new Error('Impossible de rejeter ce bateau : proprietaire introuvable');
   }
   boat.status = 'rejected';
   await boat.save();

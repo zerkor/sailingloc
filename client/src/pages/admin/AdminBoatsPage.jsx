@@ -225,12 +225,25 @@ const AdminBoatsPage = () => {
                       </div>
                     </td>
                     <td className="px-5 py-3">
-                      <p style={{ color: '#3D4D61' }}>
-                        {boat.owner?.firstName} {boat.owner?.lastName}
-                      </p>
-                      <p className="text-xs" style={{ color: '#8896A8' }}>
-                        {boat.owner?.email}
-                      </p>
+                      {boat.owner ? (
+                        <>
+                          <p style={{ color: '#3D4D61' }}>
+                            {boat.owner.firstName} {boat.owner.lastName}
+                          </p>
+                          <p className="text-xs" style={{ color: '#8896A8' }}>
+                            {boat.owner.email}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-semibold" style={{ color: '#dc2626' }}>
+                            Propriétaire introuvable
+                          </p>
+                          <p className="text-xs" style={{ color: '#8896A8' }}>
+                            Bateau orphelin à nettoyer
+                          </p>
+                        </>
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <span
@@ -261,8 +274,15 @@ const AdminBoatsPage = () => {
                         {(boat.status === 'pending' || boat.status === 'rejected') && (
                           <button
                             onClick={() => handleApprove(boat._id)}
+                            disabled={!boat.owner}
                             className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
-                            style={{ background: 'rgba(22,163,74,0.1)', color: '#166534' }}
+                            title={!boat.owner ? 'Impossible sans propriétaire associé' : undefined}
+                            style={{
+                              background: 'rgba(22,163,74,0.1)',
+                              color: '#166534',
+                              opacity: boat.owner ? 1 : 0.45,
+                              cursor: boat.owner ? 'pointer' : 'not-allowed',
+                            }}
                           >
                             Approuver
                           </button>
@@ -270,8 +290,15 @@ const AdminBoatsPage = () => {
                         {(boat.status === 'pending' || boat.status === 'approved') && (
                           <button
                             onClick={() => handleReject(boat._id)}
+                            disabled={!boat.owner}
                             className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
-                            style={{ background: 'rgba(234,88,12,0.1)', color: '#c2410c' }}
+                            title={!boat.owner ? 'Impossible sans propriétaire associé' : undefined}
+                            style={{
+                              background: 'rgba(234,88,12,0.1)',
+                              color: '#c2410c',
+                              opacity: boat.owner ? 1 : 0.45,
+                              cursor: boat.owner ? 'pointer' : 'not-allowed',
+                            }}
                           >
                             {boat.status === 'approved' ? 'Révoquer' : 'Rejeter'}
                           </button>
