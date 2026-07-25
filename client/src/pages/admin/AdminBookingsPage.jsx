@@ -224,7 +224,25 @@ const AdminBookingsPage = () => {
                       </p>
                     </td>
                     <td className="px-5 py-3" style={{ color: '#3D4D61' }}>
-                      {b.owner?.firstName} {b.owner?.lastName}
+                      {b.owner ? (
+                        <>
+                          <p>
+                            {b.owner.firstName} {b.owner.lastName}
+                          </p>
+                          <p className="text-xs" style={{ color: '#8896A8' }}>
+                            {b.owner.email}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-semibold" style={{ color: '#dc2626' }}>
+                            Propriétaire introuvable
+                          </p>
+                          <p className="text-xs" style={{ color: '#8896A8' }}>
+                            Réservation orpheline
+                          </p>
+                        </>
+                      )}
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap" style={{ color: '#8896A8' }}>
                       <p>{formatDate(b.startDate)}</p>

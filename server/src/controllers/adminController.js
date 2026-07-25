@@ -423,9 +423,9 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('La reservation doit etre en attente pour etre acceptee');
   }
-  if (!booking.boat || !booking.tenant || !booking.owner) {
+  if (!booking.boat || !booking.tenant) {
     res.status(400);
-    throw new Error('Reservation incomplete : bateau, locataire ou proprietaire introuvable');
+    throw new Error('Reservation incomplete : bateau ou locataire introuvable');
   }
 
   await assertBoatAvailable({
@@ -447,7 +447,7 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
   });
   await sendBookingAcceptedEmail({
     tenant: booking.tenant,
-    owner: booking.owner,
+    owner: booking.owner || {},
     boat: booking.boat,
     booking,
   });
@@ -456,7 +456,9 @@ const acceptAdminBooking = asyncHandler(async (req, res) => {
     action: 'accept_booking',
     entityType: 'booking',
     entityId: booking._id,
-    description: `${adminName(req)} a accepte la reservation ${booking._id}`,
+    description: `${adminName(req)} a accepte la reservation ${booking._id}${
+      booking.owner ? '' : ' sans proprietaire rattache'
+    }`,
   });
 
   res.json(booking);
@@ -475,9 +477,9 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('La reservation doit etre en attente pour etre refusee');
   }
-  if (!booking.boat || !booking.tenant || !booking.owner) {
+  if (!booking.boat || !booking.tenant) {
     res.status(400);
-    throw new Error('Reservation incomplete : bateau, locataire ou proprietaire introuvable');
+    throw new Error('Reservation incomplete : bateau ou locataire introuvable');
   }
 
   booking.status = 'rejected';
@@ -492,7 +494,7 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
   });
   await sendBookingRejectedEmail({
     tenant: booking.tenant,
-    owner: booking.owner,
+    owner: booking.owner || {},
     boat: booking.boat,
     booking,
   });
@@ -501,7 +503,9 @@ const rejectAdminBooking = asyncHandler(async (req, res) => {
     action: 'reject_booking',
     entityType: 'booking',
     entityId: booking._id,
-    description: `${adminName(req)} a refuse la reservation ${booking._id}`,
+    description: `${adminName(req)} a refuse la reservation ${booking._id}${
+      booking.owner ? '' : ' sans proprietaire rattache'
+    }`,
   });
 
   res.json(booking);
