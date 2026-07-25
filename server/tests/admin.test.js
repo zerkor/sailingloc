@@ -18,6 +18,7 @@ const OwnerDocument = require('../src/models/OwnerDocument');
 const Notification = require('../src/models/Notification');
 const Report = require('../src/models/Report');
 const AdminActionLog = require('../src/models/AdminActionLog');
+const { repairBoats } = require('../src/seed/repairBoats');
 
 let mongoServer;
 
@@ -164,6 +165,22 @@ test('Admin moderation: assigns active owner fallback when boat owner is broken'
     .set('Authorization', `Bearer ${token}`)
     .expect(200);
   assert.equal(approved.body.status, 'approved');
+});
+
+test('Demo repair: restores approved boats for every category', async () => {
+  await createUser({ role: 'owner', email: 'owner-repair-catalog@sailingloc.test' });
+  await Boat.deleteMany({});
+
+  const result = await repairBoats();
+  const counts = await Boat.aggregate([{ $group: { _id: '$type', count: { $sum: 1 } } }]);
+  const byType = Object.fromEntries(counts.map((item) => [item._id, item.count]));
+
+  assert.equal(result.created.length, 20);
+  assert.equal(byType.sailboat, 5);
+  assert.equal(byType.motorboat, 5);
+  assert.equal(byType.catamaran, 5);
+  assert.equal(byType.rib, 5);
+  assert.equal(await Boat.countDocuments({ status: 'approved' }), 20);
 });
 
 test('Admin moderation: approve review and expose dashboard stats', async () => {

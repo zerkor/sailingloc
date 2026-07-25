@@ -1,6 +1,7 @@
 const { execFile } = require('child_process');
 const path = require('path');
 const express = require('express');
+const { repairBoats } = require('../seed/repairBoats');
 
 const router = express.Router();
 
@@ -52,7 +53,38 @@ const seedDemo = async (req, res, next) => {
   }
 };
 
+const validateDemoToken = (req, res) => {
+  const expectedToken = process.env.DEMO_SEED_TOKEN;
+  const providedToken = req.query.token || req.headers['x-demo-seed-token'];
+
+  if (!expectedToken) {
+    res.status(404);
+    throw new Error('Demo repair endpoint is disabled');
+  }
+
+  if (providedToken !== expectedToken) {
+    res.status(403);
+    throw new Error('Invalid demo repair token');
+  }
+};
+
+const repairDemoBoats = async (req, res, next) => {
+  try {
+    validateDemoToken(req, res);
+    const result = await repairBoats();
+
+    res.json({
+      message: 'Demo boats repaired successfully',
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/seed', seedDemo);
 router.post('/seed', seedDemo);
+router.get('/repair-boats', repairDemoBoats);
+router.post('/repair-boats', repairDemoBoats);
 
 module.exports = router;
