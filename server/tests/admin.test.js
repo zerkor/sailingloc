@@ -137,6 +137,35 @@ test('Admin moderation: approve and reject boats', async () => {
   assert.equal(rejected.body.status, 'rejected');
 });
 
+test('Admin moderation: assigns active owner fallback when boat owner is broken', async () => {
+  const owner = await createUser({ role: 'owner', email: 'owner-fallback-boat@sailingloc.test' });
+  const admin = await createUser({ role: 'admin', email: 'admin-fallback-boat@sailingloc.test' });
+  const token = await loginAs(admin.email);
+  const boat = await Boat.create({
+    owner: new mongoose.Types.ObjectId(),
+    title: 'Bateau orphelin',
+    type: 'rib',
+    description: 'Bateau avec proprietaire casse pour test admin.',
+    location: 'Nice',
+    pricePerDay: 180,
+    capacity: 5,
+    images: ['https://example.com/rib.jpg'],
+    status: 'pending',
+  });
+
+  const list = await request(app).get('/api/admin/boats').set('Authorization', `Bearer ${token}`).expect(200);
+  assert.equal(list.body.items[0].owner.email, owner.email);
+
+  const repairedBoat = await Boat.findById(boat._id);
+  assert.equal(repairedBoat.owner.toString(), owner._id.toString());
+
+  const approved = await request(app)
+    .patch(`/api/admin/boats/${boat._id}/approve`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  assert.equal(approved.body.status, 'approved');
+});
+
 test('Admin moderation: approve review and expose dashboard stats', async () => {
   const owner = await createUser({ role: 'owner', email: 'owner-review@sailingloc.test' });
   const tenant = await createUser({ role: 'tenant', email: 'tenant-review@sailingloc.test' });

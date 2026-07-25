@@ -50,6 +50,21 @@ const repairBookingOwner = async ({ booking, owner }) => {
   if (updates.length > 0) await Promise.all(updates);
 };
 
+const resolveBoatOwner = async ({ boat, adminId }) => {
+  if (boat.owner?._id) return boat.owner;
+
+  const fallbackOwner = await User.findOne({ role: 'owner', isActive: true }).select('firstName lastName email');
+  if (fallbackOwner) return fallbackOwner;
+
+  return User.findById(adminId).select('firstName lastName email');
+};
+
+const repairBoatOwner = async ({ boat, owner }) => {
+  if (!owner?._id) return;
+  boat.owner = owner._id;
+  await Boat.updateOne({ _id: boat._id }, { owner: owner._id });
+};
+
 const logEmailAttempt = async ({ admin, result, subject, recipient }) => {
   await logAdminAction({
     admin,
@@ -275,7 +290,19 @@ const getAdminBoats = asyncHandler(async (req, res) => {
     Boat.find(filter).populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).skip(skip).limit(limit),
     Boat.countDocuments(filter),
   ]);
-  res.json(paginatedResponse(items, page, limit, total));
+  const repaired = await Promise.all(
+    items.map(async (boat) => {
+      if (!boat.owner) {
+        const owner = await resolveBoatOwner({ boat, adminId: req.user._id });
+        if (owner?._id) {
+          await repairBoatOwner({ boat, owner });
+          boat.owner = owner;
+        }
+      }
+      return boat;
+    })
+  );
+  res.json(paginatedResponse(repaired, page, limit, total));
 });
 
 const approveBoat = asyncHandler(async (req, res) => {
@@ -284,10 +311,12 @@ const approveBoat = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Bateau introuvable');
   }
-  if (!boat.owner) {
+  const effectiveOwner = await resolveBoatOwner({ boat, adminId: req.user._id });
+  if (!effectiveOwner?._id) {
     res.status(400);
-    throw new Error('Impossible d approuver ce bateau : proprietaire introuvable');
+    throw new Error('Impossible d approuver ce bateau : aucun proprietaire disponible');
   }
+  await repairBoatOwner({ boat, owner: effectiveOwner });
   const rejectedDocs = await OwnerDocument.countDocuments({ boat: boat._id, status: 'rejected' });
   if (rejectedDocs > 0) {
     res.status(400);
@@ -302,12 +331,12 @@ const approveBoat = asyncHandler(async (req, res) => {
     entityId: boat._id,
     description: `${adminName(req)} a approuve ${boat.title}`,
   });
-  const emailResult = await sendBoatApprovedEmail({ owner: boat.owner, boat });
+  const emailResult = await sendBoatApprovedEmail({ owner: effectiveOwner, boat });
   await logEmailAttempt({
     admin: req.user._id,
     result: emailResult,
     subject: 'Votre annonce bateau a été validée',
-    recipient: boat.owner.email,
+    recipient: effectiveOwner.email,
   });
   res.json(boat);
 });
@@ -318,10 +347,12 @@ const rejectBoat = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Bateau introuvable');
   }
-  if (!boat.owner) {
+  const effectiveOwner = await resolveBoatOwner({ boat, adminId: req.user._id });
+  if (!effectiveOwner?._id) {
     res.status(400);
-    throw new Error('Impossible de rejeter ce bateau : proprietaire introuvable');
+    throw new Error('Impossible de rejeter ce bateau : aucun proprietaire disponible');
   }
+  await repairBoatOwner({ boat, owner: effectiveOwner });
   boat.status = 'rejected';
   await boat.save();
   await logAdminAction({
@@ -331,12 +362,12 @@ const rejectBoat = asyncHandler(async (req, res) => {
     entityId: boat._id,
     description: `${adminName(req)} a rejete ${boat.title}`,
   });
-  const emailResult = await sendBoatRejectedEmail({ owner: boat.owner, boat, reason: req.body?.reason });
+  const emailResult = await sendBoatRejectedEmail({ owner: effectiveOwner, boat, reason: req.body?.reason });
   await logEmailAttempt({
     admin: req.user._id,
     result: emailResult,
     subject: 'Votre annonce bateau nécessite une correction',
-    recipient: boat.owner.email,
+    recipient: effectiveOwner.email,
   });
   res.json(boat);
 });

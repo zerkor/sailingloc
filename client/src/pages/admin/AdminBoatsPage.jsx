@@ -274,14 +274,10 @@ const AdminBoatsPage = () => {
                         {(boat.status === 'pending' || boat.status === 'rejected') && (
                           <button
                             onClick={() => handleApprove(boat._id)}
-                            disabled={!boat.owner}
                             className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
-                            title={!boat.owner ? 'Impossible sans propriétaire associé' : undefined}
                             style={{
                               background: 'rgba(22,163,74,0.1)',
                               color: '#166534',
-                              opacity: boat.owner ? 1 : 0.45,
-                              cursor: boat.owner ? 'pointer' : 'not-allowed',
                             }}
                           >
                             Approuver
@@ -290,14 +286,10 @@ const AdminBoatsPage = () => {
                         {(boat.status === 'pending' || boat.status === 'approved') && (
                           <button
                             onClick={() => handleReject(boat._id)}
-                            disabled={!boat.owner}
                             className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:opacity-90"
-                            title={!boat.owner ? 'Impossible sans propriétaire associé' : undefined}
                             style={{
                               background: 'rgba(234,88,12,0.1)',
                               color: '#c2410c',
-                              opacity: boat.owner ? 1 : 0.45,
-                              cursor: boat.owner ? 'pointer' : 'not-allowed',
                             }}
                           >
                             {boat.status === 'approved' ? 'Révoquer' : 'Rejeter'}
