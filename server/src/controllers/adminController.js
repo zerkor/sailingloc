@@ -315,6 +315,7 @@ const testEmail = asyncHandler(async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Email could not be sent. Check SMTP configuration.',
+      errorCode: result.error,
     });
   }
   res.json({ success: true, provider: result.provider, mode: result.mode, skipped: result.skipped });

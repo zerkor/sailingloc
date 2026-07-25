@@ -16,6 +16,9 @@ const emailConfig = {
     secure: asBoolean(process.env.BREVO_SMTP_SECURE || process.env.SMTP_SECURE, false),
     user: process.env.BREVO_SMTP_USER || process.env.SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS || process.env.SMTP_PASS,
+    connectionTimeout: Number(process.env.EMAIL_CONNECTION_TIMEOUT_MS || 10000),
+    greetingTimeout: Number(process.env.EMAIL_GREETING_TIMEOUT_MS || 10000),
+    socketTimeout: Number(process.env.EMAIL_SOCKET_TIMEOUT_MS || 15000),
   },
   fromName: process.env.EMAIL_FROM_NAME || 'SailingLoc',
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'contact@sailingloc.fr',
@@ -49,6 +52,9 @@ const createTransporter = () => {
       user: emailConfig.smtp.user,
       pass: emailConfig.smtp.pass,
     },
+    connectionTimeout: emailConfig.smtp.connectionTimeout,
+    greetingTimeout: emailConfig.smtp.greetingTimeout,
+    socketTimeout: emailConfig.smtp.socketTimeout,
   });
 };
 

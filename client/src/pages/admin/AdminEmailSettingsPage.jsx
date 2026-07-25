@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Mail, Send, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Mail, Send, ShieldCheck } from 'lucide-react';
 import { sendAdminTestEmail } from '../../services/adminEmailService';
 
 const AdminEmailSettingsPage = () => {
   const [to, setTo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -12,15 +13,27 @@ const AdminEmailSettingsPage = () => {
     event.preventDefault();
     if (!to || loading) return;
     setLoading(true);
+    setStatus('Test SMTP en cours. La réponse peut prendre quelques secondes...');
     setMessage('');
     setError('');
 
     try {
       const { data } = await sendAdminTestEmail(to);
-      setMessage(data.skipped ? 'Email simulé/loggé selon la configuration actuelle.' : 'Email de test envoyé.');
+      if (data.skipped) {
+        setMessage('Email simulé/loggé : EMAIL_LOG_ONLY ou EMAIL_ENABLED désactive l’envoi réel.');
+      } else {
+        setMessage(`Email de test envoyé à ${to}. Vérifie aussi les spams ou promotions.`);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "L'email de test n'a pas pu être envoyé.");
+      if (err.code === 'ECONNABORTED') {
+        setError('Timeout SMTP : aucune réponse après 20 secondes. Vérifie les variables Brevo, le port 587 et Render Logs.');
+      } else {
+        const apiMessage = err.response?.data?.message || "L'email de test n'a pas pu être envoyé.";
+        const errorCode = err.response?.data?.errorCode;
+        setError(errorCode ? `${apiMessage} Code : ${errorCode}` : apiMessage);
+      }
     } finally {
+      setStatus('');
       setLoading(false);
     }
   };
@@ -84,18 +97,31 @@ const AdminEmailSettingsPage = () => {
             className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold disabled:opacity-50"
             style={{ background: '#07192E', color: '#fff' }}
           >
-            <Send size={16} />
-            {loading ? 'Envoi...' : 'Envoyer un test'}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+            {loading ? 'Test en cours...' : 'Envoyer un test'}
           </button>
         </div>
+        {status && (
+          <p className="mt-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
+            {status}
+          </p>
+        )}
         {message && (
-          <p className="mt-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#ECFDF5', color: '#047857' }}>
-            {message}
+          <p
+            className="mt-4 flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
+            style={{ background: '#ECFDF5', color: '#047857' }}
+          >
+            <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+            <span>{message}</span>
           </p>
         )}
         {error && (
-          <p className="mt-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#FEF2F2', color: '#B91C1C' }}>
-            {error}
+          <p
+            className="mt-4 flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
+            style={{ background: '#FEF2F2', color: '#B91C1C' }}
+          >
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
           </p>
         )}
       </form>
