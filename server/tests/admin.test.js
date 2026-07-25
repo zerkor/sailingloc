@@ -221,6 +221,40 @@ test('Admin payments: refund updates payment and booking consistently', async ()
   assert.equal(updatedPayment.status, 'refunded');
 });
 
+test('Admin bookings: repairs missing owner from boat owner and can accept pending booking', async () => {
+  const owner = await createUser({ role: 'owner', email: 'owner-repair-booking@sailingloc.test' });
+  const tenant = await createUser({ role: 'tenant', email: 'tenant-repair-booking@sailingloc.test' });
+  const admin = await createUser({ role: 'admin', email: 'admin-repair-booking@sailingloc.test' });
+  const token = await loginAs(admin.email);
+  const boat = await createBoat(owner, { status: 'approved', title: 'Zodiac Pro 6.5' });
+  const brokenOwnerId = new mongoose.Types.ObjectId();
+  const booking = await Booking.create({
+    boat: boat._id,
+    tenant: tenant._id,
+    owner: brokenOwnerId,
+    startDate: new Date('2026-10-14'),
+    endDate: new Date('2026-10-16'),
+    numberOfDays: 2,
+    pricePerDay: 250,
+    serviceFee: 50,
+    totalPrice: 550,
+    status: 'pending',
+    paymentStatus: 'unpaid',
+  });
+
+  const list = await request(app).get('/api/admin/bookings').set('Authorization', `Bearer ${token}`).expect(200);
+  assert.equal(list.body.items[0].owner.email, owner.email);
+
+  const repaired = await Booking.findById(booking._id);
+  assert.equal(repaired.owner.toString(), owner._id.toString());
+
+  const accepted = await request(app)
+    .patch(`/api/admin/bookings/${booking._id}/accept`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  assert.equal(accepted.body.status, 'accepted');
+});
+
 test('Admin users endpoint supports pagination', async () => {
   const admin = await createUser({ role: 'admin', email: 'admin-pagination@sailingloc.test' });
   await Promise.all(Array.from({ length: 12 }, (_, index) => createUser({ email: `tenant-${index}@sailingloc.test` })));
