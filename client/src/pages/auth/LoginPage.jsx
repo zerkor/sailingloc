@@ -202,14 +202,6 @@ const LoginPage = () => {
             backgroundPosition: 'center',
           }}
         />
-        <div
-          className="absolute right-[-12%] top-[-8%] h-[420px] w-[420px] rounded-full"
-          style={{ background: 'rgba(0,198,224,0.18)' }}
-        />
-        <div
-          className="absolute bottom-[-16%] left-[-10%] h-[360px] w-[360px] rounded-full"
-          style={{ background: 'rgba(255,255,255,0.08)' }}
-        />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
             className="mb-3 leading-tight text-white"
