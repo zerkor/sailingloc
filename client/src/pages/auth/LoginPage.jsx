@@ -39,8 +39,6 @@ const EyeIcon = ({ open }) =>
     </svg>
   );
 
-const HERO = '/images/hero-boat.jpeg';
-
 const LoginPage = () => {
   const { t } = useTranslation();
   const { loginUser } = useAuth();
@@ -191,17 +189,45 @@ const LoginPage = () => {
       <div
         className="relative hidden overflow-hidden lg:block"
         style={{
-          background: 'linear-gradient(145deg, #07192E 0%, #0B3246 46%, #069BB0 100%)',
+          background:
+            'radial-gradient(circle at 78% 18%, rgba(0,198,224,0.34) 0, rgba(0,198,224,0.12) 28%, transparent 48%), linear-gradient(145deg, #07192E 0%, #0B3246 52%, #155374 100%)',
         }}
       >
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(7,25,46,0.14) 0%, rgba(7,25,46,0.76) 100%), url(${HERO})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundImage:
+              'linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(180deg, rgba(255,255,255,0.045) 1px, transparent 1px)',
+            backgroundSize: '72px 72px',
+            opacity: 0.45,
           }}
         />
+        <div className="absolute right-14 top-16 w-72 rounded-3xl border border-white/15 bg-white/[0.08] p-5 backdrop-blur-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: '#7EEAFA' }}>
+              SailingLoc
+            </span>
+            <span className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: '#00C6E0', color: '#07192E' }}>
+              Live
+            </span>
+          </div>
+          <div className="space-y-3">
+            {[
+              ['1 200+', 'bateaux'],
+              ['320', 'ports'],
+              ['4.9/5', 'note moyenne'],
+            ].map(([value, label]) => (
+              <div key={label} className="flex items-center justify-between border-t border-white/10 pt-3">
+                <span className="text-sm text-white/65">{label}</span>
+                <strong className="text-xl" style={{ color: '#fff' }}>
+                  {value}
+                </strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="absolute bottom-24 left-14 h-20 w-20 border-l-2 border-t-2 border-cyan-300/40" />
+        <div className="absolute bottom-14 left-24 h-20 w-20 border-b-2 border-r-2 border-cyan-300/25" />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
             className="mb-3 leading-tight text-white"
