@@ -39,7 +39,7 @@ const EyeIcon = ({ open }) =>
     </svg>
   );
 
-const HERO = 'https://images.unsplash.com/photo-1548793428-9e9e1e37e84c?w=900&q=85&auto=format&fit=crop';
+const HERO = '/images/hero-boat.jpeg';
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -189,18 +189,40 @@ const LoginPage = () => {
       </div>
 
       <div
-        className="relative hidden lg:block"
-        style={{ backgroundImage: `url(${HERO})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        className="relative hidden overflow-hidden lg:block"
+        style={{
+          background: 'linear-gradient(145deg, #07192E 0%, #0B3246 46%, #069BB0 100%)',
+        }}
       >
-        <div className="absolute inset-0" style={{ background: 'rgba(7,25,46,0.55)' }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(180deg, rgba(7,25,46,0.14) 0%, rgba(7,25,46,0.76) 100%), url(${HERO})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div
+          className="absolute right-[-12%] top-[-8%] h-[420px] w-[420px] rounded-full"
+          style={{ background: 'rgba(0,198,224,0.18)' }}
+        />
+        <div
+          className="absolute bottom-[-16%] left-[-10%] h-[360px] w-[360px] rounded-full"
+          style={{ background: 'rgba(255,255,255,0.08)' }}
+        />
         <div className="absolute inset-0 flex flex-col justify-end p-14">
           <p
             className="mb-3 leading-tight text-white"
-            style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800 }}
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 36,
+              fontWeight: 800,
+              textShadow: '0 8px 28px rgba(0,0,0,0.28)',
+            }}
           >
             {t('auth.loginHeroTitle')}
           </p>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.78)' }}>
             {t('auth.loginHeroText')}
           </p>
         </div>
