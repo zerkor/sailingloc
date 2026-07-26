@@ -147,6 +147,14 @@ const AdminBookingsPage = () => {
         ))}
       </div>
 
+      <div
+        className="bg-white rounded-2xl p-4 text-sm"
+        style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)', color: '#3D4D61' }}
+      >
+        <strong style={{ color: '#07192E' }}>Workflow :</strong> En attente = demande reçue · Acceptée = locataire
+        notifié · Confirmée = paiement simulé validé · Terminée = location clôturée.
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
         <div className="overflow-x-auto">

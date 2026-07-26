@@ -17,7 +17,6 @@ import {
 import BoatGrid from '../components/BoatGrid';
 import SEO from '../components/SEO';
 import { getBoats } from '../services/boatService';
-import { mockBoats } from '../data/boats.mock';
 
 const STATS = [
   ['1 200+', 'home.stats.boats'],
@@ -55,12 +54,16 @@ const HeroSearchBar = () => {
   const { t } = useTranslation();
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const params = new URLSearchParams();
     if (location.trim()) params.set('location', location.trim());
     if (type) params.set('type', type);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
     navigate(`/boats?${params.toString()}`);
   };
 
@@ -76,7 +79,21 @@ const HeroSearchBar = () => {
       </label>
       <label className="home-search-field">
         <span>{t('home.dates')}</span>
-        <input type="text" placeholder={t('home.datesPlaceholder')} aria-label={t('home.dateAria')} />
+        <div className="home-search-dates">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(event) => setStartDate(event.target.value)}
+            aria-label="Date de départ"
+          />
+          <input
+            type="date"
+            value={endDate}
+            min={startDate || undefined}
+            onChange={(event) => setEndDate(event.target.value)}
+            aria-label="Date de retour"
+          />
+        </div>
       </label>
       <label className="home-search-field">
         <span>{t('boatTypes.label')}</span>
@@ -105,9 +122,9 @@ const HomePage = () => {
     getBoats({ limit: 6 })
       .then(({ data }) => {
         const boats = data.boats || data || [];
-        setFeaturedBoats(boats.length > 0 ? boats.slice(0, 6) : mockBoats.slice(0, 6));
+        setFeaturedBoats(boats.slice(0, 6));
       })
-      .catch(() => setFeaturedBoats(mockBoats.slice(0, 6)))
+      .catch(() => setFeaturedBoats([]))
       .finally(() => setLoading(false));
   }, []);
 

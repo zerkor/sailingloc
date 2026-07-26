@@ -204,6 +204,34 @@ test('Boats API: owner creates a pending boat and admin approves it for public l
   assert.equal(publicListing.body.boats[0].title, 'Dufour 390');
 });
 
+test('Boats API: filters out boats unavailable for selected dates', async () => {
+  const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
+  const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });
+  const blockedBoat = await createApprovedBoat(owner._id, { title: 'Bateau deja demande' });
+  const availableBoat = await createApprovedBoat(owner._id, { title: 'Bateau disponible' });
+
+  await Booking.create({
+    boat: blockedBoat._id,
+    tenant: tenant._id,
+    owner: owner._id,
+    startDate: new Date(futureDate(20)),
+    endDate: new Date(futureDate(23)),
+    numberOfDays: 3,
+    pricePerDay: blockedBoat.pricePerDay,
+    serviceFee: 75,
+    totalPrice: 825,
+    status: 'pending',
+  });
+
+  const response = await request(app)
+    .get('/api/boats')
+    .query({ startDate: futureDate(21), endDate: futureDate(22) })
+    .expect(200);
+
+  const titles = response.body.boats.map((boat) => boat.title);
+  assert.deepEqual(titles, [availableBoat.title]);
+});
+
 test('Bookings API: creates, accepts, pays and completes a booking while blocking overlaps', async () => {
   const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
   const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });

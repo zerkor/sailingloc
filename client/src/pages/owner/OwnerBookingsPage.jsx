@@ -30,6 +30,13 @@ const OwnerBookingsPage = () => {
   }, []);
 
   const handleAccept = async (id) => {
+    if (
+      !(await requestApproval('Accepter cette demande de réservation ?', {
+        title: 'Validation réservation',
+        confirmLabel: 'Accepter',
+      }))
+    )
+      return;
     try {
       await acceptBooking(id);
       fetchBookings();
@@ -113,6 +120,14 @@ const OwnerBookingsPage = () => {
             </span>
           </button>
         ))}
+      </div>
+
+      <div
+        className="bg-white rounded-2xl p-4 text-sm"
+        style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)', color: '#3D4D61' }}
+      >
+        <strong style={{ color: '#07192E' }}>Workflow :</strong> En attente = demande à traiter · Acceptée = locataire
+        notifié · Confirmée = paiement simulé validé · Terminée = location clôturée.
       </div>
 
       {filtered.length === 0 ? (

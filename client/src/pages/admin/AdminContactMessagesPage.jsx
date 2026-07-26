@@ -11,11 +11,11 @@ const statuses = ['new', 'read', 'resolved', 'archived'];
 const statusLabels = {
   new: 'Nouveau',
   read: 'Lu',
-  resolved: 'Traite',
-  archived: 'Archive',
+  resolved: 'Traité',
+  archived: 'Archivé',
 };
 const subjectLabels = {
-  technique: 'Probleme technique',
+  technique: 'Problème technique',
   location: 'Location',
   partenariat: 'Partenariat',
   autre: 'Autre',
@@ -114,18 +114,35 @@ const AdminContactMessagesPage = () => {
                     {item.message}
                   </p>
                 </div>
-                <select
-                  value={item.status}
-                  onChange={(e) => updateStatus(item._id, e.target.value)}
-                  className="input-field text-sm"
-                  style={{ maxWidth: 180 }}
-                >
-                  {statuses.map((next) => (
-                    <option key={next} value={next}>
-                      {statusLabels[next]}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-wrap gap-2 lg:justify-end">
+                  {item.status !== 'read' && (
+                    <button
+                      onClick={() => updateStatus(item._id, 'read')}
+                      className="rounded-full px-3 py-2 text-xs font-bold"
+                      style={{ background: '#EDF1F5', color: '#07192E' }}
+                    >
+                      Marquer lu
+                    </button>
+                  )}
+                  {item.status !== 'resolved' && (
+                    <button
+                      onClick={() => updateStatus(item._id, 'resolved')}
+                      className="rounded-full px-3 py-2 text-xs font-bold"
+                      style={{ background: 'rgba(22,163,74,0.1)', color: '#166534' }}
+                    >
+                      Traité
+                    </button>
+                  )}
+                  {item.status !== 'archived' && (
+                    <button
+                      onClick={() => updateStatus(item._id, 'archived')}
+                      className="rounded-full px-3 py-2 text-xs font-bold"
+                      style={{ background: 'rgba(7,25,46,0.08)', color: '#3D4D61' }}
+                    >
+                      Archiver
+                    </button>
+                  )}
+                </div>
               </div>
             </article>
           ))

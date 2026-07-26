@@ -334,6 +334,16 @@
     background: transparent;
   }
 
+  .home-search-dates {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .home-search-dates input {
+    font-size: 12px;
+  }
+
   .home-search-button {
     display: inline-flex;
     align-items: center;
@@ -607,6 +617,11 @@
     .home-search {
       grid-template-columns: 1fr;
       border-radius: 14px;
+    }
+
+    .home-search-dates {
+      grid-template-columns: 1fr;
+      gap: 6px;
     }
 
     .home-search-field {

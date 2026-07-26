@@ -1,8 +1,20 @@
 const asyncHandler = require('../utils/asyncHandler');
 const Boat = require('../models/Boat');
+const Booking = require('../models/Booking');
 
 const getBoats = asyncHandler(async (req, res) => {
-  const { location, type, minPrice, maxPrice, capacity, skipperAvailable, page = 1, limit = 12 } = req.query;
+  const {
+    location,
+    type,
+    minPrice,
+    maxPrice,
+    capacity,
+    skipperAvailable,
+    startDate,
+    endDate,
+    page = 1,
+    limit = 12,
+  } = req.query;
   const filter = { status: 'approved' };
   if (location) filter.location = { $regex: location, $options: 'i' };
   if (type) filter.type = type;
@@ -13,6 +25,19 @@ const getBoats = asyncHandler(async (req, res) => {
   }
   if (capacity) filter.capacity = { $gte: Number(capacity) };
   if (skipperAvailable === 'true') filter.skipperAvailable = true;
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime()) && end > start) {
+      const bookedBoatIds = await Booking.distinct('boat', {
+        status: { $in: ['pending', 'accepted', 'confirmed'] },
+        startDate: { $lt: end },
+        endDate: { $gt: start },
+      });
+      filter._id = { $nin: bookedBoatIds };
+      filter.unavailableDates = { $not: { $elemMatch: { $gte: start, $lt: end } } };
+    }
+  }
 
   const total = await Boat.countDocuments(filter);
   const boats = await Boat.find(filter)

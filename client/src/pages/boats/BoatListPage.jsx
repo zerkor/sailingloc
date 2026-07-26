@@ -17,6 +17,8 @@ const BoatListPage = () => {
   const [filters, setFilters] = useState({
     location: searchParams.get('location') || '',
     type: searchParams.get('type') || '',
+    startDate: searchParams.get('startDate') || '',
+    endDate: searchParams.get('endDate') || '',
     minPrice: '',
     maxPrice: '',
     capacity: '',
@@ -29,6 +31,8 @@ const BoatListPage = () => {
       const params = {};
       if (filters.location) params.location = filters.location;
       if (filters.type) params.type = filters.type;
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
       if (filters.capacity) params.capacity = filters.capacity;
@@ -52,6 +56,8 @@ const BoatListPage = () => {
     setFilters({
       location: '',
       type: '',
+      startDate: '',
+      endDate: '',
       minPrice: '',
       maxPrice: '',
       capacity: '',
@@ -154,7 +160,12 @@ const BoatListPage = () => {
             {t('boats.withSkipper')}
           </button>
 
-          {(filters.type || filters.location || filters.minPrice || filters.skipperAvailable) && (
+          {(filters.type ||
+            filters.location ||
+            filters.startDate ||
+            filters.endDate ||
+            filters.minPrice ||
+            filters.skipperAvailable) && (
             <button
               onClick={resetFilters}
               className="rounded-full px-4 py-2 text-sm font-medium transition-all"
