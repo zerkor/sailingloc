@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, X } from 'lucide-react';
 import { createBoat, updateBoat, getBoatById } from '../../services/boatService';
-import { uploadBoatImage } from '../../services/uploadService';
 import ErrorMessage from '../../components/ErrorMessage';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -50,6 +49,35 @@ const Label = ({ htmlFor, children }) => (
     {children}
   </label>
 );
+
+const resizeImageAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('Le fichier doit être une image.'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const maxSize = 1400;
+        const ratio = Math.min(maxSize / image.width, maxSize / image.height, 1);
+        const width = Math.round(image.width * ratio);
+        const height = Math.round(image.height * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      image.onerror = () => reject(new Error("Impossible de lire l'image."));
+      image.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("Impossible de charger l'image."));
+    reader.readAsDataURL(file);
+  });
 
 const OwnerBoatFormPage = () => {
   const { id } = useParams();
@@ -119,11 +147,10 @@ const OwnerBoatFormPage = () => {
     setUploadingImages(true);
     setError('');
     try {
-      const uploaded = await Promise.all(files.map((file) => uploadBoatImage(file)));
-      const urls = uploaded.map(({ data }) => data.url);
+      const urls = await Promise.all(files.map((file) => resizeImageAsDataUrl(file)));
       setForm((prev) => ({ ...prev, images: [...prev.images.filter(Boolean), ...urls].slice(0, 8) }));
     } catch (err) {
-      setError(err.response?.data?.message || 'Impossible d envoyer les images.');
+      setError(err.message || 'Impossible de préparer les images.');
     } finally {
       setUploadingImages(false);
       event.target.value = '';
@@ -336,14 +363,14 @@ const OwnerBoatFormPage = () => {
               disabled={uploadingImages}
             />
             <p className="text-xs mt-2" style={{ color: '#8896A8' }}>
-              JPG, PNG ou WebP. Les fichiers sont stockés localement dans l environnement de démo.
+              JPG, PNG ou WebP. Les photos sont compressées puis sauvegardées avec l'annonce.
             </p>
           </div>
           <div className="space-y-2">
             {form.images.map((img, i) => (
               <div key={i} className="flex gap-2 items-center">
                 <input
-                  type="url"
+                  type="text"
                   value={img}
                   onChange={(e) => handleImageChange(i, e.target.value)}
                   className="input-field flex-1"
@@ -374,7 +401,7 @@ const OwnerBoatFormPage = () => {
             )}
             {uploadingImages && (
               <p className="text-xs font-semibold" style={{ color: '#00AFC8' }}>
-                Upload en cours...
+                Préparation des photos...
               </p>
             )}
           </div>
@@ -441,11 +468,17 @@ const OwnerBoatFormPage = () => {
         <div className="flex gap-3 pb-4">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || uploadingImages}
             className="px-8 py-3 rounded-full text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
             style={{ background: '#07192E', color: '#fff' }}
           >
-            {loading ? 'Sauvegarde…' : isEdit ? 'Enregistrer les modifications' : 'Publier le bateau'}
+            {uploadingImages
+              ? 'Préparation des photos...'
+              : loading
+                ? 'Sauvegarde…'
+                : isEdit
+                  ? 'Enregistrer les modifications'
+                  : 'Publier le bateau'}
           </button>
           <button
             type="button"

@@ -41,8 +41,9 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const jsonBodyLimit = process.env.JSON_BODY_LIMIT || '10mb';
+app.use(express.json({ limit: jsonBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: jsonBodyLimit }));
 app.use('/uploads', express.static(path.resolve(uploadRoot)));
 
 app.get('/api', (req, res) =>

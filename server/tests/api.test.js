@@ -204,6 +204,28 @@ test('Boats API: owner creates a pending boat and admin approves it for public l
   assert.equal(publicListing.body.boats[0].title, 'Dufour 390');
 });
 
+test('Boats API: accepts persisted data URL images for owner uploads', async () => {
+  const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
+  const ownerToken = await loginAs(owner.email);
+  const imageDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2w==';
+
+  const response = await request(app)
+    .post('/api/boats')
+    .set('Authorization', `Bearer ${ownerToken}`)
+    .send({
+      title: 'Photo persistante',
+      type: 'sailboat',
+      description: 'Annonce avec une image stockee directement dans les donnees.',
+      location: 'Marseille',
+      pricePerDay: 290,
+      capacity: 6,
+      images: [imageDataUrl],
+    })
+    .expect(201);
+
+  assert.equal(response.body.images[0], imageDataUrl);
+});
+
 test('Boats API: filters out boats unavailable for selected dates', async () => {
   const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
   const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });

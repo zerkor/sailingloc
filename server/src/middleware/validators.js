@@ -56,6 +56,7 @@ const buildBoatRules = (isUpdate = false) => {
       .optional({ checkFalsy: true })
       .custom((value) => {
         if (value.startsWith('/uploads/')) return true;
+        if (/^data:image\/(jpeg|jpg|png|webp);base64,[a-z0-9+/=]+$/i.test(value)) return true;
         try {
           return Boolean(new URL(value).protocol);
         } catch {
