@@ -18,6 +18,7 @@ const OwnerDocument = require('../src/models/OwnerDocument');
 const Notification = require('../src/models/Notification');
 const Report = require('../src/models/Report');
 const AdminActionLog = require('../src/models/AdminActionLog');
+const ContactMessage = require('../src/models/ContactMessage');
 const { repairBoats } = require('../src/seed/repairBoats');
 
 let mongoServer;
@@ -42,6 +43,7 @@ test.afterEach(async () => {
     Notification.deleteMany({}),
     Report.deleteMany({}),
     AdminActionLog.deleteMany({}),
+    ContactMessage.deleteMany({}),
   ]);
 });
 
@@ -210,6 +212,12 @@ test('Admin moderation: approve review and expose dashboard stats', async () => 
     comment: 'Très bonne expérience.',
     status: 'pending',
   });
+  await ContactMessage.create({
+    name: 'Visiteur Test',
+    email: 'visiteur@sailingloc.test',
+    subject: 'technique',
+    message: 'Question de test depuis le formulaire contact.',
+  });
 
   const approved = await request(app)
     .patch(`/api/admin/reviews/${review._id}/approve`)
@@ -221,6 +229,7 @@ test('Admin moderation: approve review and expose dashboard stats', async () => 
   assert.equal(typeof stats.body.totalUsers, 'number');
   assert.equal(typeof stats.body.totalBookings, 'number');
   assert.equal(typeof stats.body.totalRevenue, 'number');
+  assert.equal(stats.body.newContactMessages, 1);
 });
 
 test('Admin payments: refund updates payment and booking consistently', async () => {

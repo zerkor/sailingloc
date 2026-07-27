@@ -6,6 +6,7 @@ const Review = require('../models/Review');
 const Payment = require('../models/Payment');
 const OwnerDocument = require('../models/OwnerDocument');
 const AdminActionLog = require('../models/AdminActionLog');
+const ContactMessage = require('../models/ContactMessage');
 const recalculateBoatRating = require('../utils/recalculateBoatRating');
 const logAdminAction = require('../utils/adminActionLog');
 const createNotification = require('../utils/createNotification');
@@ -135,6 +136,7 @@ const getStats = asyncHandler(async (req, res) => {
     serviceFeeResult,
     refundedResult,
     openReports,
+    newContactMessages,
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ role: 'tenant' }),
@@ -154,6 +156,7 @@ const getStats = asyncHandler(async (req, res) => {
     Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
     Payment.aggregate([{ $match: { status: 'refunded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
     require('../models/Report').countDocuments({ status: { $in: ['open', 'in_review'] } }),
+    ContactMessage.countDocuments({ status: 'new' }),
   ]);
 
   const totalRevenue = Math.round((revenueResult[0]?.total || 0) * 100) / 100;
@@ -176,6 +179,7 @@ const getStats = asyncHandler(async (req, res) => {
     pendingDocuments,
     totalPayments,
     openReports,
+    newContactMessages,
     totalRevenue,
     totalServiceFees,
     refundedAmount,

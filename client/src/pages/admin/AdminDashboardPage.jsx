@@ -132,6 +132,12 @@ const AdminDashboardPage = () => {
               count={stats?.openReports}
               danger
             />
+            <ActionRow
+              to="/admin/contact-messages"
+              icon={Mail}
+              label="Messages contact"
+              count={stats?.newContactMessages}
+            />
           </div>
         </aside>
       </div>
@@ -203,6 +209,13 @@ const AdminDashboardPage = () => {
           icon={AlertTriangle}
           color="red"
           subtitle="À traiter"
+        />
+        <DashboardCard
+          title="Messages contact"
+          value={stats?.newContactMessages ?? 0}
+          icon={Mail}
+          color="cyan"
+          subtitle="Nouveaux messages"
         />
       </Section>
 

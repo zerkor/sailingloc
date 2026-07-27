@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import {
   BarChart3,
@@ -14,6 +14,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import api from '../services/api';
 
 const links = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -29,7 +30,7 @@ const links = [
   { to: '/admin/action-logs', label: 'Journal admin', icon: ScrollText },
 ];
 
-const LinkList = ({ onClick }) => (
+const LinkList = ({ onClick, newContactMessages = 0 }) => (
   <nav className="flex-1 px-3 py-4 space-y-0.5">
     {links.map((link) => {
       const Icon = link.icon;
@@ -44,7 +45,16 @@ const LinkList = ({ onClick }) => (
           style={({ isActive }) => (isActive ? { background: '#00C6E0', color: '#07192E' } : {})}
         >
           <Icon size={18} strokeWidth={2.1} />
-          {link.label}
+          <span className="min-w-0 flex-1">{link.label}</span>
+          {link.to === '/admin/contact-messages' && newContactMessages > 0 && (
+            <span
+              className="grid min-w-5 h-5 place-items-center rounded-full px-1.5 text-[11px] font-black"
+              style={{ background: '#FEE2E2', color: '#A61B1B' }}
+              aria-label={`${newContactMessages} nouveau message contact`}
+            >
+              {newContactMessages > 9 ? '9+' : newContactMessages}
+            </span>
+          )}
         </NavLink>
       );
     })}
@@ -53,6 +63,22 @@ const LinkList = ({ onClick }) => (
 
 const AdminSidebar = () => {
   const [open, setOpen] = useState(false);
+  const [newContactMessages, setNewContactMessages] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    api
+      .get('/admin/stats')
+      .then(({ data }) => {
+        if (mounted) setNewContactMessages(data?.newContactMessages || 0);
+      })
+      .catch(() => {
+        if (mounted) setNewContactMessages(0);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <>
@@ -75,7 +101,7 @@ const AdminSidebar = () => {
       </div>
       {open && (
         <div className="lg:hidden" style={{ background: '#07192E' }}>
-          <LinkList onClick={() => setOpen(false)} />
+          <LinkList onClick={() => setOpen(false)} newContactMessages={newContactMessages} />
         </div>
       )}
       <aside
@@ -92,7 +118,7 @@ const AdminSidebar = () => {
             Administration
           </p>
         </div>
-        <LinkList />
+        <LinkList newContactMessages={newContactMessages} />
         <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
             © {new Date().getFullYear()} SailingLoc
