@@ -40,6 +40,12 @@ const emailConfig = {
   fromName: process.env.EMAIL_FROM_NAME || 'SailingLoc',
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'contact@sailingloc.fr',
   replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'contact@sailingloc.fr',
+  contactRecipient:
+    process.env.CONTACT_RECIPIENT_EMAIL ||
+    process.env.SUPPORT_EMAIL ||
+    process.env.EMAIL_REPLY_TO ||
+    process.env.EMAIL_FROM_ADDRESS ||
+    'contact@sailingloc.fr',
   clientUrl: resolvePublicClientUrl(),
   serverUrl: (process.env.SERVER_URL || 'http://localhost:5000').replace(/\/$/, ''),
 };

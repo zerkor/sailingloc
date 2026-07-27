@@ -255,6 +255,32 @@ const testEmail = () =>
     intro: ['Ceci est un email de test envoyé depuis SailingLoc avec Brevo.'],
   });
 
+
+const contactSubjects = {
+  technique: 'Probleme technique',
+  location: 'Location',
+  partenariat: 'Partenariat',
+  autre: 'Autre demande',
+};
+
+const contactMessage = (message) =>
+  buildTemplate({
+    subject: `Nouveau message contact SailingLoc - ${contactSubjects[message.subject] || message.subject}`,
+    title: 'Nouveau message contact',
+    intro: [
+      'Un visiteur vient d envoyer un message depuis le formulaire contact SailingLoc.',
+      'Le message est aussi disponible dans le back-office administrateur.',
+    ],
+    details: [
+      { label: 'Nom', value: message.name },
+      { label: 'Email', value: message.email },
+      { label: 'Sujet', value: contactSubjects[message.subject] || message.subject },
+      { label: 'Message', value: message.message },
+    ],
+    ctaLabel: 'Voir les messages contact',
+    ctaUrl: `${emailConfig.clientUrl}/admin/contact-messages`,
+  });
+
 module.exports = {
   tenantWelcome,
   ownerWelcome,
@@ -269,4 +295,5 @@ module.exports = {
   bookingCompleted,
   passwordReset,
   testEmail,
+  contactMessage,
 };

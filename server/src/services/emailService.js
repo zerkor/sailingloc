@@ -3,7 +3,7 @@ const templates = require('./emailTemplates');
 
 const safeError = (error) => error?.code || error?.name || error?.message || 'EMAIL_ERROR';
 
-const sendEmailWithBrevoApi = async ({ to, subject, html, text }) => {
+const sendEmailWithBrevoApi = async ({ to, subject, html, text, replyTo }) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), emailConfig.apiTimeout);
 
@@ -18,7 +18,7 @@ const sendEmailWithBrevoApi = async ({ to, subject, html, text }) => {
       },
       body: JSON.stringify({
         sender: { name: emailConfig.fromName, email: emailConfig.fromAddress },
-        replyTo: { email: emailConfig.replyTo },
+        replyTo: { email: replyTo || emailConfig.replyTo },
         to: [{ email: to }],
         subject,
         htmlContent: html,
@@ -39,11 +39,11 @@ const sendEmailWithBrevoApi = async ({ to, subject, html, text }) => {
   }
 };
 
-const sendEmailWithSmtp = async ({ to, subject, html, text }) => {
+const sendEmailWithSmtp = async ({ to, subject, html, text, replyTo }) => {
   const transporter = createTransporter();
   const info = await transporter.sendMail({
     from: `"${emailConfig.fromName}" <${emailConfig.fromAddress}>`,
-    replyTo: emailConfig.replyTo,
+    replyTo: replyTo || emailConfig.replyTo,
     to,
     subject,
     html,
@@ -52,7 +52,7 @@ const sendEmailWithSmtp = async ({ to, subject, html, text }) => {
   return info.messageId;
 };
 
-const sendEmail = async ({ to, subject, html, text, templateName = 'email' }) => {
+const sendEmail = async ({ to, subject, html, text, replyTo, templateName = 'email' }) => {
   const result = {
     success: false,
     provider: emailConfig.provider,
@@ -80,8 +80,8 @@ const sendEmail = async ({ to, subject, html, text, templateName = 'email' }) =>
 
     const messageId =
       emailConfig.mode === 'api'
-        ? await sendEmailWithBrevoApi({ to, subject, html, text })
-        : await sendEmailWithSmtp({ to, subject, html, text });
+        ? await sendEmailWithBrevoApi({ to, subject, html, text, replyTo })
+        : await sendEmailWithSmtp({ to, subject, html, text, replyTo });
 
     return { ...result, success: true, messageId };
   } catch (error) {
@@ -90,8 +90,8 @@ const sendEmail = async ({ to, subject, html, text, templateName = 'email' }) =>
   }
 };
 
-const sendTemplate = async ({ to, templateName, template }) =>
-  sendEmail({ to, subject: template.subject, html: template.html, text: template.text, templateName });
+const sendTemplate = async ({ to, replyTo, templateName, template }) =>
+  sendEmail({ to, replyTo, subject: template.subject, html: template.html, text: template.text, templateName });
 
 const sendWelcomeTenantEmail = (user) =>
   sendTemplate({ to: user.email, templateName: 'tenantWelcome', template: templates.tenantWelcome(user) });
@@ -163,6 +163,14 @@ const sendPasswordResetEmail = ({ user, resetUrl }) =>
 
 const sendAdminTestEmail = ({ to }) => sendTemplate({ to, templateName: 'adminTest', template: templates.testEmail() });
 
+const sendContactMessageEmail = ({ contactMessage }) =>
+  sendTemplate({
+    to: emailConfig.contactRecipient,
+    replyTo: contactMessage.email,
+    templateName: 'contactMessage',
+    template: templates.contactMessage(contactMessage),
+  });
+
 module.exports = {
   sendEmail,
   sendWelcomeTenantEmail,
@@ -178,4 +186,5 @@ module.exports = {
   sendBookingCompletedEmail,
   sendPasswordResetEmail,
   sendAdminTestEmail,
+  sendContactMessageEmail,
 };

@@ -19,6 +19,7 @@ const Notification = require('../src/models/Notification');
 const OwnerDocument = require('../src/models/OwnerDocument');
 const Report = require('../src/models/Report');
 const AdminActionLog = require('../src/models/AdminActionLog');
+const ContactMessage = require('../src/models/ContactMessage');
 
 let mongoServer;
 
@@ -43,6 +44,7 @@ test.afterEach(async () => {
     OwnerDocument.deleteMany({}),
     Report.deleteMany({}),
     AdminActionLog.deleteMany({}),
+    ContactMessage.deleteMany({}),
   ]);
 });
 
@@ -423,4 +425,26 @@ test('Reviews API: tenant reviews a completed booking and admin approves the rev
 
   const updatedBoat = await Boat.findById(boat._id);
   assert.equal(updatedBoat.averageRating, 5);
+});
+
+test('Contact API: stores message and triggers transactional email flow', async () => {
+  const response = await request(app)
+    .post('/api/contact')
+    .send({
+      name: 'Jean Dupont',
+      email: 'jean.dupont@example.fr',
+      subject: 'technique',
+      message: 'Bonjour, je rencontre un probleme sur une reservation SailingLoc.',
+    })
+    .expect(201);
+
+  assert.ok(response.body.id);
+  assert.equal(response.body.emailSent, true);
+  assert.equal(response.body.emailSkipped, true);
+
+  const message = await ContactMessage.findById(response.body.id);
+  assert.equal(message.email, 'jean.dupont@example.fr');
+  assert.equal(message.status, 'new');
+  assert.equal(message.emailNotification.sent, true);
+  assert.equal(message.emailNotification.skipped, true);
 });

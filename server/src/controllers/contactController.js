@@ -2,6 +2,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ContactMessage = require('../models/ContactMessage');
 const logAdminAction = require('../utils/adminActionLog');
 const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const { sendContactMessageEmail } = require('../services/emailService');
 
 const createContactMessage = asyncHandler(async (req, res) => {
   const message = await ContactMessage.create({
@@ -13,9 +14,22 @@ const createContactMessage = asyncHandler(async (req, res) => {
     userAgent: req.get('user-agent'),
   });
 
+  const emailResult = await sendContactMessageEmail({ contactMessage: message });
+  message.emailNotification = {
+    sent: emailResult.success,
+    skipped: emailResult.skipped || false,
+    provider: emailResult.provider,
+    messageId: emailResult.messageId,
+    error: emailResult.error,
+    sentAt: emailResult.success && !emailResult.skipped ? new Date() : undefined,
+  };
+  await message.save();
+
   res.status(201).json({
     message: 'Message recu. Notre equipe vous repondra rapidement.',
     id: message._id,
+    emailSent: emailResult.success,
+    emailSkipped: emailResult.skipped || false,
   });
 });
 
