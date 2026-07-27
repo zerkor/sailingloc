@@ -156,7 +156,7 @@ const getStats = asyncHandler(async (req, res) => {
     Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
     Payment.aggregate([{ $match: { status: 'refunded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
     require('../models/Report').countDocuments({ status: { $in: ['open', 'in_review'] } }),
-    ContactMessage.countDocuments({ status: 'new' }),
+    ContactMessage.countDocuments({ status: { $in: ['new', 'read'] } }),
   ]);
 
   const totalRevenue = Math.round((revenueResult[0]?.total || 0) * 100) / 100;

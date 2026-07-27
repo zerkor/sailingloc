@@ -218,6 +218,20 @@ test('Admin moderation: approve review and expose dashboard stats', async () => 
     subject: 'technique',
     message: 'Question de test depuis le formulaire contact.',
   });
+  await ContactMessage.create({
+    name: 'Visiteur Lu',
+    email: 'visiteur-lu@sailingloc.test',
+    subject: 'location',
+    message: 'Message lu mais pas encore traite.',
+    status: 'read',
+  });
+  await ContactMessage.create({
+    name: 'Visiteur Archive',
+    email: 'visiteur-archive@sailingloc.test',
+    subject: 'autre',
+    message: 'Message archive qui ne doit plus compter.',
+    status: 'archived',
+  });
 
   const approved = await request(app)
     .patch(`/api/admin/reviews/${review._id}/approve`)
@@ -229,7 +243,7 @@ test('Admin moderation: approve review and expose dashboard stats', async () => 
   assert.equal(typeof stats.body.totalUsers, 'number');
   assert.equal(typeof stats.body.totalBookings, 'number');
   assert.equal(typeof stats.body.totalRevenue, 'number');
-  assert.equal(stats.body.newContactMessages, 1);
+  assert.equal(stats.body.newContactMessages, 2);
 });
 
 test('Admin payments: refund updates payment and booking consistently', async () => {

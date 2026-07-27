@@ -67,16 +67,22 @@ const AdminSidebar = () => {
 
   useEffect(() => {
     let mounted = true;
-    api
-      .get('/admin/stats')
-      .then(({ data }) => {
-        if (mounted) setNewContactMessages(data?.newContactMessages || 0);
-      })
-      .catch(() => {
-        if (mounted) setNewContactMessages(0);
-      });
+    const refreshContactBadge = () => {
+      api
+        .get('/admin/stats')
+        .then(({ data }) => {
+          if (mounted) setNewContactMessages(data?.newContactMessages || 0);
+        })
+        .catch(() => {
+          if (mounted) setNewContactMessages(0);
+        });
+    };
+
+    refreshContactBadge();
+    window.addEventListener('sailingloc:admin-stats-refresh', refreshContactBadge);
     return () => {
       mounted = false;
+      window.removeEventListener('sailingloc:admin-stats-refresh', refreshContactBadge);
     };
   }, []);
 
