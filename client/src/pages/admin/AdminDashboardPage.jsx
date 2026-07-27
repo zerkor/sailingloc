@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -6,6 +6,8 @@ import {
   CalendarDays,
   Euro,
   FileCheck2,
+  History,
+  Mail,
   MessageSquareText,
   Sailboat,
   ShieldCheck,
@@ -15,6 +17,24 @@ import api from '../../services/api';
 import DashboardCard from '../../components/DashboardCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { formatPrice } from '../../utils/formatPrice';
+
+const Section = ({ title, children }) => (
+  <section className="admin-kpi-section">
+    <h2>{title}</h2>
+    <div className="admin-kpi-grid">{children}</div>
+  </section>
+);
+
+const ActionRow = ({ to, icon: Icon, label, count, danger = false }) => (
+  <Link to={to} className={`admin-action-row ${danger && count > 0 ? 'is-danger' : ''}`}>
+    <span className="admin-action-row__icon">
+      <Icon size={17} />
+    </span>
+    <span>{label}</span>
+    <strong>{count ?? 0}</strong>
+    <ArrowRight size={15} />
+  </Link>
+);
 
 const AdminDashboardPage = () => {
   const [stats, setStats] = useState(null);
@@ -39,20 +59,23 @@ const AdminDashboardPage = () => {
     fetchStats();
   }, [fetchStats]);
 
+  const updatedAt = useMemo(
+    () =>
+      new Intl.DateTimeFormat('fr-FR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date()),
+    []
+  );
+
   if (loading) return <LoadingSpinner text="Chargement..." />;
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-        <AlertTriangle className="mx-auto mb-3" color="#dc2626" />
-        <p className="text-sm font-semibold mb-4" style={{ color: '#07192E' }}>
-          {error}
-        </p>
-        <button
-          onClick={fetchStats}
-          className="rounded-full px-4 py-2 text-sm font-bold"
-          style={{ background: '#00C6E0', color: '#07192E' }}
-        >
+      <div className="admin-error-card">
+        <AlertTriangle className="mx-auto mb-3" color="#A61B1B" />
+        <p>{error}</p>
+        <button type="button" onClick={fetchStats}>
           Réessayer
         </button>
       </div>
@@ -60,41 +83,75 @@ const AdminDashboardPage = () => {
   }
 
   const quickLinks = [
-    { label: 'Utilisateurs', link: '/admin/users', icon: Users },
-    { label: 'Bateaux', link: '/admin/boats', icon: Sailboat },
-    { label: 'Réservations', link: '/admin/bookings', icon: CalendarDays },
-    { label: 'Avis', link: '/admin/reviews', icon: MessageSquareText },
-    { label: 'Documents', link: '/admin/documents', icon: FileCheck2 },
-    { label: 'Paiements', link: '/admin/payments', icon: Euro },
+    { label: 'Utilisateurs', helper: 'Comptes et rôles', link: '/admin/users', icon: Users },
+    { label: 'Bateaux', helper: 'Annonces et validation', link: '/admin/boats', icon: Sailboat },
+    { label: 'Réservations', helper: 'Suivi des locations', link: '/admin/bookings', icon: CalendarDays },
+    { label: 'Avis', helper: 'Modération client', link: '/admin/reviews', icon: MessageSquareText },
+    { label: 'Documents', helper: 'Pièces propriétaires', link: '/admin/documents', icon: FileCheck2 },
+    { label: 'Paiements', helper: 'Revenus et remboursements', link: '/admin/payments', icon: Euro },
+    { label: 'Signalements', helper: 'Litiges à traiter', link: '/admin/reports', icon: AlertTriangle },
+    { label: 'Emails', helper: 'Tests transactionnels', link: '/admin/emails', icon: Mail },
+    { label: 'Journal admin', helper: 'Historique des actions', link: '/admin/action-logs', icon: History },
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: '#07192E' }}>
-          Tableau de bord
-        </h1>
-        <p className="text-sm mt-1" style={{ color: '#8896A8' }}>
-          Vue d'ensemble de la plateforme SailingLoc
-        </p>
+    <div className="admin-dashboard">
+      <div className="admin-dashboard-top">
+        <div>
+          <span className="admin-eyebrow">Pilotage plateforme</span>
+          <h1>Tableau de bord</h1>
+          <p>Vue d'ensemble de la plateforme SailingLoc</p>
+          <small>Dernière actualisation : {updatedAt}</small>
+        </div>
+
+        <aside className="admin-actions-panel">
+          <div className="admin-actions-panel__head">
+            <span>
+              <AlertTriangle size={17} /> Actions requises
+            </span>
+            <small>À prioriser</small>
+          </div>
+          <div className="admin-actions-panel__list">
+            <ActionRow to="/admin/boats" icon={Sailboat} label="Bateaux en attente" count={stats?.pendingBoats} />
+            <ActionRow
+              to="/admin/reviews"
+              icon={MessageSquareText}
+              label="Avis à modérer"
+              count={stats?.pendingReviews}
+            />
+            <ActionRow
+              to="/admin/documents"
+              icon={FileCheck2}
+              label="Documents à vérifier"
+              count={stats?.pendingDocuments}
+            />
+            <ActionRow
+              to="/admin/reports"
+              icon={AlertTriangle}
+              label="Signalements ouverts"
+              count={stats?.openReports}
+              danger
+            />
+          </div>
+        </aside>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <Section title="Activité globale">
         <DashboardCard title="Utilisateurs" value={stats?.totalUsers ?? 0} icon={Users} color="navy" />
         <DashboardCard title="Locataires" value={stats?.totalTenants ?? 0} icon={Users} color="ocean" />
         <DashboardCard title="Propriétaires" value={stats?.totalOwners ?? 0} icon={Users} color="green" />
         <DashboardCard title="Bateaux" value={stats?.totalBoats ?? 0} icon={Sailboat} color="ocean" />
-        <DashboardCard title="Bateaux approuvés" value={stats?.approvedBoats ?? 0} icon={ShieldCheck} color="green" />
-        <DashboardCard title="Réservations" value={stats?.totalBookings ?? 0} icon={CalendarDays} color="green" />
-        <DashboardCard
-          title="Réservations en attente"
-          value={stats?.pendingBookings ?? 0}
-          icon={CalendarDays}
-          color="yellow"
-        />
+      </Section>
+
+      <Section title="Réservations">
+        <DashboardCard title="Total réservations" value={stats?.totalBookings ?? 0} icon={CalendarDays} color="navy" />
+        <DashboardCard title="En attente" value={stats?.pendingBookings ?? 0} icon={CalendarDays} color="yellow" />
         <DashboardCard title="Confirmées" value={stats?.confirmedBookings ?? 0} icon={CalendarDays} color="cyan" />
         <DashboardCard title="Terminées" value={stats?.completedBookings ?? 0} icon={CalendarDays} color="green" />
         <DashboardCard title="Annulées" value={stats?.cancelledBookings ?? 0} icon={CalendarDays} color="red" />
+      </Section>
+
+      <Section title="Finances">
         <DashboardCard
           title="Revenus payés"
           value={formatPrice(stats?.totalRevenue ?? 0)}
@@ -106,7 +163,7 @@ const AdminDashboardPage = () => {
           title="Frais de service"
           value={formatPrice(stats?.totalServiceFees ?? 0)}
           icon={Euro}
-          color="cyan"
+          color="navy"
           subtitle="Commission plateforme"
         />
         <DashboardCard
@@ -114,15 +171,18 @@ const AdminDashboardPage = () => {
           value={formatPrice(stats?.refundedAmount ?? 0)}
           icon={Euro}
           color="red"
-          subtitle="Paiements refunded"
+          subtitle="Paiements remboursés"
         />
+      </Section>
+
+      <Section title="Modération">
         <DashboardCard
-          title="Bateaux en attente"
-          value={stats?.pendingBoats ?? 0}
+          title="Bateaux approuvés"
+          value={stats?.approvedBoats ?? 0}
           icon={ShieldCheck}
-          color="yellow"
-          subtitle="À approuver"
+          color="green"
         />
+        <DashboardCard title="Bateaux en attente" value={stats?.pendingBoats ?? 0} icon={ShieldCheck} color="yellow" />
         <DashboardCard
           title="Avis en attente"
           value={stats?.pendingReviews ?? 0}
@@ -135,7 +195,7 @@ const AdminDashboardPage = () => {
           value={stats?.pendingDocuments ?? 0}
           icon={FileCheck2}
           color="yellow"
-          subtitle="Pièces propriétaire"
+          subtitle="À vérifier"
         />
         <DashboardCard
           title="Signalements ouverts"
@@ -144,81 +204,28 @@ const AdminDashboardPage = () => {
           color="red"
           subtitle="À traiter"
         />
-      </div>
+      </Section>
 
-      {(stats?.pendingBoats > 0 ||
-        stats?.pendingReviews > 0 ||
-        stats?.pendingDocuments > 0 ||
-        stats?.openReports > 0) && (
-        <div
-          className="p-4 rounded-2xl flex flex-wrap items-center gap-4"
-          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)' }}
-        >
-          <span className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: '#C9A84C' }}>
-            <AlertTriangle size={16} /> Actions requises
-          </span>
-          {stats?.pendingBoats > 0 && (
-            <Link
-              to="/admin/boats"
-              className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-              style={{ color: '#07192E' }}
-            >
-              {stats.pendingBoats} bateau(x) à approuver <ArrowRight size={14} />
-            </Link>
-          )}
-          {stats?.pendingReviews > 0 && (
-            <Link
-              to="/admin/reviews"
-              className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-              style={{ color: '#07192E' }}
-            >
-              {stats.pendingReviews} avis à modérer <ArrowRight size={14} />
-            </Link>
-          )}
-          {stats?.pendingDocuments > 0 && (
-            <Link
-              to="/admin/documents"
-              className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-              style={{ color: '#07192E' }}
-            >
-              {stats.pendingDocuments} document(s) à vérifier <ArrowRight size={14} />
-            </Link>
-          )}
-          {stats?.openReports > 0 && (
-            <Link
-              to="/admin/reports"
-              className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-              style={{ color: '#07192E' }}
-            >
-              {stats.openReports} signalement(s) <ArrowRight size={14} />
-            </Link>
-          )}
+      <section className="admin-quick-card">
+        <div className="admin-quick-card__head">
+          <div>
+            <span className="admin-eyebrow">Navigation</span>
+            <h2>Accès rapides</h2>
+          </div>
         </div>
-      )}
-
-      <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-        <h2 className="font-bold text-lg mb-4" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
-          Accès rapides
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="admin-quick-grid">
           {quickLinks.map((item) => {
             const Icon = item.icon;
             return (
-              <Link
-                key={item.link}
-                to={item.link}
-                className="flex flex-col items-center p-5 rounded-2xl transition-all hover:-translate-y-0.5"
-                style={{ background: '#EDF1F5' }}
-              >
-                <Icon size={28} className="mb-2" strokeWidth={2.1} />
-                <span className="text-sm font-semibold text-center" style={{ color: '#07192E' }}>
-                  {item.label}
-                </span>
+              <Link key={item.link} to={item.link} className="admin-quick-link">
+                <Icon size={24} strokeWidth={2.1} />
+                <strong>{item.label}</strong>
+                <span>{item.helper}</span>
               </Link>
             );
           })}
         </div>
-      </div>
+      </section>
     </div>
   );
 };

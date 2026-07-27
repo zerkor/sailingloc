@@ -1,14 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Anchor, Check, Compass, Lock, MapPin, Ruler, Settings, ShieldCheck, Star, Users } from 'lucide-react';
-import { getBoatById, getBoatBySlug } from '../../services/boatService';
-import { getBoatReviews } from '../../services/reviewService';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import {
+  Anchor,
+  BadgeCheck,
+  Camera,
+  Check,
+  Compass,
+  Gauge,
+  Lock,
+  MapPin,
+  Ruler,
+  Sailboat,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+} from 'lucide-react';
 import BookingForm from '../../components/BookingForm';
-import ReviewList from '../../components/ReviewList';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ReviewList from '../../components/ReviewList';
 import SEO from '../../components/SEO';
-import { formatPrice } from '../../utils/formatPrice';
+import { getBoatById, getBoatBySlug, getBoats } from '../../services/boatService';
+import { getBoatReviews } from '../../services/reviewService';
 import { FALLBACK_BOAT_IMAGE, getBoatImages } from '../../utils/boatImages';
+import { formatPrice } from '../../utils/formatPrice';
+import BoatCard from '../../components/BoatCard';
 
 const typeLabels = {
   sailboat: 'Voilier',
@@ -17,10 +33,22 @@ const typeLabels = {
   rib: 'Semi-rigide',
 };
 
+const initials = (owner) =>
+  `${owner?.firstName?.charAt(0) || ''}${owner?.lastName?.charAt(0) || ''}`.toUpperCase() || 'SL';
+
+const FeatureItem = ({ icon: Icon, label, value, tone = 'aqua' }) => (
+  <div className={`boat-feature-card boat-feature-card--${tone}`}>
+    <Icon size={22} strokeWidth={2.1} />
+    <span>{label}</span>
+    <strong>{value || 'Non renseigné'}</strong>
+  </div>
+);
+
 const BoatDetailPage = () => {
   const { id, slug } = useParams();
   const [boat, setBoat] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [relatedBoats, setRelatedBoats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [error, setError] = useState('');
@@ -28,9 +56,10 @@ const BoatDetailPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const reviewId = id || slug?.match(/[a-f\d]{24}$/i)?.[0];
         const [boatRes, reviewsRes] = await Promise.all([
           slug ? getBoatBySlug(slug) : getBoatById(id),
-          getBoatReviews(id || slug?.match(/[a-f\d]{24}$/i)?.[0]),
+          reviewId ? getBoatReviews(reviewId) : Promise.resolve({ data: [] }),
         ]);
         setBoat(boatRes.data);
         setReviews(reviewsRes.data || []);
@@ -43,14 +72,23 @@ const BoatDetailPage = () => {
     fetchData();
   }, [id, slug]);
 
+  useEffect(() => {
+    if (!boat) return;
+    getBoats({ type: boat.type, limit: 4 })
+      .then(({ data }) => {
+        const items = Array.isArray(data) ? data : data?.boats || [];
+        setRelatedBoats(items.filter((item) => item._id !== boat._id).slice(0, 3));
+      })
+      .catch(() => setRelatedBoats([]));
+  }, [boat]);
+
   if (loading) return <LoadingSpinner text="Chargement du bateau..." />;
+
   if (error || !boat) {
     return (
       <div className="container-max section-padding text-center py-24">
         <Anchor size={48} className="mx-auto mb-4" color="#00C6E0" />
-        <h2 className="text-2xl font-bold mb-4" style={{ color: '#07192E' }}>
-          {error || 'Bateau introuvable'}
-        </h2>
+        <h2 className="mb-4 text-2xl font-bold text-[#07192E]">{error || 'Bateau introuvable'}</h2>
         <Link to="/boats" className="btn-primary">
           Retour aux bateaux
         </Link>
@@ -59,6 +97,10 @@ const BoatDetailPage = () => {
   }
 
   const images = getBoatImages(boat);
+  const activeImage = images[selectedImage] || FALLBACK_BOAT_IMAGE;
+  const reviewCount = reviews.length;
+  const ratingLabel = boat.averageRating > 0 ? `${boat.averageRating.toFixed(1)} / 5` : 'Nouveau bateau';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -78,242 +120,206 @@ const BoatDetailPage = () => {
         ? {
             '@type': 'AggregateRating',
             ratingValue: boat.averageRating,
-            reviewCount: reviews.length || 1,
+            reviewCount: reviewCount || 1,
           }
         : undefined,
   };
 
   return (
-    <div style={{ background: '#EDF1F5', minHeight: '100vh' }}>
+    <div className="boat-detail-page">
       <SEO
-        title={`${boat.title} a ${boat.location} - SailingLoc`}
-        description={`Louez ${boat.title}, ${typeLabels[boat.type] || 'bateau'} a ${boat.location}, a partir de ${formatPrice(boat.pricePerDay)} par jour.`}
+        title={`${boat.title} à ${boat.location} - SailingLoc`}
+        description={`Louez ${boat.title}, ${typeLabels[boat.type] || 'bateau'} à ${boat.location}, à partir de ${formatPrice(boat.pricePerDay)} par jour.`}
         jsonLd={jsonLd}
       />
+
       <div className="container-max section-padding">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-6" style={{ color: '#8896A8' }}>
-          <Link to="/" className="hover:text-cyan-500 transition-colors" style={{ color: '#00C6E0' }}>
-            Accueil
-          </Link>
+        <nav className="boat-breadcrumb" aria-label="Fil d'Ariane">
+          <Link to="/">Accueil</Link>
           <span>/</span>
-          <Link to="/boats" className="hover:text-cyan-500 transition-colors" style={{ color: '#00C6E0' }}>
-            Bateaux
-          </Link>
+          <Link to="/boats">Bateaux</Link>
           <span>/</span>
-          <span className="truncate max-w-[200px]">{boat.title}</span>
-        </div>
+          <span>{boat.title}</span>
+        </nav>
 
-        {/* ── Gallery ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
-          {/* Main image */}
-          <div className="md:col-span-2 rounded-2xl overflow-hidden relative aspect-[4/3] md:aspect-[16/10] bg-smoke">
-            <img
-              src={images[selectedImage]}
-              alt={boat.title}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.target.src = FALLBACK_BOAT_IMAGE;
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, rgba(7,25,46,0.3) 0%, transparent 60%)' }}
-            />
-          </div>
-
-          {/* Thumbs */}
-          {images.length > 1 && (
-            <div className="grid grid-cols-2 md:grid-cols-1 md:grid-rows-2 gap-3">
-              {images.slice(1, 3).map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i + 1)}
-                  className="aspect-[4/3] rounded-2xl overflow-hidden bg-smoke transition-all"
-                  style={{
-                    outline: selectedImage === i + 1 ? '3px solid #00C6E0' : '3px solid transparent',
-                    outlineOffset: 2,
+        <div className="boat-detail-layout">
+          <main className="boat-detail-main">
+            <section className="boat-gallery" aria-label="Photos du bateau">
+              <div className="boat-gallery__main">
+                <img
+                  src={activeImage}
+                  alt={boat.title}
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_BOAT_IMAGE;
                   }}
-                >
-                  <img
-                    src={img}
-                    alt={`Vue ${i + 2}`}
-                    className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.target.src = FALLBACK_BOAT_IMAGE;
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── Content + Booking ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* LEFT: details */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Title block */}
-            <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-              <div className="mb-3">
-                <span
-                  className="inline-block text-[10px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-full mb-3"
-                  style={{ background: 'rgba(0,198,224,0.12)', color: '#00C6E0' }}
-                >
-                  {typeLabels[boat.type] || boat.type}
-                </span>
-                <h1
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 'clamp(24px,4vw,42px)',
-                    fontWeight: 800,
-                    color: '#07192E',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {boat.title}
-                </h1>
-              </div>
-
-              <div className="flex flex-wrap gap-2 items-center mb-4">
-                <div className="meta-pill">
-                  <MapPin size={14} /> {boat.location}
+                />
+                <div className="boat-gallery__overlay" />
+                <div className="boat-gallery__badges">
+                  <span>
+                    <Sailboat size={14} /> {typeLabels[boat.type] || boat.type}
+                  </span>
+                  <span>
+                    <MapPin size={14} /> {boat.location}
+                  </span>
+                  {boat.skipperAvailable && (
+                    <span>
+                      <Compass size={14} /> Skipper disponible
+                    </span>
+                  )}
                 </div>
-                {boat.averageRating > 0 && (
-                  <div className="meta-pill">
-                    <Star size={14} fill="#F4A01A" color="#F4A01A" />
-                    {boat.averageRating.toFixed(1)} ({reviews.length} avis)
-                  </div>
-                )}
-                {boat.skipperAvailable && (
-                  <div className="meta-pill">
-                    <Compass size={14} /> Skipper disponible
-                  </div>
-                )}
-                {boat.length && (
-                  <div className="meta-pill">
-                    <Ruler size={14} /> {boat.length} m
-                  </div>
-                )}
+                <div className="boat-gallery__count">
+                  <Camera size={14} /> {selectedImage + 1} / {images.length} photo{images.length > 1 ? 's' : ''}
+                </div>
               </div>
 
-              <p className="text-sm leading-relaxed" style={{ color: '#3D4D61' }}>
-                {boat.description || 'Aucune description fournie.'}
-              </p>
-            </div>
-
-            {/* Specs */}
-            <div>
-              <h2
-                className="text-xl font-bold mb-4"
-                style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-              >
-                Caractéristiques
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  { label: 'Capacité', value: `${boat.capacity} pers.`, icon: Users },
-                  { label: 'Longueur', value: boat.length ? `${boat.length} m` : 'N/A', icon: Ruler },
-                  { label: 'Skipper', value: boat.skipperAvailable ? 'Disponible' : 'Non inclus', icon: Compass },
-                  { label: 'Moteur', value: boat.engine || 'N/A', icon: Settings },
-                  { label: 'Port', value: boat.port || boat.location, icon: Anchor },
-                  {
-                    label: 'Note',
-                    value: boat.averageRating > 0 ? `${boat.averageRating.toFixed(1)}/5` : 'Nouveau',
-                    icon: Star,
-                  },
-                ].map((spec) => (
-                  <div key={spec.label} className="spec-item">
-                    <spec.icon size={22} className="mb-2 mx-auto" color="#155374" />
-                    <div className="spec-lbl">{spec.label}</div>
-                    <div className="spec-val">{spec.value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Equipment */}
-            {boat.equipments?.length > 0 && (
-              <div>
-                <h2
-                  className="text-xl font-bold mb-4"
-                  style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-                >
-                  Équipements
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {boat.equipments.map((eq, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
-                      style={{
-                        background: 'rgba(0,198,224,0.1)',
-                        color: '#155374',
-                        border: '1px solid rgba(0,198,224,0.25)',
-                      }}
+              {images.length > 1 && (
+                <div className="boat-gallery__thumbs">
+                  {images.slice(0, 5).map((img, index) => (
+                    <button
+                      key={`${img}-${index}`}
+                      type="button"
+                      className={selectedImage === index ? 'is-active' : ''}
+                      onClick={() => setSelectedImage(index)}
+                      aria-label={`Afficher la photo ${index + 1}`}
                     >
-                      <Check size={14} /> {eq}
+                      <img
+                        src={img}
+                        alt=""
+                        onError={(e) => {
+                          e.currentTarget.src = FALLBACK_BOAT_IMAGE;
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="boat-title-card">
+              <div>
+                <span className="boat-eyebrow">{typeLabels[boat.type] || boat.type}</span>
+                <h1>{boat.title}</h1>
+                <p className="boat-title-card__subtitle">
+                  {boat.port || boat.location} · {boat.capacity} personnes · {boat.length || 'Longueur NC'} m
+                </p>
+              </div>
+              <div className="boat-rating-card">
+                <Star size={18} fill="#F4A01A" color="#F4A01A" />
+                <strong>{ratingLabel}</strong>
+                <span>{reviewCount > 0 ? `${reviewCount} avis locataire${reviewCount > 1 ? 's' : ''}` : 'Première location à venir'}</span>
+              </div>
+              <div className="boat-trust-pills">
+                <span>
+                  <ShieldCheck size={15} /> Réservation sécurisée
+                </span>
+                <span>
+                  <BadgeCheck size={15} /> Documents vérifiés avant publication
+                </span>
+                {boat.skipperAvailable && (
+                  <span>
+                    <Compass size={15} /> Skipper disponible
+                  </span>
+                )}
+              </div>
+              <p>{boat.description || 'Aucune description fournie pour cette annonce.'}</p>
+            </section>
+
+            <section className="boat-section">
+              <div className="boat-section__header">
+                <span>À bord</span>
+                <h2>Caractéristiques du bateau</h2>
+              </div>
+              <div className="boat-feature-grid">
+                <FeatureItem icon={Users} label="Capacité" value={`${boat.capacity} pers.`} />
+                <FeatureItem icon={Ruler} label="Longueur" value={boat.length ? `${boat.length} m` : 'Non renseignée'} />
+                <FeatureItem icon={Sailboat} label="Type" value={typeLabels[boat.type] || boat.type} tone="sand" />
+                <FeatureItem icon={Gauge} label="Moteur" value={boat.engine || 'Non renseigné'} />
+                <FeatureItem icon={Anchor} label="Port" value={boat.port || boat.location} tone="sand" />
+                <FeatureItem
+                  icon={Compass}
+                  label="Skipper"
+                  value={boat.skipperAvailable ? 'Disponible' : 'Non inclus'}
+                />
+                <FeatureItem icon={Star} label="Note" value={ratingLabel} tone="sand" />
+                <FeatureItem icon={ShieldCheck} label="Statut" value="Annonce validée" />
+              </div>
+            </section>
+
+            <section className="boat-section">
+              <div className="boat-section__header">
+                <span>Confort</span>
+                <h2>Équipements à bord</h2>
+              </div>
+              {boat.equipments?.length > 0 ? (
+                <div className="boat-equipment-list">
+                  {boat.equipments.map((equipment) => (
+                    <span key={equipment}>
+                      <Check size={15} /> {equipment}
                     </span>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="boat-empty-state">Aucun équipement spécifique n'a encore été renseigné.</div>
+              )}
+            </section>
 
-            {/* Owner */}
-            {boat.owner && (
-              <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-                <h2
-                  className="text-lg font-bold mb-4"
-                  style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-                >
-                  Propriétaire
-                </h2>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0"
-                    style={{ background: '#07192E', color: '#00C6E0' }}
-                  >
-                    {boat.owner.firstName?.charAt(0)}
-                    {boat.owner.lastName?.charAt(0)}
-                  </div>
+            <section className="boat-owner-card">
+              <div className="boat-section__header">
+                <span>Confiance</span>
+                <h2>Propriétaire</h2>
+              </div>
+              {boat.owner ? (
+                <div className="boat-owner-card__content">
+                  <div className="boat-owner-card__avatar">{initials(boat.owner)}</div>
                   <div>
-                    <p className="font-bold" style={{ color: '#07192E' }}>
+                    <strong>
                       {boat.owner.firstName} {boat.owner.lastName}
-                    </p>
-                    <p className="inline-flex items-center gap-1.5 text-sm" style={{ color: '#8896A8' }}>
-                      Propriétaire vérifié <ShieldCheck size={14} color="#16a34a" />
-                    </p>
+                    </strong>
+                    <span>Propriétaire SailingLoc</span>
+                  </div>
+                  <div className="boat-owner-card__checks">
+                    <span>
+                      <ShieldCheck size={15} /> Vérification administrative avant publication
+                    </span>
+                    <span>
+                      <Lock size={15} /> Documents bateau vérifiés
+                    </span>
+                    <span>
+                      <Sparkles size={15} /> Annonce validée par SailingLoc
+                    </span>
                   </div>
                 </div>
-                {/* Trust block */}
-                <div
-                  className="mt-4 flex items-start gap-3 p-3 rounded-xl text-sm"
-                  style={{ background: 'rgba(0,198,224,0.07)', border: '1px solid rgba(0,198,224,0.2)' }}
-                >
-                  <Lock size={18} className="mt-0.5 flex-shrink-0" />
-                  <p style={{ color: '#155374' }}>
-                    Les documents du propriétaire sont vérifiés avant la publication de l'annonce.
-                  </p>
-                </div>
+              ) : (
+                <div className="boat-empty-state">Propriétaire en cours de rattachement administratif.</div>
+              )}
+            </section>
+
+            <section className="boat-section">
+              <div className="boat-section__header">
+                <span>Retours</span>
+                <h2>Avis des locataires</h2>
               </div>
-            )}
-
-            {/* Reviews */}
-            <div>
-              <h2
-                className="text-xl font-bold mb-5"
-                style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
-              >
-                Avis ({reviews.length})
-              </h2>
               <ReviewList reviews={reviews} />
-            </div>
-          </div>
+            </section>
 
-          {/* RIGHT: booking */}
-          <div className="lg:col-span-1">
+            {relatedBoats.length > 0 && (
+              <section className="boat-section">
+                <div className="boat-section__header">
+                  <span>Suggestions</span>
+                  <h2>Bateaux similaires</h2>
+                </div>
+                <div className="boat-related-grid">
+                  {relatedBoats.map((item) => (
+                    <BoatCard key={item._id} boat={item} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </main>
+
+          <aside className="boat-detail-aside" aria-label="Réservation">
             <BookingForm boat={boat} />
-          </div>
+          </aside>
         </div>
       </div>
     </div>
