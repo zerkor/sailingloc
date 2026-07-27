@@ -29,6 +29,28 @@ const EQUIPMENT_OPTIONS = [
   'Kayak / SUP',
 ];
 
+const Section = ({ title, children }) => (
+  <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+    <h2
+      className="font-bold text-base mb-5 pb-3"
+      style={{ fontFamily: "'Playfair Display', serif", color: '#07192E', borderBottom: '1px solid #EDF1F5' }}
+    >
+      {title}
+    </h2>
+    {children}
+  </div>
+);
+
+const Label = ({ htmlFor, children }) => (
+  <label
+    htmlFor={htmlFor}
+    className="block text-xs font-bold uppercase tracking-wider mb-2"
+    style={{ color: '#3D4D61' }}
+  >
+    {children}
+  </label>
+);
+
 const OwnerBoatFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -145,28 +167,6 @@ const OwnerBoatFormPage = () => {
   };
 
   if (fetching) return <LoadingSpinner text="Chargement…" />;
-
-  const Section = ({ title, children }) => (
-    <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
-      <h2
-        className="font-bold text-base mb-5 pb-3"
-        style={{ fontFamily: "'Playfair Display', serif", color: '#07192E', borderBottom: '1px solid #EDF1F5' }}
-      >
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-
-  const Label = ({ htmlFor, children }) => (
-    <label
-      htmlFor={htmlFor}
-      className="block text-xs font-bold uppercase tracking-wider mb-2"
-      style={{ color: '#3D4D61' }}
-    >
-      {children}
-    </label>
-  );
 
   return (
     <div className="max-w-2xl space-y-5">
