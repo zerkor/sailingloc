@@ -73,36 +73,52 @@ const ownerNames = [
   ['Antoine', 'Fournier'],
   ['Claire', 'Girard'],
   ['Julien', 'Mercier'],
-  ['Élodie', 'Faure'],
-  ['Mathieu', 'Lefèvre'],
+  ['Elodie', 'Faure'],
+  ['Mathieu', 'Lefevre'],
   ['Amandine', 'Blanc'],
   ['Thomas', 'Garnier'],
   ['Lucie', 'Chevalier'],
   ['Romain', 'Perrin'],
   ['Manon', 'Robin'],
+  ['Karim', 'Benali'],
+  ['Eva', 'Martinez'],
+  ['Hadrien', 'Leclerc'],
+  ['Nadia', 'Costa'],
+  ['Baptiste', 'Marchal'],
+  ['Salome', 'Vidal'],
 ];
 
 const tenantNames = [
   ['Jean', 'Martin'],
   ['Sophie', 'Bernard'],
   ['Lucas', 'Petit'],
-  ['Chloé', 'Robert'],
+  ['Chloe', 'Robert'],
   ['Hugo', 'Richard'],
   ['Emma', 'Durand'],
   ['Louis', 'Dubois'],
-  ['Léa', 'Morel'],
+  ['Lea', 'Morel'],
   ['Nathan', 'Simon'],
-  ['Inès', 'Michel'],
+  ['Ines', 'Michel'],
   ['Arthur', 'Leroy'],
-  ['Zoé', 'Renaud'],
+  ['Zoe', 'Renaud'],
   ['Gabriel', 'David'],
   ['Sarah', 'Bertrand'],
   ['Adam', 'Fontaine'],
   ['Jade', 'Lemoine'],
   ['Noah', 'Marchand'],
   ['Louise', 'Gauthier'],
-  ['Raphaël', 'Moulin'],
+  ['Raphael', 'Moulin'],
   ['Alice', 'Renard'],
+  ['Wassim', 'Talbi'],
+  ['Yasmine', 'Ait Ali'],
+  ['Mehdi', 'Haddad'],
+  ['Lina', 'Carpentier'],
+  ['Paul', 'Besson'],
+  ['Mila', 'Masson'],
+  ['Oscar', 'Collet'],
+  ['Aya', 'Nguyen'],
+  ['Tom', 'Barbier'],
+  ['Nora', 'Henry'],
 ];
 
 const boatBlueprints = [
@@ -406,6 +422,150 @@ const boatBlueprints = [
     false,
     'Semi-rigide simple et efficace pour sorties à la journée.',
   ],
+  [
+    'Hanse 455',
+    'sailboat',
+    'Saint-Barth',
+    'Port de Gustavia',
+    650,
+    10,
+    13.9,
+    'Volvo Penta 55cv',
+    true,
+    'Voilier premium avec cockpit spacieux et plan de pont confortable.',
+  ],
+  [
+    'Pogo 36',
+    'sailboat',
+    'La Trinite-sur-Mer',
+    'Port de la Trinite-sur-Mer',
+    330,
+    6,
+    10.9,
+    'Volvo 30cv',
+    false,
+    'Voilier leger et marin pour equipage autonome.',
+  ],
+  [
+    'Lagoon 46',
+    'catamaran',
+    'Hyeres',
+    'Port Saint-Pierre',
+    840,
+    10,
+    13.99,
+    '2x Yanmar 57cv',
+    true,
+    'Catamaran confortable pour croisiere familiale vers les iles d Hyeres.',
+  ],
+  [
+    'Bali 4.2',
+    'catamaran',
+    'Bonifacio',
+    'Port de Bonifacio',
+    780,
+    10,
+    12.85,
+    '2x Volvo 45cv',
+    true,
+    'Catamaran lumineux ideal pour caboter dans le sud de la Corse.',
+  ],
+  [
+    'Excess 14',
+    'catamaran',
+    'Saint-Raphael',
+    'Port Santa Lucia',
+    920,
+    12,
+    13.97,
+    '2x Yanmar 57cv',
+    true,
+    'Catamaran haut de gamme avec espaces ouverts et navigation fluide.',
+  ],
+  [
+    'Jeanneau Cap Camarat 9.0',
+    'motorboat',
+    'Saint-Tropez',
+    'Port de Saint-Tropez',
+    520,
+    9,
+    8.6,
+    '2x Yamaha 250cv',
+    false,
+    'Bateau moteur elegant pour sortie journee sur la baie de Saint-Tropez.',
+  ],
+  [
+    'Beneteau Flyer 8',
+    'motorboat',
+    'Menton',
+    'Vieux-Port de Menton',
+    360,
+    8,
+    8.17,
+    'Suzuki 300cv',
+    false,
+    'Day boat polyvalent avec bain de soleil et cockpit convivial.',
+  ],
+  [
+    'Axopar 28 Cabin',
+    'motorboat',
+    'Deauville',
+    'Port-Deauville',
+    480,
+    7,
+    8.75,
+    'Mercury 300cv',
+    false,
+    'Bateau rapide et securisant pour navigation cotiere en Manche.',
+  ],
+  [
+    'Nuova Jolly Prince 30',
+    'rib',
+    'Calvi',
+    'Port Xavier Colonna',
+    330,
+    12,
+    9.3,
+    '2x Suzuki 250cv',
+    true,
+    'Semi-rigide spacieux et premium pour explorer la Balagne.',
+  ],
+  [
+    'BWA Sport 26 GT',
+    'rib',
+    'Porquerolles',
+    'Port de Porquerolles',
+    270,
+    10,
+    8.1,
+    'Yamaha 300cv',
+    false,
+    'Semi-rigide confortable pour rejoindre les criques rapidement.',
+  ],
+  [
+    'Zar Formenti 79 SL',
+    'rib',
+    'Collioure',
+    'Port de Collioure',
+    310,
+    12,
+    7.9,
+    'Mercury 300cv',
+    true,
+    'Semi-rigide familial avec assises confortables et grand bain de soleil.',
+  ],
+  [
+    'Princess V40',
+    'motorboat',
+    'Monaco',
+    'Port Hercule',
+    980,
+    8,
+    12.98,
+    '2x Volvo D6 330cv',
+    true,
+    'Vedette premium pour une experience charter elegante sur la Cote d Azur.',
+  ],
 ];
 
 const baseEquipments = {
@@ -494,7 +654,7 @@ const seed = async () => {
     const boats = await Boat.insertMany(
       boatBlueprints.map((boat, index) => {
         const [title, type, location, port, pricePerDay, capacity, length, engine, skipperAvailable, intro] = boat;
-        const status = index < 20 ? 'approved' : index < 23 ? 'pending' : 'rejected';
+        const status = index < 30 ? 'approved' : index < 35 ? 'pending' : 'rejected';
         return {
           owner: owners[index % owners.length]._id,
           title,
@@ -519,7 +679,7 @@ const seed = async () => {
     const payments = [];
     const boatSlot = new Map();
 
-    for (let index = 0; index < 60; index += 1) {
+    for (let index = 0; index < 72; index += 1) {
       const status = bookingStatuses[index];
       const boat = boats[index % boats.length];
       const tenant = tenants[(index * 3) % tenants.length];
@@ -576,7 +736,7 @@ const seed = async () => {
 
     const completedBookings = bookings.filter((booking) => booking.status === 'completed');
     const reviews = [];
-    for (let index = 0; index < 25; index += 1) {
+    for (let index = 0; index < 32; index += 1) {
       const booking = completedBookings[index];
       const rating = 3 + (index % 3);
       reviews.push(
@@ -586,7 +746,7 @@ const seed = async () => {
           author: booking.tenant,
           rating,
           comment: reviewComments[index % reviewComments.length],
-          status: index < 19 ? 'approved' : 'pending',
+          status: index < 24 ? 'approved' : 'pending',
         })
       );
     }
@@ -605,10 +765,10 @@ const seed = async () => {
 
     const documentTypes = ['identity', 'registration', 'insurance', 'contract'];
     const documents = [];
-    for (let index = 0; index < 18; index += 1) {
+    for (let index = 0; index < 24; index += 1) {
       const owner = owners[index % owners.length];
       const boat = boats.find((item) => item.owner.toString() === owner._id.toString()) || boats[index % boats.length];
-      const status = index < 10 ? 'approved' : index < 15 ? 'pending' : 'rejected';
+      const status = index < 14 ? 'approved' : index < 21 ? 'pending' : 'rejected';
       documents.push(
         await OwnerDocument.create({
           owner: owner._id,
@@ -660,7 +820,7 @@ const seed = async () => {
         entityType: 'database',
         entityId: 'demo-seed',
         description: 'Création du jeu de données de démonstration',
-        metadata: { users: 35, boats: boats.length, bookings: bookings.length },
+        metadata: { users: 1 + owners.length + tenants.length, boats: boats.length, bookings: bookings.length },
       },
       {
         admin: admin._id,
@@ -699,8 +859,8 @@ const seed = async () => {
     console.log(`- ${reports.length} reports created`);
     console.log('\nDemo accounts:');
     console.log('Admin:    admin@sailingloc.fr    / Admin123!');
-    console.log('Owners:   owner1@sailingloc.fr   / Owner123!  ... owner14@sailingloc.fr');
-    console.log('Tenants:  tenant1@sailingloc.fr  / Tenant123! ... tenant20@sailingloc.fr');
+    console.log(`Owners:   owner1@sailingloc.fr   / Owner123!  ... owner${owners.length}@sailingloc.fr`);
+    console.log(`Tenants:  tenant1@sailingloc.fr  / Tenant123! ... tenant${tenants.length}@sailingloc.fr`);
 
     await mongoose.disconnect();
     process.exit(0);
