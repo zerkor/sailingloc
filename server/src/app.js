@@ -33,16 +33,24 @@ const renderClientIndex = () => {
 
 app.use(
   helmet({
+    frameguard: false,
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
         baseUri: ["'self'"],
+        frameAncestors: [
+          "'self'",
+          'https://tagassistant.google.com',
+          'https://tagmanager.google.com',
+          'https://analytics.google.com',
+        ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         frameSrc: ["'self'", 'https://www.googletagmanager.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
         objectSrc: ["'none'"],
         scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
+        scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
         scriptSrcAttr: ["'none'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         connectSrc: [
