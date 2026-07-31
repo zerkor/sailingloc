@@ -27,49 +27,36 @@ const app = express();
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
 const clientIndexPath = path.join(clientDistPath, 'index.html');
 
-const escapeHtmlAttribute = (value) =>
-  String(value).replace(/[&<>"']/g, (char) => {
-    const replacements = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    };
-    return replacements[char];
-  });
-
 const renderClientIndex = () => {
-  let html = fs.readFileSync(clientIndexPath, 'utf8');
-  const analyticsEnabled = process.env.ANALYTICS_ENABLED !== 'false';
-  const gtmId = process.env.GTM_ID || 'GTM-P2TW43Q5';
-  const validGtmId = /^GTM-[A-Z0-9]+$/.test(gtmId);
-
-  if (!analyticsEnabled || !validGtmId) {
-    return html.replace('<!-- __GTM_HEAD__ -->', '').replace('<!-- __GTM_BODY__ -->', '');
-  }
-
-  const safeGtmId = escapeHtmlAttribute(gtmId);
-  const gtmHead = `<!-- Google Tag Manager -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','${safeGtmId}');
-    </script>
-    <!-- End Google Tag Manager -->`;
-  const gtmBody = `<!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id=${safeGtmId}"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->`;
-
-  return html.replace('<!-- __GTM_HEAD__ -->', gtmHead).replace('<!-- __GTM_BODY__ -->', gtmBody);
+  return fs.readFileSync(clientIndexPath, 'utf8');
 };
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        frameSrc: ["'self'", 'https://www.googletagmanager.com'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+        objectSrc: ["'none'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
+        scriptSrcAttr: ["'none'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        connectSrc: [
+          "'self'",
+          'https://www.google-analytics.com',
+          'https://region1.google-analytics.com',
+          'https://analytics.google.com',
+          'https://stats.g.doubleclick.net',
+        ],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
