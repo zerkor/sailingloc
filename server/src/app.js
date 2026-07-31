@@ -41,7 +41,7 @@ const escapeHtmlAttribute = (value) =>
 
 const renderClientIndex = () => {
   let html = fs.readFileSync(clientIndexPath, 'utf8');
-  const analyticsEnabled = process.env.ANALYTICS_ENABLED === 'true';
+  const analyticsEnabled = process.env.ANALYTICS_ENABLED !== 'false';
   const gtmId = process.env.GTM_ID || 'GTM-P2TW43Q5';
   const validGtmId = /^GTM-[A-Z0-9]+$/.test(gtmId);
 
