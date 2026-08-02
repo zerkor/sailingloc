@@ -16,7 +16,7 @@ const resolvePublicClientUrl = () => {
     process.env.CLIENT_URL;
 
   if (configured) return trimUrl(configured);
-  return process.env.NODE_ENV === 'production' ? 'https://sailingloc-uwvo.onrender.com' : 'http://localhost:5173';
+  return process.env.NODE_ENV === 'production' ? 'https://dsp-dev-o24a-g6-fr.onrender.com' : 'http://localhost:5173';
 };
 
 const emailConfig = {

@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const BASE_URL = (process.env.BASE_URL || 'https://sailingloc-uwvo.onrender.com').replace(/\/$/, '');
+const BASE_URL = (process.env.BASE_URL || 'https://dsp-dev-o24a-g6-fr.onrender.com').replace(/\/$/, '');
 const outputDir = path.resolve('docs/reports/screenshots');
 
 const pages = [

@@ -21,7 +21,7 @@ export const options = {
   },
 };
 
-const BASE_URL = (__ENV.BASE_URL || 'https://sailingloc-uwvo.onrender.com').replace(/\/$/, '');
+const BASE_URL = (__ENV.BASE_URL || 'https://dsp-dev-o24a-g6-fr.onrender.com').replace(/\/$/, '');
 const boatListLatency = new Trend('boat_list_latency');
 const apiFailureRate = new Rate('api_failure_rate');
 

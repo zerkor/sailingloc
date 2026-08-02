@@ -40,7 +40,7 @@ k6 run load-tests/k6/sailingloc-smoke.js
 Pour tester une autre URL :
 
 ```bash
-k6 run -e BASE_URL=https://sailingloc-uwvo.onrender.com load-tests/k6/sailingloc-smoke.js
+k6 run -e BASE_URL=https://dsp-dev-o24a-g6-fr.onrender.com load-tests/k6/sailingloc-smoke.js
 ```
 
 ## Scenario

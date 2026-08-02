@@ -6,4 +6,4 @@ Disallow: /profile
 Disallow: /my-bookings
 Disallow: /api/
 
-Sitemap: https://sailingloc-uwvo.onrender.com/sitemap.xml
+Sitemap: https://dsp-dev-o24a-g6-fr.onrender.com/sitemap.xml

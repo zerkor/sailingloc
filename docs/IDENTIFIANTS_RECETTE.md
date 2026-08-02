@@ -6,9 +6,9 @@ Document a fournir avec le rendu de soutenance.
 
 | Type | URL |
 | --- | --- |
-| Site public + API | `https://sailingloc-uwvo.onrender.com/` |
-| Swagger API | `https://sailingloc-uwvo.onrender.com/api-docs` |
-| Healthcheck API | `https://sailingloc-uwvo.onrender.com/api/health` |
+| Site public + API | `https://dsp-dev-o24a-g6-fr.onrender.com/` |
+| Swagger API | `https://dsp-dev-o24a-g6-fr.onrender.com/api-docs` |
+| Healthcheck API | `https://dsp-dev-o24a-g6-fr.onrender.com/api/health` |
 
 ## Comptes applicatifs de demonstration
 

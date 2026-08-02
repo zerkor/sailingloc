@@ -26,5 +26,5 @@ docs/reports/screenshots/
 Exemple :
 
 ```bash
-npx lighthouse https://sailingloc-uwvo.onrender.com/ --output=html --output-path=docs/reports/lighthouse-home.html
+npx lighthouse https://dsp-dev-o24a-g6-fr.onrender.com/ --output=html --output-path=docs/reports/lighthouse-home.html
 ```

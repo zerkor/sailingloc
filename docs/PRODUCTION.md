@@ -84,8 +84,8 @@ BREVO_SMTP_PASS=your_brevo_smtp_key
 EMAIL_FROM_NAME=SailingLoc
 EMAIL_FROM_ADDRESS=contact@sailingloc.fr
 EMAIL_REPLY_TO=contact@sailingloc.fr
-CLIENT_URL=https://sailingloc-uwvo.onrender.com
-SERVER_URL=https://sailingloc-uwvo.onrender.com
+CLIENT_URL=https://dsp-dev-o24a-g6-fr.onrender.com
+SERVER_URL=https://dsp-dev-o24a-g6-fr.onrender.com
 EMAIL_ENABLED=true
 EMAIL_LOG_ONLY=false
 ```

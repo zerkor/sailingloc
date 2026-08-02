@@ -27,9 +27,9 @@ SMTP_USER=your_smtp_user
 SMTP_PASS=your_smtp_password
 SMTP_FROM="SailingLoc <no-reply@sailingloc.fr>"
 SMTP_SECURE=false
-FRONTEND_URL=https://sailingloc-uwvo.onrender.com
-CLIENT_URL=https://sailingloc-uwvo.onrender.com
-SERVER_URL=https://sailingloc-uwvo.onrender.com
+FRONTEND_URL=https://dsp-dev-o24a-g6-fr.onrender.com
+CLIENT_URL=https://dsp-dev-o24a-g6-fr.onrender.com
+SERVER_URL=https://dsp-dev-o24a-g6-fr.onrender.com
 ```
 
 Si le fournisseur utilise le port `465` :
@@ -63,7 +63,7 @@ Pour une soutenance, choisir un fournisseur simple :
 ## Test API rapide
 
 ```bash
-curl -X POST https://sailingloc-uwvo.onrender.com/api/auth/forgot-password \
+curl -X POST https://dsp-dev-o24a-g6-fr.onrender.com/api/auth/forgot-password \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"tenant1@sailingloc.fr\"}"
 ```

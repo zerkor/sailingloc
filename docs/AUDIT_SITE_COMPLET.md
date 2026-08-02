@@ -1,7 +1,7 @@
 # Audit complet du site web SailingLoc
 
 Date d'audit : 22 juillet 2026  
-URL de production : https://sailingloc-uwvo.onrender.com/  
+URL de production : https://dsp-dev-o24a-g6-fr.onrender.com/  
 Depot : https://github.com/zerkor/sailingloc
 
 ## 1. Presentation du site
@@ -110,7 +110,7 @@ Points presents :
 
 Corrections appliquees pendant l'audit :
 
-- `robots.txt` pointe maintenant vers `https://sailingloc-uwvo.onrender.com/sitemap.xml` ;
+- `robots.txt` pointe maintenant vers `https://dsp-dev-o24a-g6-fr.onrender.com/sitemap.xml` ;
 - `sitemap.xml` pointe maintenant vers l'URL Render et inclut pages publiques utiles ;
 - `client/index.html` corrige la meta description mal encodee ;
 - ajout de `theme-color`, Open Graph et Twitter card.

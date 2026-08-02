@@ -14,13 +14,13 @@ Produire une preuve de qualite front-end pour la soutenance :
 
 | Page | URL production |
 | --- | --- |
-| Accueil | `https://sailingloc-uwvo.onrender.com/` |
-| Catalogue | `https://sailingloc-uwvo.onrender.com/boats` |
-| Fiche bateau | `https://sailingloc-uwvo.onrender.com/boats/<id-ou-slug>` |
-| Connexion | `https://sailingloc-uwvo.onrender.com/login` |
-| Inscription | `https://sailingloc-uwvo.onrender.com/register` |
-| Contact | `https://sailingloc-uwvo.onrender.com/contact` |
-| Limites MVP | `https://sailingloc-uwvo.onrender.com/mvp-limitations` |
+| Accueil | `https://dsp-dev-o24a-g6-fr.onrender.com/` |
+| Catalogue | `https://dsp-dev-o24a-g6-fr.onrender.com/boats` |
+| Fiche bateau | `https://dsp-dev-o24a-g6-fr.onrender.com/boats/<id-ou-slug>` |
+| Connexion | `https://dsp-dev-o24a-g6-fr.onrender.com/login` |
+| Inscription | `https://dsp-dev-o24a-g6-fr.onrender.com/register` |
+| Contact | `https://dsp-dev-o24a-g6-fr.onrender.com/contact` |
+| Limites MVP | `https://dsp-dev-o24a-g6-fr.onrender.com/mvp-limitations` |
 
 ## Procedure Chrome DevTools
 
@@ -40,7 +40,7 @@ Produire une preuve de qualite front-end pour la soutenance :
 ## Procedure CLI optionnelle
 
 ```bash
-npx lighthouse https://sailingloc-uwvo.onrender.com/ \
+npx lighthouse https://dsp-dev-o24a-g6-fr.onrender.com/ \
   --preset=desktop \
   --output=html \
   --output-path=docs/reports/lighthouse-home-desktop.html
@@ -49,7 +49,7 @@ npx lighthouse https://sailingloc-uwvo.onrender.com/ \
 Mobile :
 
 ```bash
-npx lighthouse https://sailingloc-uwvo.onrender.com/ \
+npx lighthouse https://dsp-dev-o24a-g6-fr.onrender.com/ \
   --form-factor=mobile \
   --screenEmulation.mobile=true \
   --output=html \
