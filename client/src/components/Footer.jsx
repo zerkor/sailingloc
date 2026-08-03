@@ -39,6 +39,13 @@ const Footer = () => {
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.62)', maxWidth: 280 }}>
               {t('footer.tagline')}
             </p>
+            <p
+              className="mt-4 rounded-xl border border-cyan-300/20 bg-white/[0.04] p-3 text-xs leading-relaxed"
+              style={{ color: 'rgba(255,255,255,0.72)', maxWidth: 320 }}
+            >
+              Projet étudiant fictif : aucune réservation, transaction ou location réelle ne peut être effectuée sur ce
+              site.
+            </p>
           </div>
 
           <div>
@@ -92,7 +99,7 @@ const Footer = () => {
           style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
         >
           <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            © {new Date().getFullYear()} SailingLoc · {t('footer.rights')}
+            © {new Date().getFullYear()} SailingLoc · Projet étudiant fictif · {t('footer.rights')}
           </span>
           <span className="text-xs" style={{ color: '#00C6E0' }}>
             {t('footer.projectBy')}

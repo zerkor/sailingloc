@@ -66,6 +66,236 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .boats-filter-bar {
+    top: 76px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    background: #f4f8fb;
+  }
+
+  .container-max {
+    max-width: 100%;
+  }
+
+  .home-hero {
+    background:
+      radial-gradient(circle at 88% 8%, rgba(0, 198, 224, 0.2), transparent 26%),
+      linear-gradient(180deg, #07192e 0%, #0d3145 58%, #f4f8fb 58%, #f4f8fb 100%);
+  }
+
+  .home-hero-inner {
+    gap: 18px;
+    padding: 26px 16px 30px;
+  }
+
+  .home-pill {
+    max-width: 100%;
+    font-size: 10px;
+  }
+
+  .home-hero h1 {
+    margin-top: 14px;
+    font-size: clamp(32px, 10vw, 42px);
+    line-height: 1.03;
+  }
+
+  .home-hero p {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .home-hero-orb {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    border-radius: 18px;
+    margin-top: 6px;
+    box-shadow: 0 18px 42px rgba(7, 25, 46, 0.18);
+  }
+
+  .home-search {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 16px;
+    box-shadow: 0 14px 34px rgba(4, 16, 31, 0.18);
+  }
+
+  .home-search-field {
+    padding: 12px 14px;
+  }
+
+  .home-search-field input,
+  .home-search-field select {
+    font-size: 16px;
+  }
+
+  .home-search-button {
+    min-height: 52px;
+    width: 100%;
+  }
+
+  .home-stats-grid,
+  .home-trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 18px 16px;
+  }
+
+  .home-stats-grid div,
+  .home-trust-grid div {
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+  }
+
+  .home-section-heading {
+    gap: 10px;
+  }
+
+  .home-section h2,
+  .home-how h2 {
+    font-size: clamp(25px, 8vw, 32px);
+  }
+
+  .home-step-card,
+  .home-review-card {
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .boats-filter-bar {
+    top: 64px !important;
+  }
+
+  .boat-detail-page .section-padding {
+    padding-top: 24px;
+  }
+
+  .boat-detail-layout {
+    gap: 18px;
+  }
+
+  .boat-gallery__main {
+    min-height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: 18px;
+  }
+
+  .boat-gallery__badges {
+    position: static;
+    margin-top: 10px;
+  }
+
+  .boat-gallery__overlay {
+    display: none;
+  }
+
+  .boat-gallery__count {
+    top: 10px;
+    right: 10px;
+  }
+
+  .boat-title-card,
+  .boat-owner-card,
+  .boat-section,
+  .booking-card {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .boat-title-card h1 {
+    font-size: clamp(32px, 11vw, 42px);
+    line-height: 1;
+  }
+
+  .boat-rating-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .boat-trust-pills span,
+  .boat-equipment-list span {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .boat-feature-card {
+    min-height: auto;
+  }
+
+  .boat-gallery__thumbs button {
+    height: 72px;
+    border-radius: 12px;
+  }
+
+  .booking-card {
+    box-shadow: 0 18px 44px rgba(7, 29, 51, 0.12);
+  }
+
+  .booking-card__price strong {
+    font-size: 32px;
+  }
+
+  .admin-dashboard-top,
+  .admin-kpi-grid,
+  .admin-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-dashboard-top > div,
+  .admin-actions-panel,
+  .admin-kpi-section,
+  .admin-quick-card,
+  .admin-error-card {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .admin-action-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .admin-action-row svg:last-child {
+    display: none;
+  }
+
+  .overflow-x-auto {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  footer .container-max {
+    padding-top: 36px;
+    padding-bottom: 28px;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-hero h1 {
+    font-size: 31px;
+  }
+
+  .home-stats-grid,
+  .home-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .language-dropdown__menu {
+    right: -72px;
+  }
+
+  html[dir='rtl'] .language-dropdown__menu {
+    right: auto;
+    left: -72px;
+  }
+}
+
 @layer components {
   /* ── Buttons ── */
   .btn-primary {

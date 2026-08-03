@@ -98,7 +98,7 @@ const BoatListPage = () => {
       </div>
 
       <div
-        className="sticky z-30 flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-10 xl:px-14"
+        className="boats-filter-bar sticky z-30 flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-10 xl:px-14"
         style={{
           top: 76,
           background: '#fff',

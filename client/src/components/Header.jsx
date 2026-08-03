@@ -39,7 +39,7 @@ const Header = () => {
       style={{ background: 'rgba(7,25,46,0.97)', backdropFilter: 'blur(20px)' }}
     >
       <nav className="container-max px-4 sm:px-6 lg:px-14">
-        <div className="flex h-[76px] items-center justify-between">
+        <div className="flex h-[64px] items-center justify-between lg:h-[76px]">
           <Link to="/" className="flex-shrink-0">
             <span
               style={{
