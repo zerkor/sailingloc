@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Sailboat, X } from 'lucide-react';
 import BoatCard from '../../components/BoatCard';
+import Breadcrumb from '../../components/Breadcrumb';
 import FilterSidebar from '../../components/FilterSidebar';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { getBoats } from '../../services/boatService';
@@ -75,6 +76,7 @@ const BoatListPage = () => {
           style={{ background: 'rgba(0,198,224,0.06)' }}
         />
         <div className="container-max relative">
+          <Breadcrumb className="site-breadcrumb--light" items={[{ label: 'Bateaux' }]} />
           <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
             {t('boats.catalog')}
           </span>

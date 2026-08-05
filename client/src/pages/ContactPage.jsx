@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ArrowRight, Check, Clock, Mail, MapPin, Phone } from 'lucide-react';
 import api from '../services/api';
 import ErrorMessage from '../components/ErrorMessage';
+import Breadcrumb from '../components/Breadcrumb';
 
 const SUBJECTS = [
   { value: '', label: 'Choisir un sujet…', disabled: true },
@@ -85,6 +86,7 @@ const ContactPage = () => {
       {/* ── Hero banner ── */}
       <div className="py-14 sm:py-16 px-4 sm:px-6 lg:px-10 xl:px-14" style={{ background: '#07192E' }}>
         <div className="container-max">
+          <Breadcrumb className="site-breadcrumb--light" items={[{ label: 'Contact' }]} />
           <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
             Contact
           </span>

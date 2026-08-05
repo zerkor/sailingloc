@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Anchor, ShipWheel, Sailboat, Waves } from 'lucide-react';
+import Breadcrumb from '../components/Breadcrumb';
 
 const categories = [
   {
@@ -32,6 +33,7 @@ const CategoriesPage = () => (
   <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
     <section className="px-4 sm:px-6 lg:px-10 xl:px-14 py-14 sm:py-16" style={{ background: '#07192E' }}>
       <div className="container-max">
+        <Breadcrumb className="site-breadcrumb--light" items={[{ label: 'Catégories' }]} />
         <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
           Navigation par type
         </span>

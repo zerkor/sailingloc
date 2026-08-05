@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, CalendarCheck, CreditCard, FileCheck2, Headphones, ShieldCheck } from 'lucide-react';
+import Breadcrumb from '../components/Breadcrumb';
 
 const services = [
   {
@@ -41,6 +42,7 @@ const ProductsPage = () => (
       style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}
     >
       <div className="container-max">
+        <Breadcrumb className="site-breadcrumb--light" items={[{ label: 'Services' }]} />
         <span className="sec-eyebrow" style={{ color: '#00C6E0' }}>
           Services
         </span>

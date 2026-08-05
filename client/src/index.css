@@ -1088,6 +1088,7 @@ html[dir='rtl'] .language-dropdown__menu button {
     linear-gradient(180deg, #f3f7fa 0%, #edf3f7 100%);
 }
 
+.site-breadcrumb,
 .boat-breadcrumb {
   display: flex;
   flex-wrap: wrap;
@@ -1098,9 +1099,35 @@ html[dir='rtl'] .language-dropdown__menu button {
   font-size: 13px;
 }
 
+.site-breadcrumb a,
 .boat-breadcrumb a {
   color: #00aeca;
   font-weight: 700;
+}
+
+.site-breadcrumb__home,
+.site-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.site-breadcrumb--light {
+  color: rgba(255, 255, 255, 0.66);
+  margin-bottom: 16px;
+}
+
+.site-breadcrumb--light a {
+  color: #7eeafa;
+}
+
+.site-breadcrumb--card {
+  margin-bottom: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 10px 14px;
+  width: fit-content;
+  box-shadow: 0 10px 30px rgba(7, 25, 46, 0.08);
 }
 
 .boat-detail-layout {

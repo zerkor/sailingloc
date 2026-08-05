@@ -1,4 +1,5 @@
 import SEO from '../components/SEO';
+import Breadcrumb from '../components/Breadcrumb';
 
 const sections = [
   {
@@ -44,6 +45,7 @@ const MvpLimitationsPage = () => (
   <div style={{ background: '#F7F5F2', minHeight: '80vh' }}>
     <SEO title="Limites du MVP | SailingLoc" description="Limites assumees du MVP academique SailingLoc." />
     <div className="container-max section-padding max-w-5xl">
+      <Breadcrumb className="site-breadcrumb--card" items={[{ label: 'Limites MVP' }]} />
       <p className="text-xs uppercase font-bold tracking-wider mb-3" style={{ color: '#00AFC8' }}>
         Soutenance
       </p>

@@ -20,6 +20,7 @@ import BookingForm from '../../components/BookingForm';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ReviewList from '../../components/ReviewList';
 import SEO from '../../components/SEO';
+import Breadcrumb from '../../components/Breadcrumb';
 import { getBoatById, getBoatBySlug, getBoats } from '../../services/boatService';
 import { getBoatReviews } from '../../services/reviewService';
 import { FALLBACK_BOAT_IMAGE, getBoatImages } from '../../utils/boatImages';
@@ -134,13 +135,7 @@ const BoatDetailPage = () => {
       />
 
       <div className="container-max section-padding">
-        <nav className="boat-breadcrumb" aria-label="Fil d'Ariane">
-          <Link to="/">Accueil</Link>
-          <span>/</span>
-          <Link to="/boats">Bateaux</Link>
-          <span>/</span>
-          <span>{boat.title}</span>
-        </nav>
+        <Breadcrumb items={[{ label: 'Bateaux', to: '/boats' }, { label: boat.title }]} />
 
         <div className="boat-detail-layout">
           <main className="boat-detail-main">
