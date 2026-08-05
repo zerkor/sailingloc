@@ -11,7 +11,7 @@ test('navbar links work', async ({ page }) => {
     ['Accueil', '/'],
     ['Bateaux', '/boats'],
     ['Catégories', '/categories'],
-    ['Produits', '/products'],
+    ['Services', '/products'],
     ['Contact', '/contact'],
   ]) {
     await page.getByRole('link', { name: label }).first().click();
