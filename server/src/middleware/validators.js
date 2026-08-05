@@ -102,6 +102,13 @@ const updateUserRules = [
 
 const testEmailRules = [body('to').isEmail().withMessage('Adresse email invalide').normalizeEmail()];
 
+const newsletterRules = [
+  body('subject').trim().isLength({ min: 4, max: 140 }).withMessage('Le sujet doit contenir entre 4 et 140 caracteres'),
+  body('title').trim().isLength({ min: 4, max: 140 }).withMessage('Le titre doit contenir entre 4 et 140 caracteres'),
+  body('message').trim().isLength({ min: 20, max: 1600 }).withMessage('Le message doit contenir entre 20 et 1600 caracteres'),
+  body('includeAllTenants').optional().isBoolean().withMessage('includeAllTenants doit etre un booleen'),
+];
+
 const contactMessageRules = [
   body('name').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 120 }),
   body('email').isEmail().withMessage('Email invalide').normalizeEmail().isLength({ max: 160 }),
@@ -128,6 +135,7 @@ module.exports = {
   updateProfileRules,
   updateUserRules,
   testEmailRules,
+  newsletterRules,
   contactMessageRules,
   updateContactMessageRules,
 };

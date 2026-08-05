@@ -171,6 +171,13 @@ const sendContactMessageEmail = ({ contactMessage }) =>
     template: templates.contactMessage(contactMessage),
   });
 
+const sendNewsletterEmail = ({ user, subject, title, message }) =>
+  sendTemplate({
+    to: user.email,
+    templateName: 'newsletter',
+    template: templates.newsletter({ user, subject, title, message }),
+  });
+
 module.exports = {
   sendEmail,
   sendWelcomeTenantEmail,
@@ -187,4 +194,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendAdminTestEmail,
   sendContactMessageEmail,
+  sendNewsletterEmail,
 };

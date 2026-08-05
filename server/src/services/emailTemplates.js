@@ -256,6 +256,19 @@ const testEmail = () =>
   });
 
 
+const newsletter = ({ user, subject, title, message }) =>
+  buildTemplate({
+    subject,
+    title,
+    intro: [
+      `Bonjour ${user.firstName || ''},`,
+      message,
+      'Retrouvez les bateaux disponibles et les nouveautes directement sur SailingLoc.',
+    ],
+    ctaLabel: 'Voir les bateaux',
+    ctaUrl: `${emailConfig.clientUrl}/boats`,
+  });
+
 const contactSubjects = {
   technique: 'Probleme technique',
   location: 'Location',
@@ -295,5 +308,6 @@ module.exports = {
   bookingCompleted,
   passwordReset,
   testEmail,
+  newsletter,
   contactMessage,
 };

@@ -19,6 +19,7 @@ const {
   sendBookingAcceptedEmail,
   sendBookingCompletedEmail,
   sendBookingRejectedEmail,
+  sendNewsletterEmail,
   sendOwnerApprovedEmail,
 } = require('../services/emailService');
 
@@ -393,6 +394,51 @@ const testEmail = asyncHandler(async (req, res) => {
     });
   }
   res.json({ success: true, provider: result.provider, mode: result.mode, skipped: result.skipped });
+});
+
+const sendNewsletter = asyncHandler(async (req, res) => {
+  const { subject, title, message, includeAllTenants = true } = req.body;
+  const filter = { role: 'tenant', isActive: true };
+  if (!includeAllTenants) filter.marketingConsent = true;
+
+  const recipients = await User.find(filter).select('firstName lastName email marketingConsent').sort({ createdAt: -1 });
+  if (recipients.length === 0) {
+    res.status(400);
+    throw new Error('Aucun client destinataire trouve pour cette newsletter');
+  }
+
+  const results = [];
+  for (const user of recipients) {
+    const result = await sendNewsletterEmail({ user, subject, title, message });
+    results.push({ email: user.email, success: result.success, skipped: result.skipped, error: result.error });
+    await logEmailAttempt({
+      admin: req.user._id,
+      result,
+      subject,
+      recipient: user.email,
+    });
+  }
+
+  const sent = results.filter((item) => item.success && !item.skipped).length;
+  const skipped = results.filter((item) => item.skipped).length;
+  const failed = results.filter((item) => !item.success).length;
+
+  await logAdminAction({
+    admin: req.user._id,
+    action: 'send_newsletter',
+    entityType: 'email',
+    entityId: req.user._id,
+    description: `${adminName(req)} a envoye une newsletter a ${recipients.length} client(s)`,
+  });
+
+  res.json({
+    success: failed === 0,
+    total: recipients.length,
+    sent,
+    skipped,
+    failed,
+    results,
+  });
 });
 
 const deleteBoat = asyncHandler(async (req, res) => {
@@ -812,4 +858,5 @@ module.exports = {
   refundPayment,
   getActionLogs,
   testEmail,
+  sendNewsletter,
 };

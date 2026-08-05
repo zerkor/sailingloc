@@ -26,11 +26,18 @@ const {
   refundPayment,
   getActionLogs,
   testEmail,
+  sendNewsletter,
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
-const { mongoId, testEmailRules, updateContactMessageRules, updateUserRules } = require('../middleware/validators');
+const {
+  mongoId,
+  newsletterRules,
+  testEmailRules,
+  updateContactMessageRules,
+  updateUserRules,
+} = require('../middleware/validators');
 
 router.use(protect, requireRole('admin'));
 
@@ -55,6 +62,7 @@ router.get('/payments', getAdminPayments);
 router.patch('/payments/:id/refund', mongoId(), validate, refundPayment);
 router.get('/action-logs', getActionLogs);
 router.post('/email/test', testEmailRules, validate, testEmail);
+router.post('/email/newsletter', newsletterRules, validate, sendNewsletter);
 router.get('/contact-messages', getAdminContactMessages);
 router.patch('/contact-messages/:id', mongoId(), updateContactMessageRules, validate, updateAdminContactMessage);
 
