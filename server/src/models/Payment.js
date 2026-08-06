@@ -18,6 +18,9 @@ const paymentSchema = new mongoose.Schema(
     paidAt: Date,
     refundedAt: Date,
     refundedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    invoiceNumber: { type: String, trim: true },
+    invoiceUrl: { type: String, trim: true },
+    invoiceGeneratedAt: Date,
   },
   { timestamps: true }
 );

@@ -5,6 +5,7 @@ const Payment = require('../models/Payment');
 const calculateBookingPrice = require('../utils/calculateBookingPrice');
 const { assertBoatAvailable } = require('../utils/bookingAvailability');
 const createNotification = require('../utils/createNotification');
+const { generateInvoicePdf } = require('../services/invoiceService');
 const {
   sendBookingAcceptedEmail,
   sendBookingCancelledEmail,
@@ -12,6 +13,7 @@ const {
   sendBookingConfirmedEmail,
   sendBookingCreatedEmail,
   sendBookingRejectedEmail,
+  sendInvoiceEmail,
 } = require('../services/emailService');
 
 const populateBookingForEmail = (id) =>
@@ -85,6 +87,7 @@ const getTenantBookings = asyncHandler(async (req, res) => {
   const bookings = await Booking.find({ tenant: req.user._id })
     .populate('boat', 'title images location type')
     .populate('owner', 'firstName lastName')
+    .populate('payment', 'invoiceNumber invoiceUrl invoiceGeneratedAt status')
     .sort({ createdAt: -1 });
   res.json(bookings);
 });
@@ -258,13 +261,25 @@ const payBooking = asyncHandler(async (req, res) => {
     relatedBoat: booking.boat,
   });
   const populated = await populateBookingForEmail(booking._id);
+  const invoice = await generateInvoicePdf({ booking: populated, payment });
+  payment.invoiceNumber = invoice.invoiceNumber;
+  payment.invoiceUrl = invoice.invoiceUrl;
+  payment.invoiceGeneratedAt = new Date();
+  await payment.save();
   await sendBookingConfirmedEmail({
     tenant: populated.tenant,
     owner: populated.owner,
     boat: populated.boat,
     booking: populated,
   });
-  res.json(booking);
+  await sendInvoiceEmail({
+    tenant: populated.tenant,
+    boat: populated.boat,
+    booking: populated,
+    payment,
+    invoicePath: invoice.filePath,
+  });
+  res.json(await Booking.findById(booking._id).populate('payment'));
 });
 
 const completeBooking = asyncHandler(async (req, res) => {

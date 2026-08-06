@@ -1,9 +1,19 @@
+const fs = require('fs');
+const path = require('path');
 const { createTransporter, emailConfig, validateEmailConfig } = require('../config/email');
 const templates = require('./emailTemplates');
 
 const safeError = (error) => error?.code || error?.name || error?.message || 'EMAIL_ERROR';
 
-const sendEmailWithBrevoApi = async ({ to, subject, html, text, replyTo }) => {
+const normalizeAttachmentsForBrevo = (attachments = []) =>
+  attachments.map((attachment) => ({
+    name: attachment.filename || path.basename(attachment.path),
+    content: attachment.content
+      ? Buffer.from(attachment.content).toString('base64')
+      : fs.readFileSync(attachment.path).toString('base64'),
+  }));
+
+const sendEmailWithBrevoApi = async ({ to, subject, html, text, replyTo, attachments }) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), emailConfig.apiTimeout);
 
@@ -23,6 +33,7 @@ const sendEmailWithBrevoApi = async ({ to, subject, html, text, replyTo }) => {
         subject,
         htmlContent: html,
         textContent: text,
+        ...(attachments?.length ? { attachment: normalizeAttachmentsForBrevo(attachments) } : {}),
       }),
     });
 
@@ -39,7 +50,7 @@ const sendEmailWithBrevoApi = async ({ to, subject, html, text, replyTo }) => {
   }
 };
 
-const sendEmailWithSmtp = async ({ to, subject, html, text, replyTo }) => {
+const sendEmailWithSmtp = async ({ to, subject, html, text, replyTo, attachments }) => {
   const transporter = createTransporter();
   const info = await transporter.sendMail({
     from: `"${emailConfig.fromName}" <${emailConfig.fromAddress}>`,
@@ -48,11 +59,12 @@ const sendEmailWithSmtp = async ({ to, subject, html, text, replyTo }) => {
     subject,
     html,
     text,
+    attachments,
   });
   return info.messageId;
 };
 
-const sendEmail = async ({ to, subject, html, text, replyTo, templateName = 'email' }) => {
+const sendEmail = async ({ to, subject, html, text, replyTo, attachments, templateName = 'email' }) => {
   const result = {
     success: false,
     provider: emailConfig.provider,
@@ -80,8 +92,8 @@ const sendEmail = async ({ to, subject, html, text, replyTo, templateName = 'ema
 
     const messageId =
       emailConfig.mode === 'api'
-        ? await sendEmailWithBrevoApi({ to, subject, html, text, replyTo })
-        : await sendEmailWithSmtp({ to, subject, html, text, replyTo });
+        ? await sendEmailWithBrevoApi({ to, subject, html, text, replyTo, attachments })
+        : await sendEmailWithSmtp({ to, subject, html, text, replyTo, attachments });
 
     return { ...result, success: true, messageId };
   } catch (error) {
@@ -90,8 +102,16 @@ const sendEmail = async ({ to, subject, html, text, replyTo, templateName = 'ema
   }
 };
 
-const sendTemplate = async ({ to, replyTo, templateName, template }) =>
-  sendEmail({ to, replyTo, subject: template.subject, html: template.html, text: template.text, templateName });
+const sendTemplate = async ({ to, replyTo, attachments, templateName, template }) =>
+  sendEmail({
+    to,
+    replyTo,
+    attachments,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    templateName,
+  });
 
 const sendWelcomeTenantEmail = (user) =>
   sendTemplate({ to: user.email, templateName: 'tenantWelcome', template: templates.tenantWelcome(user) });
@@ -138,6 +158,14 @@ const sendBookingConfirmedEmail = ({ tenant, owner, boat, booking }) =>
     to: tenant.email,
     templateName: 'bookingConfirmed',
     template: templates.bookingConfirmed({ tenant, owner, boat, booking }),
+  });
+
+const sendInvoiceEmail = ({ tenant, boat, booking, payment, invoicePath }) =>
+  sendTemplate({
+    to: tenant.email,
+    templateName: 'invoice',
+    attachments: [{ filename: `${payment.invoiceNumber || 'facture-sailingloc'}.pdf`, path: invoicePath }],
+    template: templates.invoice({ tenant, boat, booking, payment }),
   });
 
 const sendBookingCancelledEmail = ({ tenant, owner, boat, booking }) =>
@@ -189,6 +217,7 @@ module.exports = {
   sendBookingAcceptedEmail,
   sendBookingRejectedEmail,
   sendBookingConfirmedEmail,
+  sendInvoiceEmail,
   sendBookingCancelledEmail,
   sendBookingCompletedEmail,
   sendPasswordResetEmail,

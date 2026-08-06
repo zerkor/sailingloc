@@ -15,13 +15,14 @@ Le projet est presentable en soutenance comme MVP academique deploye. Les limite
 | Authentification | Realise | JWT, roles, protection routes |
 | Mot de passe oublie | Realise | Token hashe, expiration, email Brevo API/SMTP |
 | Locataire | Realise | Reservation, historique, paiement simule |
+| Facture | Realise MVP | Generation PDF apres paiement simule, envoi email et lien espace locataire |
 | Proprietaire | Realise | Dashboard, annonces, reservations, documents |
 | Administrateur | Realise | Users, bateaux, bookings, avis, documents, paiements, reports, contact, emails, logs |
 | Newsletter | Realise | Envoi Brevo depuis le back-office aux locataires actifs |
 | Contact | Realise | Formulaire public, notification email et traitement back-office |
 | Avis | Realise | Depot apres reservation terminee, moderation admin |
 | Documents | Realise MVP | Upload local, validation admin |
-| Paiement | Partiel | Simulation type Stripe, pas d'encaissement reel |
+| Paiement | Partiel | Simulation type Stripe, facture PDF, pas d'encaissement reel |
 | Notifications | Partiel | Notifications backend, experience front limitee |
 | Litiges | Partiel | Signalements presents, workflow d'arbitrage incomplet |
 | Contrats | Non realise | Pas de generation PDF ni signature |
@@ -38,7 +39,7 @@ Le projet est presentable en soutenance comme MVP academique deploye. Les limite
 | API docs | Realise | Swagger disponible |
 | Docker | Realise | Dockerfiles + docker-compose |
 | CI | Realise | GitHub Actions lint/test/build/e2e |
-| Tests API | Realise | Supertest + MongoMemoryServer |
+| Tests API | Realise | Supertest + MongoMemoryServer, verification facture PDF |
 | Tests admin | Realise | Routes critiques admin |
 | E2E | Partiel | Smoke tests Playwright valides, pas couverture exhaustive |
 | Load testing | Mis en place | Script k6 dans `load-tests/k6` |
@@ -75,7 +76,7 @@ Le projet est presentable en soutenance comme MVP academique deploye. Les limite
 ## Priorites finales avant rendu
 
 1. Build production valide le 05/08/2026 avec `npm run build`.
-2. Tests API valides le 05/08/2026 : 22/22 avec `npm --prefix server test`.
+2. Tests API valides le 06/08/2026 : 22/22 avec `npm --prefix server test`.
 3. Tests E2E valides le 05/08/2026 : 8/8 avec `npm --prefix client run test:e2e`.
 4. Tester `/forgot-password`, email de creation de compte, contact et newsletter Brevo.
 5. Lancer le test k6 et coller les resultats dans `docs/TEST_CHARGE.md`.

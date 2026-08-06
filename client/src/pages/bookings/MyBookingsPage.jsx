@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CalendarDays, CreditCard, MessageSquareText } from 'lucide-react';
+import { CalendarDays, CreditCard, FileText, MessageSquareText } from 'lucide-react';
 import { getTenantBookings, cancelBooking, payBooking } from '../../services/bookingService';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -173,6 +173,19 @@ const MyBookingsPage = () => {
                         >
                           Annuler
                         </button>
+                      )}
+                      {booking.payment?.invoiceUrl && (
+                        <a
+                          href={booking.payment.invoiceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-bold px-4 py-2 rounded-full transition-all hover:opacity-90"
+                          style={{ background: '#E8FBFE', color: '#007F94', border: '1px solid rgba(0,198,224,0.22)' }}
+                        >
+                          <span className="inline-flex items-center gap-1.5">
+                            <FileText size={14} /> Facture PDF
+                          </span>
+                        </a>
                       )}
                       {booking.status === 'completed' && (
                         <button

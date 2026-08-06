@@ -1,6 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -20,6 +22,7 @@ const OwnerDocument = require('../src/models/OwnerDocument');
 const Report = require('../src/models/Report');
 const AdminActionLog = require('../src/models/AdminActionLog');
 const ContactMessage = require('../src/models/ContactMessage');
+const { uploadRoot } = require('../src/middleware/uploadMiddleware');
 
 let mongoServer;
 
@@ -307,6 +310,9 @@ test('Bookings API: creates, accepts, pays and completes a booking while blockin
   const payment = await Payment.findOne({ booking: bookingResponse.body._id });
   assert.equal(payment.status, 'succeeded');
   assert.equal(payment.amount, 825);
+  assert.match(payment.invoiceNumber, /^SL-\d{4}-[A-F0-9]{8}$/);
+  assert.match(payment.invoiceUrl, /^\/uploads\/invoices\/SL-\d{4}-[A-F0-9]{8}\.pdf$/);
+  assert.ok(fs.existsSync(path.join(uploadRoot, payment.invoiceUrl.replace('/uploads/', ''))));
 
   const ownerNotifications = await Notification.find({ user: owner._id });
   assert.ok(ownerNotifications.some((notification) => notification.type === 'booking_created'));

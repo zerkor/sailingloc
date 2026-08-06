@@ -211,6 +211,25 @@ const bookingConfirmed = ({ tenant, boat, booking }) =>
     ctaUrl: `${emailConfig.clientUrl}/my-bookings`,
   });
 
+const invoice = ({ tenant, boat, booking, payment }) =>
+  buildTemplate({
+    subject: `Votre facture SailingLoc ${payment.invoiceNumber || ''}`.trim(),
+    title: 'Votre facture est disponible',
+    intro: [
+      `Bonjour ${tenant.firstName || ''},`,
+      `Le paiement simule de votre reservation pour ${boat.title} a bien ete enregistre.`,
+      'Vous trouverez votre facture SailingLoc en piece jointe PDF.',
+    ],
+    details: [
+      { label: 'Facture', value: payment.invoiceNumber || 'SailingLoc' },
+      { label: 'Bateau', value: boat.title },
+      { label: 'Periode', value: `${formatDate(booking.startDate)} au ${formatDate(booking.endDate)}` },
+      { label: 'Montant TTC', value: formatPrice(payment.amount) },
+    ],
+    ctaLabel: 'Voir mes reservations',
+    ctaUrl: `${emailConfig.clientUrl}/my-bookings`,
+  });
+
 const bookingCancelled = ({ tenant, boat, booking }) =>
   buildTemplate({
     subject: 'Votre réservation a été annulée',
@@ -304,6 +323,7 @@ module.exports = {
   bookingAccepted,
   bookingRejected,
   bookingConfirmed,
+  invoice,
   bookingCancelled,
   bookingCompleted,
   passwordReset,

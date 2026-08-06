@@ -32,6 +32,7 @@ Document de controle avant rendu du projet de fin d'annee.
 | Connexion admin | Conforme | Capture dashboard admin |
 | Creation reservation locataire | Conforme | Capture mes reservations |
 | Acceptation reservation owner/admin | Conforme | Capture statut + email recu |
+| Paiement simule + facture PDF | Conforme | Capture bouton facture + email avec PDF |
 | Contact public | Conforme | Capture message admin + email |
 | Newsletter admin | Conforme | Capture formulaire + email recu |
 | Mot de passe oublie | Conforme si Brevo actif | Capture email reset |
@@ -42,7 +43,7 @@ Document de controle avant rendu du projet de fin d'annee.
 | Controle | Commande / URL | Statut |
 | --- | --- | --- |
 | Build production | `npm run build` | Valide le 05/08/2026 |
-| Tests API | `npm --prefix server test` | Valide le 05/08/2026 : 22/22 |
+| Tests API | `npm --prefix server test` | Valide le 06/08/2026 : 22/22, facture PDF incluse |
 | Tests E2E | `npm --prefix client run test:e2e` | Valide le 05/08/2026 : 8/8 |
 | Healthcheck | `/api/health` | Doit retourner OK |
 | Swagger | `/api-docs` | Doit etre accessible |
@@ -71,7 +72,8 @@ Document de controle avant rendu du projet de fin d'annee.
 7. Messages contact admin.
 8. Page emails/newsletter admin.
 9. Email Brevo recu.
-10. Mentions legales avec disclaimer fictif.
+10. Facture PDF generee apres paiement.
+11. Mentions legales avec disclaimer fictif.
 
 ## Verdict
 
