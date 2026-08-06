@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
+import { FileText } from 'lucide-react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import PaginationControls from '../../components/PaginationControls';
@@ -122,13 +123,14 @@ const AdminPaymentsPage = () => {
                 <th className="px-5 py-3 text-left">Payment status</th>
                 <th className="px-5 py-3 text-left">Booking status</th>
                 <th className="px-5 py-3 text-left">Created date</th>
+                <th className="px-5 py-3 text-left">Facture</th>
                 <th className="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {payments.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-12" style={{ color: '#8896A8' }}>
+                  <td colSpan={11} className="text-center py-12" style={{ color: '#8896A8' }}>
                     Aucun paiement.
                   </td>
                 </tr>
@@ -148,6 +150,23 @@ const AdminPaymentsPage = () => {
                     <td className="px-5 py-3">{paymentLabel[payment.status] || payment.status}</td>
                     <td className="px-5 py-3">{payment.booking?.status || '-'}</td>
                     <td className="px-5 py-3">{formatDate(payment.createdAt)}</td>
+                    <td className="px-5 py-3">
+                      {payment.invoiceUrl ? (
+                        <a
+                          href={payment.invoiceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
+                          style={{ background: '#E8FBFE', color: '#007F94', border: '1px solid rgba(0,198,224,0.22)' }}
+                        >
+                          <FileText size={13} /> PDF
+                        </a>
+                      ) : (
+                        <span className="text-xs" style={{ color: '#8896A8' }}>
+                          -
+                        </span>
+                      )}
+                    </td>
                     <td className="px-5 py-3 text-right">
                       {payment.status === 'succeeded' && (
                         <button
