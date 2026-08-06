@@ -31,7 +31,30 @@ export const BOAT_IMAGES_BY_TYPE = {
   ],
 };
 
+const PIERRE_DUPONT_BATEAU_IMAGE = '/images/boats/sailboat/pierre-dupont-bateau.png';
+
 const hashString = (value = '') => [...value].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 1000003, 7);
+
+const normalize = (value = '') =>
+  String(value)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+const isPierreDupontDemoBoat = (boat = {}) => {
+  const title = normalize(boat.title);
+  const type = normalize(boat.type);
+  const port = normalize(boat.port || boat.location);
+  const ownerName = normalize(`${boat.owner?.firstName || ''} ${boat.owner?.lastName || ''}`);
+
+  return (
+    title === 'bateau' &&
+    type === 'sailboat' &&
+    port.includes('vieux port de marseille') &&
+    (!ownerName || ownerName.includes('pierre dupont'))
+  );
+};
 
 const isLegacyDemoImage = (image = '') =>
   image === FALLBACK_BOAT_IMAGE ||
@@ -48,12 +71,14 @@ const getCategoryImage = (boat, index = 0) => {
 };
 
 export const getBoatImage = (boat, index = 0) => {
+  if (index === 0 && isPierreDupontDemoBoat(boat)) return PIERRE_DUPONT_BATEAU_IMAGE;
   const image = boat?.images?.[index];
   if (!image || isLegacyDemoImage(image)) return getCategoryImage(boat, index);
   return image;
 };
 
 export const getBoatImages = (boat) => {
+  if (isPierreDupontDemoBoat(boat)) return [PIERRE_DUPONT_BATEAU_IMAGE];
   const sourceImages = boat?.images?.length ? boat.images : getTypeImages(boat?.type);
   const normalized = sourceImages.map((image, index) =>
     !image || isLegacyDemoImage(image) ? getCategoryImage(boat, index) : image
