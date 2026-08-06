@@ -35,6 +35,7 @@ const Header = () => {
 
   return (
     <header
+      role="banner"
       className="sticky top-0 z-40 border-b border-white/[0.08]"
       style={{ background: 'rgba(7,25,46,0.97)', backdropFilter: 'blur(20px)' }}
     >
