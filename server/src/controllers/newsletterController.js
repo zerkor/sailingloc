@@ -1,6 +1,7 @@
 const asyncHandler = require('../utils/asyncHandler');
 const NewsletterSubscriber = require('../models/NewsletterSubscriber');
 const User = require('../models/User');
+const { sendNewsletterSubscriptionEmail } = require('../services/emailService');
 
 const subscribeNewsletter = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -26,9 +27,12 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
   );
 
   await User.updateOne({ email }, { $set: { marketingConsent: true } });
+  const emailResult = await sendNewsletterSubscriptionEmail({ email });
 
   res.status(200).json({
     message: 'Inscription newsletter confirmee.',
+    emailSent: emailResult.success === true,
+    emailSkipped: emailResult.skipped || false,
     subscriber: {
       email: subscriber.email,
       isActive: subscriber.isActive,

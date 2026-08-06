@@ -288,6 +288,20 @@ const newsletter = ({ user, subject, title, message }) =>
     ctaUrl: `${emailConfig.clientUrl}/boats`,
   });
 
+const newsletterSubscription = ({ email }) =>
+  buildTemplate({
+    subject: 'Inscription newsletter SailingLoc confirmee',
+    title: 'Inscription newsletter confirmee',
+    intro: [
+      'Bonjour,',
+      `Votre adresse ${email} est bien inscrite a la newsletter SailingLoc.`,
+      'Vous recevrez nos actualites, conseils de navigation et nouveautes bateaux.',
+      'Rappel : SailingLoc est un projet etudiant fictif, aucune reservation ou transaction reelle ne peut etre effectuee.',
+    ],
+    ctaLabel: 'Voir les bateaux',
+    ctaUrl: `${emailConfig.clientUrl}/boats`,
+  });
+
 const contactSubjects = {
   technique: 'Probleme technique',
   location: 'Location',
@@ -329,5 +343,6 @@ module.exports = {
   passwordReset,
   testEmail,
   newsletter,
+  newsletterSubscription,
   contactMessage,
 };

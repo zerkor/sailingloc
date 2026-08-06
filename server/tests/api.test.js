@@ -473,6 +473,8 @@ test('Newsletter API: subscribes a public email and updates existing user consen
     .expect(200);
 
   assert.equal(response.body.subscriber.email, tenant.email);
+  assert.equal(response.body.emailSent, true);
+  assert.equal(response.body.emailSkipped, true);
 
   const subscriber = await NewsletterSubscriber.findOne({ email: tenant.email });
   assert.equal(subscriber.isActive, true);
