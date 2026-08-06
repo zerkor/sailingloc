@@ -38,7 +38,7 @@ const Header = () => {
       className="sticky top-0 z-40 border-b border-white/[0.08]"
       style={{ background: 'rgba(7,25,46,0.97)', backdropFilter: 'blur(20px)' }}
     >
-      <nav className="container-max px-4 sm:px-6 lg:px-14">
+      <nav className="container-max px-4 sm:px-6 lg:px-14" aria-label={t('navbar.navigation')}>
         <div className="flex h-[64px] items-center justify-between lg:h-[76px]">
           <Link to="/" className="flex-shrink-0">
             <span
@@ -75,10 +75,12 @@ const Header = () => {
           <div className="flex items-center gap-2 lg:hidden">
             <LanguageSelector />
             <button
+              type="button"
               className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-xl border border-white/10 bg-white/[0.04]"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={t('navbar.menu')}
               aria-expanded={menuOpen}
+              aria-controls="mobile-navigation"
             >
               <span
                 className={`block h-[2px] w-[22px] origin-left rounded-sm bg-white transition-all duration-200 ${menuOpen ? 'rotate-45' : ''}`}
@@ -97,8 +99,13 @@ const Header = () => {
             {user ? (
               <div className="relative">
                 <button
+                  type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/15 hover:text-white"
+                  aria-haspopup="menu"
+                  aria-expanded={dropdownOpen}
+                  aria-controls="user-menu"
+                  aria-label={`${t('navbar.profile')} ${user.firstName || ''}`}
                 >
                   <div
                     className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
@@ -115,11 +122,14 @@ const Header = () => {
 
                 {dropdownOpen && (
                   <div
+                    id="user-menu"
+                    role="menu"
                     className="absolute right-0 z-50 mt-2 w-52 rounded-2xl border border-navy-900/10 bg-white py-1.5"
                     style={{ boxShadow: '0 12px 48px rgba(7,25,46,0.14)' }}
                   >
                     <Link
                       to="/profile"
+                      role="menuitem"
                       className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                       onClick={() => setDropdownOpen(false)}
                     >
@@ -128,6 +138,7 @@ const Header = () => {
                     {user.role === 'tenant' && (
                       <Link
                         to="/my-bookings"
+                        role="menuitem"
                         className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
@@ -137,6 +148,7 @@ const Header = () => {
                     {user.role === 'owner' && (
                       <Link
                         to="/owner/dashboard"
+                        role="menuitem"
                         className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
@@ -146,6 +158,7 @@ const Header = () => {
                     {user.role === 'admin' && (
                       <Link
                         to="/admin/dashboard"
+                        role="menuitem"
                         className="block px-4 py-2.5 text-sm text-navy-900 transition-colors hover:bg-[#EDF1F5]"
                         onClick={() => setDropdownOpen(false)}
                       >
@@ -154,6 +167,8 @@ const Header = () => {
                     )}
                     <hr className="my-1.5 border-navy-900/10" />
                     <button
+                      type="button"
+                      role="menuitem"
                       onClick={handleLogout}
                       className="block w-full px-4 py-2.5 text-left text-sm text-red-500 transition-colors hover:bg-red-50"
                     >
@@ -183,7 +198,7 @@ const Header = () => {
         </div>
 
         {menuOpen && (
-          <div className="space-y-1 border-t border-white/10 pb-5 pt-4 lg:hidden">
+          <div id="mobile-navigation" className="space-y-1 border-t border-white/10 pb-5 pt-4 lg:hidden">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
@@ -231,7 +246,7 @@ const Header = () => {
                       {t('navbar.bookings')}
                     </Link>
                   )}
-                  <button onClick={handleLogout} className="block w-full px-3 py-3 text-left text-sm text-red-400">
+                  <button type="button" onClick={handleLogout} className="block w-full px-3 py-3 text-left text-sm text-red-400">
                     {t('navbar.logout')}
                   </button>
                 </>

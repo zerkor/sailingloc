@@ -109,7 +109,10 @@ const BoatListPage = () => {
         }}
       >
         <button
+          type="button"
           onClick={() => setShowFilters(!showFilters)}
+          aria-expanded={showFilters}
+          aria-controls="mobile-boat-filters"
           className="inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all lg:hidden"
           style={{ border: '1.5px solid rgba(7,25,46,0.15)', color: '#07192E' }}
         >
@@ -128,6 +131,7 @@ const BoatListPage = () => {
           <select
             value={filters.type}
             onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
+            aria-label={t('boatTypes.label')}
             className="cursor-pointer rounded-full border px-4 py-2 text-sm font-medium outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
@@ -141,6 +145,7 @@ const BoatListPage = () => {
           <select
             value={filters.minPrice}
             onChange={(e) => setFilters((f) => ({ ...f, minPrice: e.target.value }))}
+            aria-label={t('boats.budget')}
             className="cursor-pointer rounded-full border px-4 py-2 text-sm font-medium outline-none transition-all"
             style={{ border: '1.5px solid rgba(7,25,46,0.12)', color: '#07192E', background: '#fff' }}
           >
@@ -151,7 +156,9 @@ const BoatListPage = () => {
           </select>
 
           <button
+            type="button"
             onClick={() => setFilters((f) => ({ ...f, skipperAvailable: !f.skipperAvailable }))}
+            aria-pressed={filters.skipperAvailable}
             className="rounded-full border px-4 py-2 text-sm font-medium transition-all"
             style={
               filters.skipperAvailable
@@ -169,7 +176,9 @@ const BoatListPage = () => {
             filters.minPrice ||
             filters.skipperAvailable) && (
             <button
+              type="button"
               onClick={resetFilters}
+              aria-label={t('common.clear')}
               className="rounded-full px-4 py-2 text-sm font-medium transition-all"
               style={{ color: '#00C6E0', background: 'rgba(0,198,224,0.08)' }}
             >
@@ -188,6 +197,7 @@ const BoatListPage = () => {
       <div className="container-max section-padding">
         {showFilters && (
           <div
+            id="mobile-boat-filters"
             className="mb-6 rounded-2xl bg-white p-5 lg:hidden"
             style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}
           >

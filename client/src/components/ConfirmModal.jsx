@@ -10,6 +10,8 @@ const ConfirmModal = ({ request, onResolve }) => {
   if (!request) return null;
 
   const isPrompt = request.kind === 'prompt';
+  const titleId = 'confirm-modal-title';
+  const messageId = 'confirm-modal-message';
 
   const confirm = () => {
     onResolve(isPrompt ? value : true);
@@ -20,11 +22,18 @@ const ConfirmModal = ({ request, onResolve }) => {
       className="fixed inset-0 z-[100] flex items-center justify-center px-4"
       style={{ background: 'rgba(7,25,46,0.48)' }}
     >
-      <div className="w-full max-w-md bg-white rounded-2xl p-6" style={{ boxShadow: '0 24px 70px rgba(7,25,46,0.28)' }}>
-        <h2 className="font-bold text-lg mb-2" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={messageId}
+        className="w-full max-w-md bg-white rounded-2xl p-6"
+        style={{ boxShadow: '0 24px 70px rgba(7,25,46,0.28)' }}
+      >
+        <h2 id={titleId} className="font-bold text-lg mb-2" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
           {request.title || 'Confirmation'}
         </h2>
-        <p className="text-sm leading-relaxed mb-5" style={{ color: '#64748B' }}>
+        <p id={messageId} className="text-sm leading-relaxed mb-5" style={{ color: '#64748B' }}>
           {request.message}
         </p>
 
@@ -35,6 +44,7 @@ const ConfirmModal = ({ request, onResolve }) => {
             className="input-field mb-5"
             rows={3}
             placeholder={request.placeholder || ''}
+            aria-label={request.inputLabel || request.placeholder || 'Reponse'}
             autoFocus
           />
         )}

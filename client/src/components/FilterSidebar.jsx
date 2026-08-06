@@ -19,6 +19,7 @@ const FilterSidebar = ({ filters, onChange }) => {
 
   const labelClass = 'mb-2 block text-xs font-bold uppercase tracking-wider';
   const labelStyle = { color: '#3D4D61' };
+  const fieldId = (name) => `boat-filter-${name}`;
 
   return (
     <div className="min-w-0">
@@ -37,10 +38,11 @@ const FilterSidebar = ({ filters, onChange }) => {
 
       <div className="space-y-5">
         <div>
-          <label className={labelClass} style={labelStyle}>
+          <label htmlFor={fieldId('destination')} className={labelClass} style={labelStyle}>
             {t('home.destination')}
           </label>
           <input
+            id={fieldId('destination')}
             type="text"
             placeholder={t('boats.locationPlaceholder')}
             value={localFilters.location || ''}
@@ -50,10 +52,11 @@ const FilterSidebar = ({ filters, onChange }) => {
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>
+          <label htmlFor={fieldId('type')} className={labelClass} style={labelStyle}>
             {t('boatTypes.label')}
           </label>
           <select
+            id={fieldId('type')}
             value={localFilters.type || ''}
             onChange={(e) => handleChange('type', e.target.value)}
             className="input-field text-sm"
@@ -67,13 +70,14 @@ const FilterSidebar = ({ filters, onChange }) => {
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>
+          <label id={fieldId('price-label')} className={labelClass} style={labelStyle}>
             {t('boats.pricePerDay')}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
               placeholder={t('boats.min')}
+              aria-label={`${t('boats.pricePerDay')} minimum`}
               value={localFilters.minPrice || ''}
               onChange={(e) => handleChange('minPrice', e.target.value)}
               className="input-field text-sm"
@@ -82,6 +86,7 @@ const FilterSidebar = ({ filters, onChange }) => {
             <input
               type="number"
               placeholder={t('boats.max')}
+              aria-label={`${t('boats.pricePerDay')} maximum`}
               value={localFilters.maxPrice || ''}
               onChange={(e) => handleChange('maxPrice', e.target.value)}
               className="input-field text-sm"
@@ -91,10 +96,11 @@ const FilterSidebar = ({ filters, onChange }) => {
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>
+          <label htmlFor={fieldId('capacity')} className={labelClass} style={labelStyle}>
             {t('boats.capacity')}
           </label>
           <input
+            id={fieldId('capacity')}
             type="number"
             placeholder={t('boats.minimum')}
             value={localFilters.capacity || ''}

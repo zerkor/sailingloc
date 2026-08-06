@@ -31,7 +31,7 @@ const links = [
 ];
 
 const LinkList = ({ onClick, newContactMessages = 0 }) => (
-  <nav className="flex-1 px-3 py-4 space-y-0.5">
+  <nav className="flex-1 px-3 py-4 space-y-0.5" aria-label="Navigation administration">
     {links.map((link) => {
       const Icon = link.icon;
       return (
@@ -44,7 +44,7 @@ const LinkList = ({ onClick, newContactMessages = 0 }) => (
           }
           style={({ isActive }) => (isActive ? { background: '#00C6E0', color: '#07192E' } : {})}
         >
-          <Icon size={18} strokeWidth={2.1} />
+          <Icon size={18} strokeWidth={2.1} aria-hidden="true" />
           <span className="min-w-0 flex-1">{link.label}</span>
           {link.to === '/admin/contact-messages' && newContactMessages > 0 && (
             <span
@@ -98,15 +98,18 @@ const AdminSidebar = () => {
           </span>
         </Link>
         <button
+          type="button"
           onClick={() => setOpen(!open)}
           className="p-2 rounded-xl text-white bg-white/10"
           aria-label="Menu admin"
+          aria-expanded={open}
+          aria-controls="admin-mobile-navigation"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
       {open && (
-        <div className="lg:hidden" style={{ background: '#07192E' }}>
+        <div id="admin-mobile-navigation" className="lg:hidden" style={{ background: '#07192E' }}>
           <LinkList onClick={() => setOpen(false)} newContactMessages={newContactMessages} />
         </div>
       )}

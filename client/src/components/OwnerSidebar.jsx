@@ -10,7 +10,7 @@ const links = [
 ];
 
 const LinkList = ({ onClick }) => (
-  <nav className="flex-1 px-3 py-4 space-y-0.5">
+  <nav className="flex-1 px-3 py-4 space-y-0.5" aria-label="Navigation proprietaire">
     {links.map((link) => {
       const Icon = link.icon;
       return (
@@ -23,7 +23,7 @@ const LinkList = ({ onClick }) => (
           }
           style={({ isActive }) => (isActive ? { background: '#00C6E0', color: '#07192E' } : {})}
         >
-          <Icon size={18} strokeWidth={2.1} /> {link.label}
+          <Icon size={18} strokeWidth={2.1} aria-hidden="true" /> {link.label}
         </NavLink>
       );
     })}
@@ -44,15 +44,18 @@ const OwnerSidebar = () => {
           </span>
         </Link>
         <button
+          type="button"
           onClick={() => setOpen(!open)}
           className="p-2 rounded-xl text-white bg-white/10"
           aria-label="Menu propriétaire"
+          aria-expanded={open}
+          aria-controls="owner-mobile-navigation"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
       {open && (
-        <div className="lg:hidden" style={{ background: '#0E2540' }}>
+        <div id="owner-mobile-navigation" className="lg:hidden" style={{ background: '#0E2540' }}>
           <LinkList onClick={() => setOpen(false)} />
         </div>
       )}

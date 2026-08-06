@@ -41,6 +41,7 @@ const BoatCard = ({ boat }) => {
   return (
     <Link
       to={`/bateaux/${buildBoatSlug(boat)}`}
+      aria-label={`Voir le bateau ${boat.title}, ${formatPrice(boat.pricePerDay)} ${t('common.perDay')}`}
       className="group block h-full overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white transition-all duration-300"
       style={{ boxShadow: 'var(--shadow-card)' }}
       onMouseEnter={(e) =>
@@ -79,7 +80,7 @@ const BoatCard = ({ boat }) => {
               className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[1px] shadow-sm"
               style={{ background: 'rgba(201,168,76,0.95)', color: '#fff', backdropFilter: 'blur(8px)' }}
             >
-              <Star size={12} fill="currentColor" /> {t('common.verified')}
+              <Star size={12} fill="currentColor" aria-hidden="true" /> {t('common.verified')}
             </span>
           </div>
         ) : boat.skipperAvailable ? (
@@ -95,7 +96,7 @@ const BoatCard = ({ boat }) => {
 
         {rating > 0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
-            <Star size={14} fill="#F4A01A" color="#F4A01A" />
+            <Star size={14} fill="#F4A01A" color="#F4A01A" aria-hidden="true" />
             <span className="text-sm font-semibold text-white">{rating.toFixed(1)}</span>
             {reviewCount > 0 && (
               <span className="text-xs text-white/65">
