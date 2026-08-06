@@ -465,6 +465,9 @@ test('Newsletter API: subscribes a public email and updates existing user consen
     .send({
       email: tenant.email,
       consent: true,
+      captchaA: 4,
+      captchaB: 6,
+      captchaAnswer: 10,
       source: 'test-footer',
     })
     .expect(200);

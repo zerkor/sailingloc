@@ -2,9 +2,18 @@ import { useState } from 'react';
 import { Mail, Send, ShieldCheck } from 'lucide-react';
 import { subscribeNewsletter } from '../services/newsletterService';
 
+const createCaptcha = () => {
+  const a = Math.floor(Math.random() * 7) + 2;
+  const b = Math.floor(Math.random() * 6) + 3;
+  return { a, b };
+};
+
 const NewsletterSignup = () => {
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
+  const [captcha, setCaptcha] = useState(createCaptcha);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [website, setWebsite] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -17,13 +26,29 @@ const NewsletterSignup = () => {
       return;
     }
 
+    if (Number(captchaAnswer) !== captcha.a + captcha.b) {
+      setStatus({ type: 'error', message: 'Captcha incorrect. Verifiez le resultat du calcul.' });
+      setCaptcha(createCaptcha());
+      setCaptchaAnswer('');
+      return;
+    }
+
     setLoading(true);
     setStatus({ type: '', message: '' });
 
     try {
-      await subscribeNewsletter(email);
+      await subscribeNewsletter({
+        email,
+        captchaA: captcha.a,
+        captchaB: captcha.b,
+        captchaAnswer,
+        website,
+      });
       setEmail('');
       setConsent(false);
+      setCaptcha(createCaptcha());
+      setCaptchaAnswer('');
+      setWebsite('');
       setStatus({ type: 'success', message: 'Inscription confirmee. Merci, vous recevrez les actualites SailingLoc.' });
     } catch (error) {
       setStatus({
@@ -69,6 +94,16 @@ const NewsletterSignup = () => {
             <label htmlFor="newsletter-email" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
               Adresse email
             </label>
+            <input
+              type="text"
+              name="website"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+              className="hidden"
+              tabIndex="-1"
+              autoComplete="off"
+              aria-hidden="true"
+            />
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 id="newsletter-email"
@@ -76,7 +111,7 @@ const NewsletterSignup = () => {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="vous@example.fr"
+                placeholder="exemple : marina.dupont@email.fr"
                 className="input-field flex-1"
                 autoComplete="email"
               />
@@ -100,6 +135,28 @@ const NewsletterSignup = () => {
               />
               <span>J'accepte de recevoir la newsletter SailingLoc et je peux me desinscrire a tout moment.</span>
             </label>
+
+            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+              <label htmlFor="newsletter-captcha" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                Verification anti-spam
+              </label>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <span className="text-sm font-semibold text-slate-700">
+                  Combien font {captcha.a} + {captcha.b} ?
+                </span>
+                <input
+                  id="newsletter-captcha"
+                  type="number"
+                  required
+                  min="0"
+                  value={captchaAnswer}
+                  onChange={(event) => setCaptchaAnswer(event.target.value)}
+                  placeholder="exemple : 12"
+                  className="input-field sm:max-w-36"
+                  inputMode="numeric"
+                />
+              </div>
+            </div>
 
             {status.message && (
               <p

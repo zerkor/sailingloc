@@ -4,6 +4,14 @@ const User = require('../models/User');
 
 const subscribeNewsletter = asyncHandler(async (req, res) => {
   const email = req.body.email;
+  const captchaA = Number(req.body.captchaA);
+  const captchaB = Number(req.body.captchaB);
+  const captchaAnswer = Number(req.body.captchaAnswer);
+
+  if (captchaA + captchaB !== captchaAnswer) {
+    res.status(400);
+    throw new Error('Captcha incorrect');
+  }
 
   const subscriber = await NewsletterSubscriber.findOneAndUpdate(
     { email },

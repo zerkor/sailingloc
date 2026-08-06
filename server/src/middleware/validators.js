@@ -114,6 +114,10 @@ const publicNewsletterRules = [
   body('consent')
     .custom((value) => value === true || value === 'true')
     .withMessage('Le consentement newsletter est requis'),
+  body('website').optional({ checkFalsy: true }).trim().isLength({ max: 0 }).withMessage('Requete anti-spam refusee'),
+  body('captchaA').isInt({ min: 1, max: 20 }).withMessage('Captcha invalide'),
+  body('captchaB').isInt({ min: 1, max: 20 }).withMessage('Captcha invalide'),
+  body('captchaAnswer').isInt({ min: 0, max: 40 }).withMessage('Captcha requis'),
   body('source').optional({ checkFalsy: true }).trim().isLength({ max: 80 }),
 ];
 
