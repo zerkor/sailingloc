@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import NewsletterSignup from '../components/NewsletterSignup';
 import CookieBanner from '../components/CookieBanner';
 
 const PublicLayout = () => (
@@ -9,6 +10,7 @@ const PublicLayout = () => (
     <main className="flex-1">
       <Outlet />
     </main>
+    <NewsletterSignup />
     <Footer />
     <CookieBanner />
   </div>

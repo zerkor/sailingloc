@@ -109,6 +109,14 @@ const newsletterRules = [
   body('includeAllTenants').optional().isBoolean().withMessage('includeAllTenants doit etre un booleen'),
 ];
 
+const publicNewsletterRules = [
+  body('email').isEmail().withMessage('Email invalide').normalizeEmail().isLength({ max: 160 }),
+  body('consent')
+    .custom((value) => value === true || value === 'true')
+    .withMessage('Le consentement newsletter est requis'),
+  body('source').optional({ checkFalsy: true }).trim().isLength({ max: 80 }),
+];
+
 const contactMessageRules = [
   body('name').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 120 }),
   body('email').isEmail().withMessage('Email invalide').normalizeEmail().isLength({ max: 160 }),
@@ -136,6 +144,7 @@ module.exports = {
   updateUserRules,
   testEmailRules,
   newsletterRules,
+  publicNewsletterRules,
   contactMessageRules,
   updateContactMessageRules,
 };

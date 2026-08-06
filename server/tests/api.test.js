@@ -22,6 +22,7 @@ const OwnerDocument = require('../src/models/OwnerDocument');
 const Report = require('../src/models/Report');
 const AdminActionLog = require('../src/models/AdminActionLog');
 const ContactMessage = require('../src/models/ContactMessage');
+const NewsletterSubscriber = require('../src/models/NewsletterSubscriber');
 const { uploadRoot } = require('../src/middleware/uploadMiddleware');
 
 let mongoServer;
@@ -48,6 +49,7 @@ test.afterEach(async () => {
     Report.deleteMany({}),
     AdminActionLog.deleteMany({}),
     ContactMessage.deleteMany({}),
+    NewsletterSubscriber.deleteMany({}),
   ]);
 });
 
@@ -453,4 +455,26 @@ test('Contact API: stores message and triggers transactional email flow', async 
   assert.equal(message.status, 'new');
   assert.equal(message.emailNotification.sent, true);
   assert.equal(message.emailNotification.skipped, true);
+});
+
+test('Newsletter API: subscribes a public email and updates existing user consent', async () => {
+  const tenant = await createUser({ email: 'newsletter@sailingloc.test', role: 'tenant' });
+
+  const response = await request(app)
+    .post('/api/newsletter/subscribe')
+    .send({
+      email: tenant.email,
+      consent: true,
+      source: 'test-footer',
+    })
+    .expect(200);
+
+  assert.equal(response.body.subscriber.email, tenant.email);
+
+  const subscriber = await NewsletterSubscriber.findOne({ email: tenant.email });
+  assert.equal(subscriber.isActive, true);
+  assert.equal(subscriber.source, 'test-footer');
+
+  const updatedTenant = await User.findById(tenant._id);
+  assert.equal(updatedTenant.marketingConsent, true);
 });

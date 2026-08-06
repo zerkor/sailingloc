@@ -7,6 +7,7 @@ const Payment = require('../models/Payment');
 const OwnerDocument = require('../models/OwnerDocument');
 const AdminActionLog = require('../models/AdminActionLog');
 const ContactMessage = require('../models/ContactMessage');
+const NewsletterSubscriber = require('../models/NewsletterSubscriber');
 const recalculateBoatRating = require('../utils/recalculateBoatRating');
 const logAdminAction = require('../utils/adminActionLog');
 const createNotification = require('../utils/createNotification');
@@ -401,7 +402,23 @@ const sendNewsletter = asyncHandler(async (req, res) => {
   const filter = { role: 'tenant', isActive: true };
   if (!includeAllTenants) filter.marketingConsent = true;
 
-  const recipients = await User.find(filter).select('firstName lastName email marketingConsent').sort({ createdAt: -1 });
+  const users = await User.find(filter).select('firstName lastName email marketingConsent').sort({ createdAt: -1 });
+  const subscribers = await NewsletterSubscriber.find({ isActive: true }).select('email').sort({ createdAt: -1 });
+  const recipientsByEmail = new Map();
+
+  users.forEach((user) => recipientsByEmail.set(user.email, user));
+  subscribers.forEach((subscriber) => {
+    if (!recipientsByEmail.has(subscriber.email)) {
+      recipientsByEmail.set(subscriber.email, {
+        firstName: 'Client',
+        lastName: 'SailingLoc',
+        email: subscriber.email,
+        marketingConsent: true,
+      });
+    }
+  });
+
+  const recipients = Array.from(recipientsByEmail.values());
   if (recipients.length === 0) {
     res.status(400);
     throw new Error('Aucun client destinataire trouve pour cette newsletter');
