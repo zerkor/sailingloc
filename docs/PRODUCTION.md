@@ -15,7 +15,7 @@ Voir `.env.production.example`.
 - `FRONTEND_URL`: URL publique utilisée pour générer les liens de réinitialisation de mot de passe.
 - `SERVER_URL`: URL publique de l API pour Swagger et liens.
 - `PAYMENT_MODE`: `simulated` pour la démo, `stripe` pour forcer le paiement réel.
-- `STRIPE_ENABLED`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY`: configuration Stripe Checkout côté serveur.
+- `STRIPE_ENABLED`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_CURRENCY`: configuration Stripe Checkout. `STRIPE_WEBHOOK_SECRET` est optionnel dans le mode simplifié sans webhook.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_SECURE`: configuration SMTP pour les e-mails de mot de passe oublié.
 - `UPLOAD_DIR`: dossier local des fichiers uploadés.
 - `MAX_FILE_SIZE_MB`: limite d upload.
@@ -96,17 +96,16 @@ Ne jamais hardcoder les identifiants Brevo : Render Environment Variables est le
 
 ## Stripe Checkout production
 
-Stripe doit être configuré uniquement dans les variables d'environnement Render. En production réelle :
+Stripe doit être configuré uniquement dans les variables d'environnement Render. Mode simplifié pour la soutenance : pas de webhook obligatoire, la page succès appelle le serveur qui vérifie la session Stripe avec `STRIPE_SECRET_KEY`.
 
 - utiliser les clés live Stripe dans `STRIPE_SECRET_KEY` et `STRIPE_PUBLISHABLE_KEY` ;
 - activer `STRIPE_ENABLED=true` ;
 - passer `PAYMENT_MODE=stripe` uniquement quand le paiement réel est validé ;
-- déclarer le webhook HTTPS `https://dsp-dev-o24a-g6-fr.onrender.com/api/payments/stripe/webhook` dans le dashboard Stripe ;
-- copier le secret du webhook dans `STRIPE_WEBHOOK_SECRET` ;
 - vérifier que les URLs `CLIENT_URL` et `SERVER_URL` pointent vers le bon domaine public ;
-- surveiller les webhooks échoués dans Stripe Dashboard ;
-- ne jamais considérer `/payment/success` comme preuve de paiement, seul le webhook confirme la réservation ;
+- ne jamais confirmer côté frontend seul : `/payment/success` déclenche une vérification serveur de la session Stripe ;
 - tester le remboursement admin sur un paiement Stripe avant toute utilisation réelle.
+
+Pour une production avec argent réel, ajouter ensuite un webhook Stripe signé afin de confirmer aussi les paiements si l'utilisateur ferme son navigateur avant le retour sur le site.
 
 ### Brevo IP / authorized sender note
 

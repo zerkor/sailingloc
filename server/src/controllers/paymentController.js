@@ -189,6 +189,38 @@ const confirmStripePayment = async (session) => {
   });
 };
 
+const confirmStripeCheckoutSession = asyncHandler(async (req, res) => {
+  if (!isStripeEnabled() || !stripe) {
+    res.status(503);
+    throw new Error('Stripe payment is not configured.');
+  }
+
+  const { sessionId } = req.body;
+  if (!sessionId) {
+    res.status(400);
+    throw new Error('Session Stripe manquante');
+  }
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const payment = await Payment.findOne({ stripeCheckoutSessionId: session.id });
+  if (!payment) {
+    res.status(404);
+    throw new Error('Paiement Stripe introuvable');
+  }
+  if (payment.tenant.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Vous ne pouvez pas confirmer ce paiement');
+  }
+  if (session.payment_status !== 'paid') {
+    res.status(400);
+    throw new Error("Le paiement Stripe n'est pas encore valide");
+  }
+
+  await confirmStripePayment(session);
+  const refreshedPayment = await Payment.findById(payment._id).populate('booking', 'status paymentStatus');
+  res.json({ message: 'Paiement confirme', payment: refreshedPayment, booking: refreshedPayment.booking });
+});
+
 const stripeWebhook = async (req, res) => {
   if (!isStripeEnabled() || !stripe || !stripeConfig.webhookSecret) {
     return res.status(503).json({ message: 'Stripe payment is not configured.' });
@@ -229,4 +261,10 @@ const stripeWebhook = async (req, res) => {
   res.json({ received: true });
 };
 
-module.exports = { getMyPayments, createStripeCheckoutSession, stripeWebhook, confirmStripePayment };
+module.exports = {
+  getMyPayments,
+  createStripeCheckoutSession,
+  confirmStripeCheckoutSession,
+  stripeWebhook,
+  confirmStripePayment,
+};

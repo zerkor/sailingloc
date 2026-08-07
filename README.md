@@ -102,7 +102,7 @@ Note Brevo IP / expéditeur autorisé : l'application ne peut pas valider automa
 
 ## Stripe payment integration
 
-SailingLoc conserve le paiement simulé pour la démonstration, et peut utiliser Stripe Checkout pour un paiement réel de réservation. Le serveur ne confirme jamais un paiement uniquement via la redirection frontend : la confirmation métier passe par le webhook Stripe signé.
+SailingLoc conserve le paiement simulé pour la démonstration, et peut utiliser Stripe Checkout pour un paiement réel de réservation. La version Render peut fonctionner sans webhook : après le retour Stripe sur `/payment/success`, le frontend appelle le backend, et le backend vérifie la session avec la clé privée Stripe avant de confirmer la réservation.
 
 Variables à configurer :
 
@@ -111,7 +111,7 @@ PAYMENT_MODE=simulated
 STRIPE_ENABLED=false
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_PUBLISHABLE_KEY=pk_test_xxx
-STRIPE_WEBHOOK_SECRET=whsec_xxx
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 STRIPE_CURRENCY=eur
 CLIENT_URL=http://localhost:5173
 SERVER_URL=http://localhost:5000
@@ -123,15 +123,9 @@ Pour tester le parcours :
 2. Accepter la réservation avec un compte propriétaire.
 3. Cliquer sur `Payer avec Stripe` dans `/my-bookings`.
 4. Finaliser le paiement dans Stripe Checkout avec les cartes de test officielles Stripe.
-5. Vérifier que le webhook `/api/payments/stripe/webhook` confirme la réservation, crée la facture PDF et met à jour l'admin.
+5. Vérifier que la page `/payment/success` confirme la réservation, crée la facture PDF et met à jour l'admin après validation serveur de la session Stripe.
 
-Sur Render, ajouter les variables dans `Environment` et déclarer le webhook Stripe :
-
-```text
-https://dsp-dev-o24a-g6-fr.onrender.com/api/payments/stripe/webhook
-```
-
-Notes sécurité : ne jamais exposer `STRIPE_SECRET_KEY`, ne pas stocker de données carte, vérifier obligatoirement `STRIPE_WEBHOOK_SECRET`, et garder `PAYMENT_MODE=simulated` tant que le projet reste en démo fictive.
+Sur Render, ajouter les variables dans `Environment`. Pour ce mode simplifié, `STRIPE_WEBHOOK_SECRET` peut rester vide. Notes sécurité : ne jamais exposer `STRIPE_SECRET_KEY`, ne pas stocker de données carte, et garder `PAYMENT_MODE=simulated` tant que le projet reste en démo fictive.
 
 ## Docker
 
