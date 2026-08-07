@@ -9,7 +9,7 @@ const paymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 0 },
     serviceFee: { type: Number, required: true, min: 0 },
     currency: { type: String, default: 'EUR', uppercase: true },
-    provider: { type: String, enum: ['simulated', 'stripe', 'simulated-stripe'], default: 'simulated' },
+    provider: { type: String, default: 'simulated', trim: true, lowercase: true },
     providerReference: { type: String },
     status: {
       type: String,
