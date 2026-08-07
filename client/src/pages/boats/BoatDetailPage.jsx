@@ -219,6 +219,10 @@ const BoatDetailPage = () => {
               <p>{boat.description || 'Aucune description fournie pour cette annonce.'}</p>
             </section>
 
+            <section id="booking-card" className="boat-booking-mobile" aria-label="Réservation">
+              <BookingForm boat={boat} />
+            </section>
+
             <section className="boat-section">
               <div className="boat-section__header">
                 <span>À bord</span>

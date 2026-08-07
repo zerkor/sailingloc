@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../utils/boatImages';
 import { formatPrice } from '../utils/formatPrice';
-import { buildBoatSlug } from '../utils/slugifyBoat';
 
 export const BoatCardSkeleton = () => (
   <div
@@ -40,16 +39,16 @@ const BoatCard = ({ boat }) => {
 
   return (
     <Link
-      to={`/bateaux/${buildBoatSlug(boat)}`}
+      to={`/boats/${boat._id}`}
       aria-label={`Voir le bateau ${boat.title}, ${formatPrice(boat.pricePerDay)} ${t('common.perDay')}`}
-      className="group block h-full overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white transition-all duration-300"
+      className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white transition-all duration-300"
       style={{ boxShadow: 'var(--shadow-card)' }}
       onMouseEnter={(e) =>
         (e.currentTarget.style.boxShadow = '0 18px 48px rgba(0,198,224,0.14), 0 8px 24px rgba(7,25,46,0.12)')
       }
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-card)')}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-smoke">
+      <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-smoke">
         <img
           src={imageUrl}
           alt={boat.title}
@@ -172,7 +171,7 @@ const BoatCard = ({ boat }) => {
           </div>
           <span className="shrink-0 rounded-full bg-navy-900 px-4 py-2 text-xs font-bold text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900">
             <span className="inline-flex items-center gap-1">
-              {t('common.view')} <ArrowRight size={13} />
+              Voir le bateau <ArrowRight size={13} />
             </span>
           </span>
         </div>
