@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ErrorMessage from '../../components/ErrorMessage';
 import { useAuth } from '../../context/AuthContext';
 import { login } from '../../services/authService';
+import TurnstileCaptcha, { isTurnstileConfigured } from '../../components/TurnstileCaptcha';
 
 const EyeIcon = ({ open }) =>
   open ? (
@@ -50,20 +51,34 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(() => Number(sessionStorage.getItem('sailingloc_login_failures') || 0));
+  const [turnstileToken, setTurnstileToken] = useState('');
+
+  const captchaRequired = isTurnstileConfigured && failedAttempts >= 3;
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (captchaRequired && !turnstileToken) {
+      setError('Veuillez valider le captcha Cloudflare pour continuer.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const { data } = await login(form);
+      const payload = captchaRequired ? { ...form, turnstileToken } : form;
+      const { data } = await login(payload);
+      sessionStorage.removeItem('sailingloc_login_failures');
       loginUser(data.token, data.user);
       const dest =
         data.user.role === 'admin' ? '/admin/dashboard' : data.user.role === 'owner' ? '/owner/dashboard' : from;
       navigate(dest, { replace: true });
     } catch (err) {
+      const nextAttempts = failedAttempts + 1;
+      setFailedAttempts(nextAttempts);
+      sessionStorage.setItem('sailingloc_login_failures', String(nextAttempts));
+      setTurnstileToken('');
       setError(err.response?.data?.message || t('auth.invalidLogin'));
     } finally {
       setLoading(false);
@@ -156,6 +171,14 @@ const LoginPage = () => {
               </div>
 
               <ErrorMessage message={error} />
+
+              {captchaRequired && (
+                <TurnstileCaptcha
+                  onVerify={setTurnstileToken}
+                  onExpire={() => setTurnstileToken('')}
+                  label="Sécurité après 3 tentatives"
+                />
+              )}
 
               <button
                 type="submit"

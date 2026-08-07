@@ -8,12 +8,14 @@ const OwnerDocument = require('../models/OwnerDocument');
 const generateToken = require('../utils/generateToken');
 const { sendPasswordResetEmail, sendWelcomeOwnerEmail, sendWelcomeTenantEmail } = require('../services/emailService');
 const { emailConfig } = require('../config/email');
+const { requireTurnstile } = require('../services/turnstileService');
 
 const RESET_TOKEN_TTL_MINUTES = 30;
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 const register = asyncHandler(async (req, res) => {
+  await requireTurnstile(req);
   const { firstName, lastName, email, password, phone, role, privacyConsent, marketingConsent } = req.body;
   const exists = await User.findOne({ email });
   if (exists) {
@@ -39,6 +41,7 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
+  if (req.body.turnstileToken) await requireTurnstile(req);
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user || !user.isActive) {

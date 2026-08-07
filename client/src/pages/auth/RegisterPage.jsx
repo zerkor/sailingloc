@@ -5,6 +5,7 @@ import { Sailboat, Waves } from 'lucide-react';
 import ErrorMessage from '../../components/ErrorMessage';
 import { useAuth } from '../../context/AuthContext';
 import { register } from '../../services/authService';
+import TurnstileCaptcha, { isTurnstileConfigured } from '../../components/TurnstileCaptcha';
 
 const HERO = '/images/hero-boat.jpeg';
 
@@ -23,6 +24,7 @@ const RegisterPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -39,10 +41,14 @@ const RegisterPage = () => {
       setError(t('auth.privacyRequired'));
       return;
     }
+    if (isTurnstileConfigured && !turnstileToken) {
+      setError('Veuillez valider le captcha Cloudflare.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const { data } = await register(form);
+      const { data } = await register({ ...form, turnstileToken });
       loginUser(data.token, data.user);
       navigate(data.user.role === 'owner' ? '/owner/dashboard' : '/', { replace: true });
     } catch (err) {
@@ -231,6 +237,8 @@ const RegisterPage = () => {
               </div>
 
               <ErrorMessage message={error} />
+
+              <TurnstileCaptcha onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} />
 
               <button
                 type="submit"

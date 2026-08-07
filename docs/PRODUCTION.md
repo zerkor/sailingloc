@@ -17,6 +17,8 @@ Voir `.env.production.example`.
 - `PAYMENT_MODE`: `simulated` pour la démo, `stripe` pour forcer le paiement réel.
 - `STRIPE_ENABLED`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_CURRENCY`: configuration Stripe Checkout. `STRIPE_WEBHOOK_SECRET` est optionnel dans le mode simplifié sans webhook.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_SECURE`: configuration SMTP pour les e-mails de mot de passe oublié.
+- `VITE_TURNSTILE_SITE_KEY`: clé publique Cloudflare Turnstile utilisée par le frontend.
+- `TURNSTILE_SECRET_KEY`: clé secrète Cloudflare Turnstile utilisée par le backend pour vérifier les formulaires publics.
 - `UPLOAD_DIR`: dossier local des fichiers uploadés.
 - `MAX_FILE_SIZE_MB`: limite d upload.
 - `RATE_LIMIT_WINDOW_MS` et `RATE_LIMIT_MAX`: limitation anti-abus.
@@ -31,6 +33,17 @@ docker compose down
 ```
 
 Avant toute vraie production, remplacer `JWT_SECRET`, adapter `CLIENT_URL`, `FRONTEND_URL`, `SERVER_URL`, `MONGO_URI`, configurer SMTP, et configurer un volume ou stockage persistant pour les uploads.
+
+## Cloudflare Turnstile
+
+Les formulaires publics sensibles utilisent Cloudflare Turnstile si les clés sont configurées :
+
+```env
+VITE_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_site_key
+TURNSTILE_SECRET_KEY=your_cloudflare_turnstile_secret_key
+```
+
+Pages protégées par captcha : contact, inscription, newsletter. La connexion affiche le captcha uniquement après 3 tentatives infructueuses dans la session navigateur.
 
 ## Déploiement sans Docker
 

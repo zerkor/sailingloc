@@ -4,6 +4,7 @@ import { ArrowRight, Check, Clock, Mail, MapPin, Phone } from 'lucide-react';
 import api from '../services/api';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumb from '../components/Breadcrumb';
+import TurnstileCaptcha, { isTurnstileConfigured } from '../components/TurnstileCaptcha';
 
 const SUBJECTS = [
   { value: '', label: 'Choisir un sujet…', disabled: true },
@@ -37,6 +38,7 @@ const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -63,13 +65,18 @@ const ContactPage = () => {
       setErrors(errs);
       return;
     }
+    if (isTurnstileConfigured && !turnstileToken) {
+      setSubmitError('Veuillez valider le captcha Cloudflare avant l’envoi.');
+      return;
+    }
 
     setLoading(true);
     setSubmitError('');
     try {
-      await api.post('/contact', form);
+      await api.post('/contact', { ...form, turnstileToken });
       setSuccess(true);
       setForm({ name: '', email: '', subject: '', message: '' });
+      setTurnstileToken('');
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
       setSubmitError(err.response?.data?.message || "Impossible d'envoyer le message pour le moment.");
@@ -232,6 +239,8 @@ const ContactPage = () => {
                   </p>
                 )}
               </div>
+
+              <TurnstileCaptcha onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} />
 
               {/* Submit */}
               <button

@@ -1320,6 +1320,56 @@ html[dir='rtl'] .language-dropdown__menu button {
   box-shadow: 0 16px 36px rgba(2, 12, 24, 0.24);
 }
 
+.turnstile-box,
+.turnstile-fallback {
+  margin-top: 16px;
+  border: 1px solid rgba(7, 25, 46, 0.1);
+  border-radius: 16px;
+  background: #f8fbfd;
+  padding: 12px;
+}
+
+.turnstile-box__label,
+.turnstile-fallback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3d4d61;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.turnstile-box__label {
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.turnstile-box__label svg,
+.turnstile-fallback svg {
+  color: #00c6e0;
+}
+
+.turnstile-box__label strong {
+  margin-left: auto;
+  border-radius: 999px;
+  background: rgba(0, 198, 224, 0.1);
+  padding: 3px 8px;
+  color: #155374;
+  font-size: 10px;
+}
+
+.turnstile-box__widget {
+  min-height: 65px;
+}
+
+.turnstile-box p {
+  margin-top: 8px;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .cookie-consent {
     right: 10px;

@@ -2,16 +2,22 @@ const asyncHandler = require('../utils/asyncHandler');
 const NewsletterSubscriber = require('../models/NewsletterSubscriber');
 const User = require('../models/User');
 const { sendNewsletterSubscriptionEmail } = require('../services/emailService');
+const { isTurnstileEnabled, requireTurnstile } = require('../services/turnstileService');
 
 const subscribeNewsletter = asyncHandler(async (req, res) => {
   const email = req.body.email;
-  const captchaA = Number(req.body.captchaA);
-  const captchaB = Number(req.body.captchaB);
-  const captchaAnswer = Number(req.body.captchaAnswer);
 
-  if (captchaA + captchaB !== captchaAnswer) {
-    res.status(400);
-    throw new Error('Captcha incorrect');
+  if (isTurnstileEnabled() || req.body.turnstileToken) {
+    await requireTurnstile(req);
+  } else {
+    const captchaA = Number(req.body.captchaA);
+    const captchaB = Number(req.body.captchaB);
+    const captchaAnswer = Number(req.body.captchaAnswer);
+
+    if (captchaA + captchaB !== captchaAnswer) {
+      res.status(400);
+      throw new Error('Captcha incorrect');
+    }
   }
 
   const subscriber = await NewsletterSubscriber.findOneAndUpdate(

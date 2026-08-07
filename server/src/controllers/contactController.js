@@ -3,8 +3,11 @@ const ContactMessage = require('../models/ContactMessage');
 const logAdminAction = require('../utils/adminActionLog');
 const { parsePagination, paginatedResponse } = require('../utils/paginate');
 const { sendContactMessageEmail } = require('../services/emailService');
+const { requireTurnstile } = require('../services/turnstileService');
 
 const createContactMessage = asyncHandler(async (req, res) => {
+  await requireTurnstile(req);
+
   const message = await ContactMessage.create({
     name: req.body.name,
     email: req.body.email,
