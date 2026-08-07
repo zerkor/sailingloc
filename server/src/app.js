@@ -45,7 +45,26 @@ const sanitizeUrlEnv = (value, fallback) => {
   }
 };
 
-const clientOrigin = sanitizeUrlEnv(process.env.CLIENT_URL || process.env.FRONTEND_URL, 'http://localhost:5173');
+const configuredClientOrigin = sanitizeUrlEnv(process.env.CLIENT_URL || process.env.FRONTEND_URL, 'http://localhost:5173');
+const allowedOrigins = new Set([
+  configuredClientOrigin,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://dsp-dev-o24a-g6-fr.onrender.com',
+]);
+
+const resolveCorsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true);
+
+  try {
+    const requestOrigin = new URL(origin).origin;
+    if (allowedOrigins.has(requestOrigin)) return callback(null, requestOrigin);
+  } catch {
+    return callback(null, configuredClientOrigin);
+  }
+
+  return callback(null, configuredClientOrigin);
+};
 
 app.use(
   helmet({
@@ -84,7 +103,7 @@ app.use(
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: resolveCorsOrigin,
     credentials: true,
   })
 );
