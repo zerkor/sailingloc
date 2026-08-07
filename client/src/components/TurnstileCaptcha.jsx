@@ -54,7 +54,8 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
             setStatus('expired');
             onExpire?.();
           },
-          'error-callback': () => {
+          'error-callback': (code) => {
+            if (code) console.warn('Cloudflare Turnstile error:', code);
             setStatus('error');
             onExpire?.();
           },
@@ -83,7 +84,9 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
         {required && <strong>requis</strong>}
       </div>
       <div id={containerId} ref={containerRef} className="turnstile-box__widget" />
-      {status === 'error' && <p>Le captcha n'a pas pu être chargé. Réessayez dans quelques secondes.</p>}
+      {status === 'error' && (
+        <p>Le captcha Cloudflare est bloqué. Vérifiez que le domaine Render est autorisé dans Turnstile.</p>
+      )}
       {status === 'expired' && <p>La vérification a expiré, cochez à nouveau le captcha.</p>}
     </div>
   );
