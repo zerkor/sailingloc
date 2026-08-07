@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+/* global __TURNSTILE_SITE_KEY__ */
+const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || __TURNSTILE_SITE_KEY__;
 let scriptPromise;
 
 const loadTurnstileScript = () => {
