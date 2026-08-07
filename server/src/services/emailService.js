@@ -153,10 +153,11 @@ const sendBookingRejectedEmail = ({ tenant, owner, boat, booking }) =>
     template: templates.bookingRejected({ tenant, owner, boat, booking }),
   });
 
-const sendBookingConfirmedEmail = ({ tenant, owner, boat, booking }) =>
+const sendBookingConfirmedEmail = ({ tenant, owner, boat, booking, attachments }) =>
   sendTemplate({
     to: tenant.email,
     templateName: 'bookingConfirmed',
+    attachments,
     template: templates.bookingConfirmed({ tenant, owner, boat, booking }),
   });
 

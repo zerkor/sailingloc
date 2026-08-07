@@ -127,7 +127,7 @@ const confirmStripePayment = async (session) => {
   const payment = await Payment.findOne({
     $or: [{ _id: metadata.paymentId }, { stripeCheckoutSessionId: session.id }].filter((entry) => Object.values(entry)[0]),
   });
-  if (!payment || paidStatuses.includes(payment.status)) return;
+  if (!payment) return;
 
   const booking = await populateBookingForPayment(metadata.bookingId || payment.booking);
   if (!booking) return;
@@ -140,39 +140,44 @@ const confirmStripePayment = async (session) => {
     return;
   }
 
-  payment.status = 'paid';
-  payment.provider = 'stripe';
-  payment.amount = booking.totalPrice;
-  payment.serviceFee = booking.serviceFee;
-  payment.currency = (session.currency || stripeConfig.currency).toUpperCase();
-  payment.stripeCheckoutSessionId = session.id;
-  payment.stripePaymentIntentId = session.payment_intent;
-  payment.stripeCustomerEmail = session.customer_details?.email || session.customer_email;
-  payment.paidAt = new Date();
-  payment.metadata = { ...(payment.metadata || {}), ...metadata };
-  await payment.save();
+  const wasAlreadyPaid = paidStatuses.includes(payment.status);
+  if (!wasAlreadyPaid) {
+    payment.status = 'paid';
+    payment.provider = 'stripe';
+    payment.amount = booking.totalPrice;
+    payment.serviceFee = booking.serviceFee;
+    payment.currency = (session.currency || stripeConfig.currency).toUpperCase();
+    payment.stripeCheckoutSessionId = session.id;
+    payment.stripePaymentIntentId = session.payment_intent;
+    payment.stripeCustomerEmail = session.customer_details?.email || session.customer_email;
+    payment.paidAt = new Date();
+    payment.metadata = { ...(payment.metadata || {}), ...metadata };
+    await payment.save();
 
-  booking.paymentStatus = 'paid';
-  booking.status = 'confirmed';
-  booking.payment = payment._id;
-  await booking.save();
+    booking.paymentStatus = 'paid';
+    booking.status = 'confirmed';
+    booking.payment = payment._id;
+    await booking.save();
 
-  await createNotification({
-    user: booking.owner?._id || booking.owner,
-    type: 'booking_paid',
-    title: 'Paiement confirme',
-    message: 'Le paiement Stripe de la reservation a ete valide.',
-    relatedBooking: booking._id,
-    relatedBoat: booking.boat?._id || booking.boat,
-  });
+    await createNotification({
+      user: booking.owner?._id || booking.owner,
+      type: 'booking_paid',
+      title: 'Paiement confirme',
+      message: 'Le paiement Stripe de la reservation a ete valide.',
+      relatedBooking: booking._id,
+      relatedBoat: booking.boat?._id || booking.boat,
+    });
+  }
 
   const populated = await populateBookingForPayment(booking._id);
+  let invoicePath;
   if (!payment.invoiceUrl) {
     const invoice = await generateInvoicePdf({ booking: populated, payment });
     payment.invoiceNumber = invoice.invoiceNumber;
     payment.invoiceUrl = invoice.invoiceUrl;
     payment.invoiceGeneratedAt = new Date();
     await payment.save();
+    invoicePath = invoice.filePath;
     await sendInvoiceEmail({
       tenant: populated.tenant,
       boat: populated.boat,
@@ -181,12 +186,17 @@ const confirmStripePayment = async (session) => {
       invoicePath: invoice.filePath,
     });
   }
-  await sendBookingConfirmedEmail({
-    tenant: populated.tenant,
-    owner: populated.owner,
-    boat: populated.boat,
-    booking: populated,
-  });
+  if (!wasAlreadyPaid) {
+    await sendBookingConfirmedEmail({
+      tenant: populated.tenant,
+      owner: populated.owner,
+      boat: populated.boat,
+      booking: populated,
+      attachments: invoicePath
+        ? [{ filename: `${payment.invoiceNumber || 'facture-sailingloc'}.pdf`, path: invoicePath }]
+        : undefined,
+    });
+  }
 };
 
 const confirmStripeCheckoutSession = asyncHandler(async (req, res) => {
