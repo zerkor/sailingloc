@@ -34,7 +34,34 @@ const CookieBanner = () => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  if (!visible) return null;
+  if (!visible) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          const saved = localStorage.getItem('sailingloc_cookie_preferences');
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              setPreferences({
+                essential: true,
+                analytics: Boolean(parsed.analytics),
+                marketing: Boolean(parsed.marketing),
+              });
+            } catch {
+              setPreferences(defaultPreferences);
+            }
+          }
+          setCustomizing(true);
+          setVisible(true);
+        }}
+        className="fixed bottom-4 left-4 z-50 rounded-full border border-cyan-400/30 bg-navy-900 px-4 py-2 text-xs font-bold text-white shadow-xl transition-colors hover:bg-navy-800"
+        aria-label="Gerer les preferences cookies"
+      >
+        Cookies
+      </button>
+    );
+  }
 
   return (
     <div
