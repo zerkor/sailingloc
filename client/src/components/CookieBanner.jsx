@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings2 } from 'lucide-react';
+import { Cookie, Settings2, ShieldCheck } from 'lucide-react';
 
 const defaultPreferences = {
   essential: true,
@@ -55,49 +55,57 @@ const CookieBanner = () => {
           setCustomizing(true);
           setVisible(true);
         }}
-        className="fixed bottom-4 left-4 z-50 rounded-full border border-cyan-400/30 bg-navy-900 px-4 py-2 text-xs font-bold text-white shadow-xl transition-colors hover:bg-navy-800"
-        aria-label="Gerer les preferences cookies"
+        className="cookie-floating-button"
+        aria-label="Gérer les préférences cookies"
       >
-        Cookies
+        <Cookie size={15} /> Cookies
       </button>
     );
   }
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-navy-900 text-white shadow-2xl"
+      className="cookie-consent"
       role="dialog"
       aria-modal="true"
-      aria-label="Preferences cookies"
+      aria-label="Préférences cookies"
     >
-      <div className="container-max px-4 py-4 flex flex-col gap-4">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          <div className="flex-1 text-sm text-navy-200">
+      <div className="cookie-consent__panel">
+        <div className="cookie-consent__header">
+          <div className="cookie-consent__icon" aria-hidden="true">
+            <ShieldCheck size={22} />
+          </div>
+          <div className="cookie-consent__copy">
+            <strong>Gestion des cookies</strong>
             <p>
               Nous utilisons des cookies essentiels au fonctionnement du site. Les cookies de mesure d'audience et
-              marketing restent desactives sans votre accord. Consultez notre{' '}
-              <Link to="/legal/cookies" className="text-cyan-300 hover:underline">
+              marketing restent désactivés sans votre accord. Consultez notre{' '}
+              <Link to="/legal/cookies">
                 politique des cookies
               </Link>
               .
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 flex-shrink-0">
+          <div className="cookie-consent__actions">
             <button
+              type="button"
               onClick={() => savePreferences(defaultPreferences)}
-              className="px-4 py-2 text-sm border border-navy-600 text-navy-200 hover:border-navy-400 rounded-lg transition-colors"
+              className="cookie-consent__button cookie-consent__button--ghost"
             >
               Refuser
             </button>
             <button
+              type="button"
               onClick={() => setCustomizing((prev) => !prev)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-cyan-400/40 text-cyan-200 hover:border-cyan-300 rounded-lg transition-colors"
+              className="cookie-consent__button cookie-consent__button--outline"
+              aria-expanded={customizing}
             >
               <Settings2 size={15} /> Personnaliser
             </button>
             <button
+              type="button"
               onClick={() => savePreferences({ essential: true, analytics: true, marketing: true })}
-              className="px-4 py-2 text-sm bg-cyan-500 hover:bg-cyan-300 text-navy-900 rounded-lg transition-colors font-bold"
+              className="cookie-consent__button cookie-consent__button--primary"
             >
               Accepter
             </button>
@@ -105,30 +113,30 @@ const CookieBanner = () => {
         </div>
 
         {customizing && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-white/10 pt-4">
+          <div className="cookie-consent__preferences">
             {[
               ['essential', 'Essentiels', 'Toujours actifs'],
-              ['analytics', 'Mesure audience', 'Statistiques anonymisees'],
-              ['marketing', 'Marketing', 'Offres personnalisees'],
+              ['analytics', "Mesure d'audience", 'Statistiques anonymisées'],
+              ['marketing', 'Marketing', 'Offres personnalisées'],
             ].map(([key, label, helper]) => (
-              <label key={key} className="flex items-start gap-3 rounded-lg border border-white/10 p-3 text-sm">
+              <label key={key} className="cookie-consent__preference">
                 <input
                   type="checkbox"
                   checked={preferences[key]}
                   disabled={key === 'essential'}
                   onChange={() => toggle(key)}
-                  className="mt-1"
                 />
                 <span>
-                  <strong className="block text-white">{label}</strong>
-                  <span className="text-navy-200">{helper}</span>
+                  <strong>{label}</strong>
+                  <small>{helper}</small>
                 </span>
               </label>
             ))}
-            <div className="sm:col-span-3 flex justify-end">
+            <div className="cookie-consent__save">
               <button
+                type="button"
                 onClick={() => savePreferences(preferences)}
-                className="px-4 py-2 text-sm bg-white text-navy-900 rounded-lg font-bold"
+                className="cookie-consent__button cookie-consent__button--light"
               >
                 Enregistrer mes choix
               </button>
