@@ -13,6 +13,7 @@ const logAdminAction = require('../utils/adminActionLog');
 const createNotification = require('../utils/createNotification');
 const { assertBoatAvailable } = require('../utils/bookingAvailability');
 const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const { stripe, isStripeEnabled } = require('../config/stripe');
 const {
   sendAdminTestEmail,
   sendBoatApprovedEmail,
@@ -25,6 +26,7 @@ const {
 } = require('../services/emailService');
 
 const roleValues = ['tenant', 'owner', 'admin'];
+const paidPaymentStatuses = ['paid', 'succeeded'];
 
 const adminName = (req) => `${req.user.firstName || 'Admin'} ${req.user.lastName || ''}`.trim();
 
@@ -153,9 +155,9 @@ const getStats = asyncHandler(async (req, res) => {
     Boat.countDocuments({ status: 'pending' }),
     Review.countDocuments({ status: 'pending' }),
     OwnerDocument.countDocuments({ status: 'pending' }),
-    Payment.countDocuments({ status: 'succeeded' }),
-    Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
-    Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
+    Payment.countDocuments({ status: { $in: paidPaymentStatuses } }),
+    Payment.aggregate([{ $match: { status: { $in: paidPaymentStatuses } } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
+    Payment.aggregate([{ $match: { status: { $in: paidPaymentStatuses } } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
     Payment.aggregate([{ $match: { status: 'refunded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
     require('../models/Report').countDocuments({ status: { $in: ['open', 'in_review'] } }),
     ContactMessage.countDocuments({ status: { $in: ['new', 'read'] } }),
@@ -519,7 +521,13 @@ const refundBookingPayment = async ({ booking, adminId }) => {
     ? await Payment.findById(booking.payment)
     : await Payment.findOne({ booking: booking._id });
 
-  if (payment && payment.status === 'succeeded') {
+  if (payment && paidPaymentStatuses.includes(payment.status)) {
+    if (payment.provider === 'stripe') {
+      if (!isStripeEnabled() || !stripe || !payment.stripePaymentIntentId) {
+        throw new Error('Remboursement Stripe impossible : paiement introuvable ou deja rembourse.');
+      }
+      await stripe.refunds.create({ payment_intent: payment.stripePaymentIntentId });
+    }
     payment.status = 'refunded';
     payment.refundedAt = new Date();
     payment.refundedBy = adminId;
@@ -776,6 +784,7 @@ const getAdminPayments = asyncHandler(async (req, res) => {
   const { page, limit, skip } = parsePagination(req.query);
   const filter = {};
   if (req.query.paymentStatus) filter.status = req.query.paymentStatus;
+  if (req.query.provider) filter.provider = req.query.provider;
   const bookingFilter = req.query.bookingStatus ? { status: req.query.bookingStatus } : {};
 
   const query = Payment.find(filter)
@@ -793,10 +802,15 @@ const getAdminPayments = asyncHandler(async (req, res) => {
   const filtered = req.query.bookingStatus ? allPayments.filter((payment) => payment.booking) : allPayments;
   const items = filtered.slice(skip, skip + limit);
 
-  const [paid, fees, pending, refunded] = await Promise.all([
-    Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
-    Payment.aggregate([{ $match: { status: 'succeeded' } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
-    Payment.countDocuments({ status: 'requires_capture' }),
+  const [paid, stripePaid, simulatedPaid, fees, pending, refunded] = await Promise.all([
+    Payment.aggregate([{ $match: { status: { $in: paidPaymentStatuses } } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
+    Payment.aggregate([{ $match: { status: { $in: paidPaymentStatuses }, provider: 'stripe' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
+    Payment.aggregate([
+      { $match: { status: { $in: paidPaymentStatuses }, provider: { $in: ['simulated', 'simulated-stripe'] } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]),
+    Payment.aggregate([{ $match: { status: { $in: paidPaymentStatuses } } }, { $group: { _id: null, total: { $sum: '$serviceFee' } } }]),
+    Payment.countDocuments({ status: { $in: ['unpaid', 'pending', 'requires_capture'] } }),
     Payment.aggregate([{ $match: { status: 'refunded' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
   ]);
 
@@ -804,6 +818,8 @@ const getAdminPayments = asyncHandler(async (req, res) => {
     ...paginatedResponse(items, page, limit, filtered.length),
     summary: {
       totalPaidRevenue: paid[0]?.total || 0,
+      stripePaidRevenue: stripePaid[0]?.total || 0,
+      simulatedPaidRevenue: simulatedPaid[0]?.total || 0,
       totalServiceFees: fees[0]?.total || 0,
       pendingPayments: pending,
       refundedAmount: refunded[0]?.total || 0,
@@ -817,7 +833,7 @@ const refundPayment = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Paiement introuvable');
   }
-  if (payment.status !== 'succeeded') {
+  if (!paidPaymentStatuses.includes(payment.status)) {
     res.status(400);
     throw new Error('Seul un paiement reussi peut etre rembourse');
   }

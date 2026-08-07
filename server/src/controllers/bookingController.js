@@ -15,6 +15,7 @@ const {
   sendBookingRejectedEmail,
   sendInvoiceEmail,
 } = require('../services/emailService');
+const { stripeConfig } = require('../config/stripe');
 
 const populateBookingForEmail = (id) =>
   Booking.findById(id)
@@ -217,6 +218,10 @@ const cancelBooking = asyncHandler(async (req, res) => {
 });
 
 const payBooking = asyncHandler(async (req, res) => {
+  if (stripeConfig.paymentMode === 'stripe' && process.env.NODE_ENV === 'production') {
+    res.status(403);
+    throw new Error('Le paiement simule est indisponible en production Stripe');
+  }
   const booking = await Booking.findById(req.params.id);
   if (!booking) {
     res.status(404);
@@ -231,7 +236,7 @@ const payBooking = asyncHandler(async (req, res) => {
     throw new Error('Booking must be accepted before payment');
   }
   const existingPayment = await Payment.findOne({ booking: booking._id });
-  if (existingPayment && existingPayment.status === 'succeeded') {
+  if (existingPayment && ['paid', 'succeeded'].includes(existingPayment.status)) {
     res.status(400);
     throw new Error('Booking already paid');
   }
@@ -241,11 +246,15 @@ const payBooking = asyncHandler(async (req, res) => {
       booking: booking._id,
       tenant: booking.tenant,
       owner: booking.owner,
+      boat: booking.boat,
       amount: booking.totalPrice,
       serviceFee: booking.serviceFee,
-      providerReference: `sim_stripe_${booking._id.toString()}`,
+      provider: 'simulated',
+      status: 'pending',
+      providerReference: `simulated_${booking._id.toString()}`,
     }));
-  payment.status = 'succeeded';
+  payment.provider = 'simulated';
+  payment.status = 'paid';
   payment.paidAt = new Date();
   await payment.save();
   booking.paymentStatus = 'paid';

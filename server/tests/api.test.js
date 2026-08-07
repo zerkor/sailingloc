@@ -24,6 +24,7 @@ const AdminActionLog = require('../src/models/AdminActionLog');
 const ContactMessage = require('../src/models/ContactMessage');
 const NewsletterSubscriber = require('../src/models/NewsletterSubscriber');
 const { uploadRoot } = require('../src/middleware/uploadMiddleware');
+const { confirmStripePayment } = require('../src/controllers/paymentController');
 
 let mongoServer;
 
@@ -310,7 +311,8 @@ test('Bookings API: creates, accepts, pays and completes a booking while blockin
   assert.ok(paid.body.payment);
 
   const payment = await Payment.findOne({ booking: bookingResponse.body._id });
-  assert.equal(payment.status, 'succeeded');
+  assert.equal(payment.provider, 'simulated');
+  assert.equal(payment.status, 'paid');
   assert.equal(payment.amount, 825);
   assert.match(payment.invoiceNumber, /^SL-\d{4}-[A-F0-9]{8}$/);
   assert.match(payment.invoiceUrl, /^\/uploads\/invoices\/SL-\d{4}-[A-F0-9]{8}\.pdf$/);
@@ -326,6 +328,96 @@ test('Bookings API: creates, accepts, pays and completes a booking while blockin
     .expect(200);
 
   assert.equal(completed.body.status, 'completed');
+});
+
+test('Payments API: Stripe checkout returns a clean error when Stripe is disabled', async () => {
+  const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
+  const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });
+  const ownerToken = await loginAs(owner.email);
+  const tenantToken = await loginAs(tenant.email);
+  const boat = await createApprovedBoat(owner._id);
+
+  const bookingResponse = await request(app)
+    .post('/api/bookings')
+    .set('Authorization', `Bearer ${tenantToken}`)
+    .send({
+      boatId: boat._id.toString(),
+      startDate: futureDate(30),
+      endDate: futureDate(32),
+    })
+    .expect(201);
+
+  await request(app)
+    .patch(`/api/bookings/${bookingResponse.body._id}/accept`)
+    .set('Authorization', `Bearer ${ownerToken}`)
+    .expect(200);
+
+  const response = await request(app)
+    .post('/api/payments/stripe/create-checkout-session')
+    .set('Authorization', `Bearer ${tenantToken}`)
+    .send({ bookingId: bookingResponse.body._id })
+    .expect(503);
+
+  assert.equal(response.body.message, 'Stripe payment is not configured.');
+});
+
+test('Payments API: Stripe completion confirms booking once and generates invoice', async () => {
+  const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
+  const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });
+  const boat = await createApprovedBoat(owner._id);
+  const booking = await Booking.create({
+    boat: boat._id,
+    tenant: tenant._id,
+    owner: owner._id,
+    startDate: new Date(futureDate(35)),
+    endDate: new Date(futureDate(37)),
+    numberOfDays: 2,
+    pricePerDay: 250,
+    serviceFee: 50,
+    totalPrice: 550,
+    status: 'accepted',
+    paymentStatus: 'unpaid',
+  });
+  const payment = await Payment.create({
+    booking: booking._id,
+    tenant: tenant._id,
+    owner: owner._id,
+    boat: boat._id,
+    amount: 550,
+    serviceFee: 50,
+    provider: 'stripe',
+    status: 'pending',
+    currency: 'EUR',
+    stripeCheckoutSessionId: 'cs_test_sailingloc',
+  });
+
+  const session = {
+    id: 'cs_test_sailingloc',
+    amount_total: 55000,
+    currency: 'eur',
+    payment_intent: 'pi_test_sailingloc',
+    customer_email: tenant.email,
+    customer_details: { email: tenant.email },
+    metadata: {
+      bookingId: booking._id.toString(),
+      paymentId: payment._id.toString(),
+      tenantId: tenant._id.toString(),
+      ownerId: owner._id.toString(),
+      boatId: boat._id.toString(),
+    },
+  };
+
+  await confirmStripePayment(session);
+  await confirmStripePayment(session);
+
+  const updatedBooking = await Booking.findById(booking._id);
+  const updatedPayment = await Payment.findById(payment._id);
+  assert.equal(updatedBooking.status, 'confirmed');
+  assert.equal(updatedBooking.paymentStatus, 'paid');
+  assert.equal(updatedPayment.status, 'paid');
+  assert.equal(updatedPayment.stripePaymentIntentId, 'pi_test_sailingloc');
+  assert.match(updatedPayment.invoiceNumber, /^SL-\d{4}-[A-F0-9]{8}$/);
+  assert.match(updatedPayment.invoiceUrl, /^\/uploads\/invoices\/SL-\d{4}-[A-F0-9]{8}\.pdf$/);
 });
 
 test('Documents and RGPD API: owner submits a document, admin reviews it, user exports data', async () => {

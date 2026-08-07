@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, CreditCard, FileText, MessageSquareText } from 'lucide-react';
 import { getTenantBookings, cancelBooking, payBooking } from '../../services/bookingService';
+import { createStripeCheckoutSession } from '../../services/paymentService';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ReviewForm from '../../components/ReviewForm';
@@ -16,6 +17,7 @@ const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewBooking, setReviewBooking] = useState(null);
+  const [payingBookingId, setPayingBookingId] = useState(null);
 
   const fetchBookings = async () => {
     try {
@@ -51,12 +53,24 @@ const MyBookingsPage = () => {
   };
 
   const handlePay = async (id) => {
+    setPayingBookingId(id);
     try {
+      const { data } = await createStripeCheckoutSession(id);
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
       await payBooking(id);
-      fetchBookings();
+      await fetchBookings();
       toast('Paiement simulé avec succès.', 'success');
     } catch (err) {
-      toast(err.response?.data?.message || 'Erreur lors du paiement.', 'error');
+      const message =
+        err.response?.status === 503
+          ? "Le paiement Stripe n'est pas disponible pour le moment."
+          : err.response?.data?.message || 'Erreur lors du paiement.';
+      toast(message, 'error');
+    } finally {
+      setPayingBookingId(null);
     }
   };
 
@@ -161,7 +175,8 @@ const MyBookingsPage = () => {
                           style={{ background: '#00C6E0', color: '#07192E' }}
                         >
                           <span className="inline-flex items-center gap-1.5">
-                            <CreditCard size={14} /> Payer maintenant
+                            <CreditCard size={14} />{' '}
+                            {payingBookingId === booking._id ? 'Redirection vers Stripe...' : 'Payer avec Stripe'}
                           </span>
                         </button>
                       )}

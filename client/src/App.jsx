@@ -29,6 +29,8 @@ import MvpLimitationsPage from './pages/MvpLimitationsPage';
 // Protected pages
 import ProfilePage from './pages/profile/ProfilePage';
 import MyBookingsPage from './pages/bookings/MyBookingsPage';
+import PaymentSuccess from './pages/payment/PaymentSuccess';
+import PaymentCancel from './pages/payment/PaymentCancel';
 
 // Owner pages
 import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
@@ -94,6 +96,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MyBookingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment/success"
+                element={
+                  <ProtectedRoute>
+                    <PaymentSuccess />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment/cancel"
+                element={
+                  <ProtectedRoute>
+                    <PaymentCancel />
                   </ProtectedRoute>
                 }
               />

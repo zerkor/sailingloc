@@ -7,7 +7,7 @@ Plateforme full-stack de location de bateaux entre particuliers, avec espaces vi
 - Catalogue public avec filtres, fiches bateaux et avis.
 - Mot de passe oublie avec token hashe en base et envoi Brevo configurable.
 - Authentification JWT avec rôles `tenant`, `owner`, `admin`.
-- Réservations, acceptation propriétaire et paiement simulé.
+- Réservations, acceptation propriétaire, paiement simulé et intégration Stripe Checkout optionnelle.
 - Back-office admin : utilisateurs, bateaux, réservations, avis, documents, paiements, signalements, journal d actions.
 - Upload local réel pour images de bateaux et documents propriétaire.
 - Swagger/OpenAPI, tests API, E2E Playwright, Docker, CI GitHub Actions.
@@ -99,6 +99,39 @@ EMAIL_LOG_ONLY=false
 En local, garder `EMAIL_ENABLED=false` ou `EMAIL_LOG_ONLY=true` pour tester sans envoyer de vrais emails.
 
 Note Brevo IP / expéditeur autorisé : l'application ne peut pas valider automatiquement un domaine, un expéditeur ou une IP dans Brevo. Ces réglages se font manuellement dans le dashboard Brevo. En mode API, la connexion sortante utilise HTTPS 443, mais l'expéditeur/domaine doit quand même être vérifié dans Brevo.
+
+## Stripe payment integration
+
+SailingLoc conserve le paiement simulé pour la démonstration, et peut utiliser Stripe Checkout pour un paiement réel de réservation. Le serveur ne confirme jamais un paiement uniquement via la redirection frontend : la confirmation métier passe par le webhook Stripe signé.
+
+Variables à configurer :
+
+```env
+PAYMENT_MODE=simulated
+STRIPE_ENABLED=false
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+STRIPE_CURRENCY=eur
+CLIENT_URL=http://localhost:5173
+SERVER_URL=http://localhost:5000
+```
+
+Pour tester le parcours :
+
+1. Créer une réservation avec un compte locataire.
+2. Accepter la réservation avec un compte propriétaire.
+3. Cliquer sur `Payer avec Stripe` dans `/my-bookings`.
+4. Finaliser le paiement dans Stripe Checkout avec les cartes de test officielles Stripe.
+5. Vérifier que le webhook `/api/payments/stripe/webhook` confirme la réservation, crée la facture PDF et met à jour l'admin.
+
+Sur Render, ajouter les variables dans `Environment` et déclarer le webhook Stripe :
+
+```text
+https://dsp-dev-o24a-g6-fr.onrender.com/api/payments/stripe/webhook
+```
+
+Notes sécurité : ne jamais exposer `STRIPE_SECRET_KEY`, ne pas stocker de données carte, vérifier obligatoirement `STRIPE_WEBHOOK_SECRET`, et garder `PAYMENT_MODE=simulated` tant que le projet reste en démo fictive.
 
 ## Docker
 

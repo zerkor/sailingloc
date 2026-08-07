@@ -14,6 +14,8 @@ Voir `.env.production.example`.
 - `CLIENT_URL`: URL publique du front pour CORS.
 - `FRONTEND_URL`: URL publique utilisée pour générer les liens de réinitialisation de mot de passe.
 - `SERVER_URL`: URL publique de l API pour Swagger et liens.
+- `PAYMENT_MODE`: `simulated` pour la démo, `stripe` pour forcer le paiement réel.
+- `STRIPE_ENABLED`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY`: configuration Stripe Checkout côté serveur.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_SECURE`: configuration SMTP pour les e-mails de mot de passe oublié.
 - `UPLOAD_DIR`: dossier local des fichiers uploadés.
 - `MAX_FILE_SIZE_MB`: limite d upload.
@@ -91,6 +93,20 @@ EMAIL_LOG_ONLY=false
 ```
 
 Ne jamais hardcoder les identifiants Brevo : Render Environment Variables est le bon emplacement pour les secrets de production.
+
+## Stripe Checkout production
+
+Stripe doit être configuré uniquement dans les variables d'environnement Render. En production réelle :
+
+- utiliser les clés live Stripe dans `STRIPE_SECRET_KEY` et `STRIPE_PUBLISHABLE_KEY` ;
+- activer `STRIPE_ENABLED=true` ;
+- passer `PAYMENT_MODE=stripe` uniquement quand le paiement réel est validé ;
+- déclarer le webhook HTTPS `https://dsp-dev-o24a-g6-fr.onrender.com/api/payments/stripe/webhook` dans le dashboard Stripe ;
+- copier le secret du webhook dans `STRIPE_WEBHOOK_SECRET` ;
+- vérifier que les URLs `CLIENT_URL` et `SERVER_URL` pointent vers le bon domaine public ;
+- surveiller les webhooks échoués dans Stripe Dashboard ;
+- ne jamais considérer `/payment/success` comme preuve de paiement, seul le webhook confirme la réservation ;
+- tester le remboursement admin sur un paiement Stripe avant toute utilisation réelle.
 
 ### Brevo IP / authorized sender note
 

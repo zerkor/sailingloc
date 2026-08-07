@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const demoRoutes = require('./routes/demoRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
+const { stripeWebhook } = require('./controllers/paymentController');
 
 const app = express();
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
@@ -82,6 +83,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 const jsonBodyLimit = process.env.JSON_BODY_LIMIT || '10mb';
+app.post('/api/payments/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 app.use(express.json({ limit: jsonBodyLimit }));
 app.use(express.urlencoded({ extended: true, limit: jsonBodyLimit }));
 app.use('/uploads', express.static(path.resolve(uploadRoot)));

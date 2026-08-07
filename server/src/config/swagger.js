@@ -92,8 +92,13 @@ const swaggerDefinition = {
           amount: { type: 'number' },
           serviceFee: { type: 'number' },
           currency: { type: 'string' },
-          provider: { type: 'string' },
-          status: { type: 'string' },
+          provider: { type: 'string', enum: ['simulated', 'stripe'] },
+          status: { type: 'string', enum: ['unpaid', 'pending', 'paid', 'failed', 'refunded'] },
+          stripeCheckoutSessionId: { type: 'string' },
+          stripePaymentIntentId: { type: 'string' },
+          stripeCustomerEmail: { type: 'string' },
+          paidAt: { type: 'string', format: 'date-time' },
+          refundedAt: { type: 'string', format: 'date-time' },
         },
       },
       Document: {
@@ -235,6 +240,49 @@ const swaggerDefinition = {
         security: [{ bearerAuth: [] }],
         summary: 'Liste les paiements admin',
         responses: { 200: { description: 'Paiements' } },
+      },
+    },
+    '/api/admin/payments/{id}/refund': {
+      patch: {
+        tags: ['Payments'],
+        security: [{ bearerAuth: [] }],
+        summary: 'Rembourse un paiement simulé ou Stripe',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'Paiement remboursé' },
+          400: { description: 'Paiement non remboursable' },
+          403: { description: 'Admin requis' },
+        },
+      },
+    },
+    '/api/payments/stripe/create-checkout-session': {
+      post: {
+        tags: ['Payments'],
+        security: [{ bearerAuth: [] }],
+        summary: 'Crée une session Stripe Checkout pour une réservation acceptée',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', required: ['bookingId'], properties: { bookingId: { type: 'string' } } },
+            },
+          },
+        },
+        responses: {
+          201: { description: 'URL Stripe Checkout créée' },
+          400: { description: 'Réservation non éligible' },
+          503: { description: 'Stripe non configuré' },
+        },
+      },
+    },
+    '/api/payments/stripe/webhook': {
+      post: {
+        tags: ['Payments'],
+        summary: 'Webhook Stripe signé, sans JWT',
+        responses: {
+          200: { description: 'Webhook traité' },
+          400: { description: 'Signature invalide' },
+        },
       },
     },
     '/api/admin/email/test': {
