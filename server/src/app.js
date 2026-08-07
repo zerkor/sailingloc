@@ -33,6 +33,20 @@ const renderClientIndex = () => {
   return fs.readFileSync(clientIndexPath, 'utf8');
 };
 
+const sanitizeUrlEnv = (value, fallback) => {
+  const firstValue = String(value || '')
+    .split(/\s+/)
+    .find((part) => /^https?:\/\//i.test(part));
+
+  try {
+    return new URL(firstValue || fallback).origin;
+  } catch {
+    return fallback;
+  }
+};
+
+const clientOrigin = sanitizeUrlEnv(process.env.CLIENT_URL || process.env.FRONTEND_URL, 'http://localhost:5173');
+
 app.use(
   helmet({
     frameguard: false,
@@ -70,7 +84,7 @@ app.use(
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: clientOrigin,
     credentials: true,
   })
 );
