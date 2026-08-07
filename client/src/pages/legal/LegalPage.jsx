@@ -8,71 +8,231 @@ const content = {
     body: `
 ## Éditeur du site
 
-SailingLoc est une plateforme fictive de location de bateaux entre particuliers réalisée dans le cadre d'un projet étudiant.
+Le présent site internet est édité par SailingLoc, société par actions simplifiée (SAS).
 
-**Adresse :** 1 rue de la Mer, 13001 Marseille, France
+Dénomination sociale : SailingLoc
+
+Statut juridique : Société par Actions Simplifiée (SAS)
+
+Capital social : 50 000 €
+
+Siège social :
+12 Quai de la Marine
+13002 Marseille
+France
+
+SIREN : 912 345 678
+
+SIRET : 912 345 678 00014
+
+RCS : Marseille 912 345 678
+
+TVA intracommunautaire : FR 91 912345678
+
+## Contact
+
 **Email :** contact@sailingloc.fr
-**Téléphone :** +33 4 00 00 00 00
+
+**Téléphone :** +33 6 12 34 56 78
+
+## Directeur de publication
+
+Monsieur Voisin, fondateur de SailingLoc.
+
+## Hébergement
+
+Le site est hébergé par Render.
+
+https://render.com
+
+## Base de données
+
+Les données sont hébergées sur MongoDB Atlas.
 
 ## Nature fictive du projet
 
 Ce site est un projet étudiant fictif. Aucun achat, paiement, contrat, réservation ou location réelle ne peut être effectué depuis SailingLoc. Les annonces, comptes, paiements et réservations présentés servent uniquement à la démonstration du MVP.
 
-## Hébergement
-
-Ce site est hébergé par un prestataire tiers. Conformément à l'article 6 de la LCEN, les coordonnées de l'hébergeur sont disponibles sur demande.
-
 ## Propriété intellectuelle
 
-L'ensemble des contenus présents sur ce site, notamment les textes, images et logos, est protégé par le droit d'auteur. Toute reproduction est interdite sans autorisation préalable.
+L'ensemble du contenu présent sur le site SailingLoc (textes, images, logos, éléments graphiques, vidéos, base de données, architecture, code source) est protégé par le Code de la propriété intellectuelle.
+
+Toute reproduction totale ou partielle est interdite sans autorisation préalable.
+
+## Données personnelles
+
+Les données personnelles sont collectées uniquement dans le cadre de l'utilisation des services proposés.
+
+Le traitement est réalisé conformément au Règlement Général sur la Protection des Données (RGPD).
+
+Les utilisateurs disposent des droits suivants :
+
+- droit d'accès
+- droit de rectification
+- droit d'effacement
+- droit d'opposition
+- droit à la limitation
+- droit à la portabilité
+
+Toute demande peut être adressée à contact@sailingloc.fr.
+
+## Cookies
+
+Le site utilise des cookies nécessaires au fonctionnement du service ainsi que des cookies de mesure d'audience.
+
+L'utilisateur peut gérer ses préférences depuis le bandeau cookies ou depuis son navigateur.
+
+## Responsabilité
+
+SailingLoc met tout en œuvre afin d'assurer l'exactitude des informations diffusées.
+
+Toutefois, aucune garantie ne peut être apportée concernant l'absence d'erreurs ou d'interruptions temporaires.
     `,
   },
   cgu: {
     title: "Conditions Générales d'Utilisation (CGU)",
     body: `
-## 1. Objet
+## Article 1 - Objet
 
-Les présentes CGU définissent les conditions d'utilisation de la plateforme SailingLoc permettant la mise en relation fictive entre propriétaires de bateaux et locataires.
+Les présentes Conditions Générales d'Utilisation ont pour objet de définir les modalités d'accès et d'utilisation de la plateforme SailingLoc.
 
-## 2. Inscription
+La plateforme permet la mise en relation entre propriétaires de bateaux et locataires souhaitant effectuer une réservation.
 
-Pour utiliser SailingLoc, vous devez créer un compte avec des informations exactes et à jour. Vous êtes responsable de la confidentialité de vos identifiants.
+## Article 2 - Acceptation
 
-## 3. Utilisation de la plateforme
+Toute utilisation du site implique l'acceptation pleine et entière des présentes CGU.
 
-SailingLoc est un projet étudiant fictif. Les parcours de réservation, paiement et gestion d'annonces sont fournis à des fins de démonstration uniquement.
+## Article 3 - Création de compte
 
-## 4. Responsabilités
+L'accès à certaines fonctionnalités nécessite la création d'un compte.
 
-Chaque utilisateur est responsable du contenu qu'il publie. SailingLoc se réserve le droit de supprimer tout contenu contraire aux présentes CGU.
+L'utilisateur garantit l'exactitude des informations communiquées.
 
-## 5. Modification des CGU
+Il est responsable de la confidentialité de ses identifiants.
 
-SailingLoc se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés par email.
+## Article 4 - Services proposés
+
+La plateforme permet notamment :
+
+- consulter les annonces
+- rechercher un bateau
+- réserver une location
+- effectuer un paiement sécurisé
+- déposer un avis
+- gérer son profil
+- publier une annonce pour les propriétaires
+
+## Article 5 - Obligations des utilisateurs
+
+Les utilisateurs s'engagent à :
+
+- fournir des informations exactes
+- respecter les autres utilisateurs
+- ne pas utiliser la plateforme à des fins frauduleuses
+- respecter la législation française
+
+## Article 6 - Obligations des propriétaires
+
+Les propriétaires garantissent :
+
+- être autorisés à louer leur bateau
+- fournir des informations exactes
+- maintenir leurs disponibilités à jour
+- respecter la réglementation maritime
+
+## Article 7 - Paiement
+
+Les paiements sont réalisés via une solution sécurisée.
+
+Les informations bancaires ne sont jamais stockées par SailingLoc.
+
+## Article 8 - Avis
+
+Les utilisateurs peuvent publier un avis après une location effectivement réalisée.
+
+Les avis injurieux ou frauduleux pourront être supprimés.
+
+## Article 9 - Suspension du compte
+
+SailingLoc se réserve le droit de suspendre tout compte en cas :
+
+- de fraude
+- de non-respect des présentes CGU
+- d'utilisation abusive
+
+## Article 10 - Propriété intellectuelle
+
+Tous les éléments du site restent la propriété exclusive de SailingLoc.
+
+## Article 11 - Protection des données
+
+Les traitements de données sont réalisés conformément au RGPD.
+
+## Article 12 - Droit applicable
+
+Les présentes CGU sont soumises au droit français.
     `,
   },
   cgv: {
     title: 'Conditions Générales de Vente (CGV)',
     body: `
-## 1. Objet
+## Article 1 - Objet
 
-Les présentes CGV décrivent le fonctionnement fictif des transactions simulées via la plateforme SailingLoc.
+Les présentes Conditions Générales de Vente définissent les conditions applicables aux réservations réalisées sur SailingLoc.
 
-## 2. Prix
+## Article 2 - Services
 
-Les prix affichés sont en euros TTC et servent uniquement à la démonstration du projet. Aucun paiement réel n'est encaissé.
+SailingLoc permet :
 
-## 3. Réservation
+- la réservation de bateaux entre particuliers
+- la gestion des disponibilités
+- le paiement sécurisé
+- la gestion des comptes utilisateurs
 
-La réservation affichée dans l'application est une simulation de parcours utilisateur. Elle ne crée aucun contrat réel entre un propriétaire et un locataire.
+## Article 3 - Tarifs
 
-## 4. Annulation
+Les prix affichés sont indiqués en euros.
 
-Les règles d'annulation présentées sont fictives et servent uniquement à illustrer le fonctionnement métier du MVP.
+Ils sont déterminés par les propriétaires.
 
-## 5. Paiement
+## Article 4 - Réservation
 
-SailingLoc ne traite pas de paiement réel et ne stocke aucune coordonnée bancaire.
+La réservation est considérée comme effective après :
+
+- validation du propriétaire
+- confirmation du paiement
+
+## Article 5 - Paiement
+
+Le règlement est effectué via Stripe.
+
+Les données bancaires sont exclusivement traitées par Stripe conformément aux normes PCI-DSS.
+
+## Article 6 - Annulation
+
+Les conditions d'annulation sont précisées lors de chaque réservation.
+
+Les remboursements éventuels sont effectués selon les conditions applicables.
+
+## Article 7 - Responsabilité
+
+Chaque propriétaire demeure responsable de son bateau.
+
+Chaque locataire est responsable de l'utilisation qu'il en fait.
+
+## Article 8 - Réclamations
+
+Toute réclamation doit être adressée à contact@sailingloc.fr.
+
+## Article 9 - Force majeure
+
+Aucune des parties ne pourra être tenue responsable d'un événement indépendant de sa volonté empêchant l'exécution du contrat.
+
+## Article 10 - Droit applicable
+
+Les présentes CGV sont régies par le droit français.
+
+En cas de litige, une solution amiable sera recherchée avant toute action judiciaire.
     `,
   },
   privacy: {
@@ -85,10 +245,11 @@ SailingLoc peut collecter les données suivantes dans le cadre de la démonstrat
 ## Utilisation des données
 
 Vos données sont utilisées pour :
-- Gestion de votre compte
-- Traitement des réservations fictives
-- Amélioration de nos services
-- Communication par email
+
+- gestion de votre compte
+- traitement des réservations fictives
+- amélioration de nos services
+- communication par email
 
 ## Conservation
 
@@ -142,8 +303,8 @@ const LegalPage = () => {
     );
   }
 
-  const renderContent = (text) => {
-    return text.split('\n').map((line, i) => {
+  const renderContent = (text) =>
+    text.split('\n').map((line, i) => {
       if (line.startsWith('## ')) {
         return (
           <h2 key={i} className="mb-2 mt-6 text-xl font-bold text-gray-900">
@@ -172,7 +333,6 @@ const LegalPage = () => {
         </p>
       );
     });
-  };
 
   return (
     <div className="container-max section-padding max-w-3xl">
