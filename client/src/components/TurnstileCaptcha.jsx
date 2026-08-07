@@ -72,14 +72,7 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
     };
   }, [onExpire, onVerify]);
 
-  if (!siteKey) {
-    return (
-      <div className="turnstile-fallback" role="status">
-        <ShieldCheck size={16} aria-hidden="true" />
-        <span>Captcha désactivé en local. Configurez VITE_TURNSTILE_SITE_KEY sur Render.</span>
-      </div>
-    );
-  }
+  if (!siteKey) return null;
 
   return (
     <div className="turnstile-box">
