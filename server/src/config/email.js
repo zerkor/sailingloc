@@ -5,7 +5,17 @@ const asBoolean = (value, defaultValue = false) => {
   return String(value).toLowerCase() === 'true';
 };
 
-const trimUrl = (value) => (value || '').replace(/\/$/, '');
+const sanitizeUrlEnv = (value, fallback) => {
+  const firstValue = String(value || '')
+    .split(/\s+/)
+    .find((part) => /^https?:\/\//i.test(part));
+
+  try {
+    return new URL(firstValue || fallback).origin;
+  } catch {
+    return fallback;
+  }
+};
 
 const resolvePublicClientUrl = () => {
   const configured =
@@ -15,8 +25,10 @@ const resolvePublicClientUrl = () => {
     process.env.FRONTEND_URL ||
     process.env.CLIENT_URL;
 
-  if (configured) return trimUrl(configured);
-  return process.env.NODE_ENV === 'production' ? 'https://dsp-dev-o24a-g6-fr.onrender.com' : 'http://localhost:5173';
+  return sanitizeUrlEnv(
+    configured,
+    process.env.NODE_ENV === 'production' ? 'https://dsp-dev-o24a-g6-fr.onrender.com' : 'http://localhost:5173'
+  );
 };
 
 const emailConfig = {
@@ -47,7 +59,7 @@ const emailConfig = {
     process.env.EMAIL_FROM_ADDRESS ||
     'contact@sailingloc.fr',
   clientUrl: resolvePublicClientUrl(),
-  serverUrl: (process.env.SERVER_URL || 'http://localhost:5000').replace(/\/$/, ''),
+  serverUrl: sanitizeUrlEnv(process.env.SERVER_URL, 'http://localhost:5000'),
 };
 
 const validateEmailConfig = () => {
