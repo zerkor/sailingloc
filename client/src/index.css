@@ -2020,10 +2020,57 @@ html[dir='rtl'] .language-dropdown__menu button {
   color: #071d33;
 }
 
+.booking-calendar__grid .is-range-start,
+.booking-calendar__grid .is-range-end {
+  border-color: #071d33;
+  background: #071d33;
+  color: #fff;
+}
+
+.booking-calendar__grid .is-today {
+  box-shadow: inset 0 0 0 2px rgba(18, 199, 217, 0.45);
+}
+
 .booking-calendar__grid .is-unavailable {
-  border-color: #ffd1d1;
-  background: #fee2e2;
-  color: #a61b1b;
+  border-color: #d8e0e8;
+  background: #edf1f5;
+  color: #8896a8;
+  text-decoration: line-through;
+}
+
+.booking-calendar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.booking-calendar__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.booking-calendar__legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid #e5edf3;
+  background: #fff;
+}
+
+.booking-calendar__legend i.is-unavailable {
+  background: #edf1f5;
+  border-color: #d8e0e8;
+}
+
+.booking-calendar__legend i.is-selected {
+  background: #12c7d9;
+  border-color: #12c7d9;
 }
 
 .booking-summary {

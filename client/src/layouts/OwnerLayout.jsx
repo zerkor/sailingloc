@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import OwnerSidebar from '../components/OwnerSidebar';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Plus } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const OwnerLayout = () => {
   const { user, logoutUser } = useAuth();
@@ -14,6 +15,7 @@ const OwnerLayout = () => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: '#EDF1F5' }}>
+      <SEO title="Espace propriétaire — SailingLoc" description="Espace propriétaire privé SailingLoc." noIndex />
       <OwnerSidebar />
       <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}

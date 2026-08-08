@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -140,6 +141,7 @@ app.get('/api', (req, res) =>
 app.get('/api/health', (req, res) =>
   res.json({
     status: 'ok',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
   })

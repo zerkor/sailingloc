@@ -57,12 +57,12 @@ const BoatDetailPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const reviewId = id || slug?.match(/[a-f\d]{24}$/i)?.[0];
-        const [boatRes, reviewsRes] = await Promise.all([
-          slug ? getBoatBySlug(slug) : getBoatById(id),
-          reviewId ? getBoatReviews(reviewId) : Promise.resolve({ data: [] }),
-        ]);
-        setBoat(boatRes.data);
+        const identifier = slug || id;
+        const isId = /^[a-f\d]{24}$/i.test(identifier || '');
+        const boatRes = isId ? await getBoatById(identifier) : await getBoatBySlug(identifier);
+        const boatData = boatRes.data;
+        const reviewsRes = boatData?._id ? await getBoatReviews(boatData._id) : { data: [] };
+        setBoat(boatData);
         setReviews(reviewsRes.data || []);
       } catch {
         setError('Impossible de charger ce bateau.');
@@ -88,8 +88,9 @@ const BoatDetailPage = () => {
   if (error || !boat) {
     return (
       <div className="container-max section-padding text-center py-24">
+        <SEO title="Bateau introuvable — SailingLoc" description="Cette annonce bateau est introuvable ou indisponible." noIndex />
         <Anchor size={48} className="mx-auto mb-4" color="#00C6E0" />
-        <h2 className="mb-4 text-2xl font-bold text-[#07192E]">{error || 'Bateau introuvable'}</h2>
+        <h1 className="mb-4 text-2xl font-bold text-[#07192E]">{error || 'Bateau introuvable'}</h1>
         <Link to="/boats" className="btn-primary">
           Retour aux bateaux
         </Link>
@@ -101,6 +102,11 @@ const BoatDetailPage = () => {
   const activeImage = images[selectedImage] || FALLBACK_BOAT_IMAGE;
   const reviewCount = reviews.length;
   const ratingLabel = boat.averageRating > 0 ? `${boat.averageRating.toFixed(1)} / 5` : 'Nouveau bateau';
+  const canonicalSlug = boat.slug || boat._id;
+  const seoTitle = `${boat.title} à ${boat.location} — Location bateau SailingLoc`;
+  const seoDescription = `Louez ${boat.title} à ${boat.location} sur SailingLoc. ${
+    typeLabels[boat.type] || 'Bateau'
+  } de ${boat.capacity} places, à partir de ${formatPrice(boat.pricePerDay)} par jour. Réservation simple et sécurisée entre particuliers.`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -129,8 +135,11 @@ const BoatDetailPage = () => {
   return (
     <div className="boat-detail-page">
       <SEO
-        title={`${boat.title} à ${boat.location} - SailingLoc`}
-        description={`Louez ${boat.title}, ${typeLabels[boat.type] || 'bateau'} à ${boat.location}, à partir de ${formatPrice(boat.pricePerDay)} par jour.`}
+        title={seoTitle}
+        description={seoDescription}
+        canonical={`/boats/${canonicalSlug}`}
+        image={activeImage}
+        type="product"
         jsonLd={jsonLd}
       />
 
@@ -193,7 +202,9 @@ const BoatDetailPage = () => {
             <section className="boat-title-card">
               <div>
                 <span className="boat-eyebrow">{typeLabels[boat.type] || boat.type}</span>
-                <h1>{boat.title}</h1>
+                <h1>
+                  {boat.title} à {boat.location}
+                </h1>
                 <p className="boat-title-card__subtitle">
                   {boat.port || boat.location} · {boat.capacity} personnes · {boat.length || 'Longueur NC'} m
                 </p>

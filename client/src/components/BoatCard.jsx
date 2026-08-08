@@ -36,10 +36,11 @@ const BoatCard = ({ boat }) => {
   const visible = features.slice(0, 3);
   const extra = features.length - visible.length;
   const isVerified = boat.owner?.verified === true;
+  const detailPath = `/boats/${boat.slug || boat._id}`;
 
   return (
     <Link
-      to={`/boats/${boat._id}`}
+      to={detailPath}
       aria-label={`Voir le bateau ${boat.title}, ${formatPrice(boat.pricePerDay)} ${t('common.perDay')}`}
       className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-navy-900/[0.04] bg-white transition-all duration-300"
       style={{ boxShadow: 'var(--shadow-card)' }}

@@ -4,6 +4,7 @@ const boatSchema = new mongoose.Schema(
   {
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true, trim: true },
+    slug: { type: String, unique: true, sparse: true, index: true },
     type: { type: String, enum: ['sailboat', 'motorboat', 'catamaran', 'rib'], required: true },
     description: { type: String, required: true },
     location: { type: String, required: true, trim: true },

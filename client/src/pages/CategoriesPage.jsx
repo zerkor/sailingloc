@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Anchor, ShipWheel, Sailboat, Waves } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import SEO from '../components/SEO';
 
 const categories = [
   {
@@ -31,6 +32,11 @@ const categories = [
 
 const CategoriesPage = () => (
   <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
+    <SEO
+      title="Catégories de bateaux — SailingLoc"
+      description="Parcourez les catégories de bateaux disponibles sur SailingLoc : voiliers, catamarans, bateaux à moteur et semi-rigides."
+      canonical="/categories"
+    />
     <section className="px-4 sm:px-6 lg:px-10 xl:px-14 py-14 sm:py-16" style={{ background: '#07192E' }}>
       <div className="container-max">
         <Breadcrumb className="site-breadcrumb--light" items={[{ label: 'Catégories' }]} />

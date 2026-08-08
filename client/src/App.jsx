@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
@@ -62,9 +63,10 @@ function App() {
   }, [i18n.language, i18n.resolvedLanguage]);
 
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+    <HelmetProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
           <Routes>
             {/* Public routes */}
             <Route element={<PublicLayout />}>
@@ -159,9 +161,10 @@ function App() {
               <Route path="action-logs" element={<AdminActionLogsPage />} />
             </Route>
           </Routes>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 

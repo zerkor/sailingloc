@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, CalendarCheck, CreditCard, FileCheck2, Headphones, ShieldCheck } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import SEO from '../components/SEO';
 
 const services = [
   {
@@ -37,6 +38,11 @@ const services = [
 
 const ProductsPage = () => (
   <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
+    <SEO
+      title="Catalogue des bateaux — SailingLoc"
+      description="Consultez le catalogue des bateaux disponibles à la location entre particuliers sur SailingLoc."
+      canonical="/products"
+    />
     <section
       className="px-4 sm:px-6 lg:px-10 xl:px-14 py-14 sm:py-16"
       style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}

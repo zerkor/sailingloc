@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AdminLayout = () => {
   const { user, logoutUser } = useAuth();
@@ -14,6 +15,7 @@ const AdminLayout = () => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: '#EDF1F5' }}>
+      <SEO title="Administration — SailingLoc" description="Back-office privé SailingLoc." noIndex />
       <AdminSidebar />
       <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}

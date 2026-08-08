@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumb';
+import SEO from '../../components/SEO';
 
 const content = {
   'mentions-legales': {
@@ -336,6 +337,12 @@ const LegalPage = () => {
 
   return (
     <div className="container-max section-padding max-w-3xl">
+      <SEO
+        title={`${page.title} — SailingLoc`}
+        description={`Page légale SailingLoc : ${page.title}.`}
+        canonical={`/legal/${slug}`}
+        noIndex
+      />
       <Breadcrumb className="site-breadcrumb--card" items={[{ label: 'Pages légales' }, { label: page.title }]} />
       <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-navy-600 hover:underline">
         <ArrowLeft size={14} /> Retour à l'accueil

@@ -5,6 +5,7 @@ import api from '../services/api';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumb from '../components/Breadcrumb';
 import TurnstileCaptcha, { isTurnstileConfigured } from '../components/TurnstileCaptcha';
+import SEO from '../components/SEO';
 
 const SUBJECTS = [
   { value: '', label: 'Choisir un sujet…', disabled: true },
@@ -90,6 +91,11 @@ const ContactPage = () => {
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
+      <SEO
+        title="Contact — SailingLoc"
+        description="Contactez l’équipe SailingLoc pour toute question concernant la location de bateaux entre particuliers."
+        canonical="/contact"
+      />
       {/* ── Hero banner ── */}
       <div className="py-14 sm:py-16 px-4 sm:px-6 lg:px-10 xl:px-14" style={{ background: '#07192E' }}>
         <div className="container-max">

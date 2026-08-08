@@ -119,6 +119,44 @@ CLIENT_URL=http://localhost:5173
 SERVER_URL=http://localhost:5000
 ```
 
+## Corrections qualité soutenance
+
+- SEO dynamique via `react-helmet-async`.
+- Titres, descriptions, Open Graph, Twitter Cards et canoniques par page.
+- Fiches bateaux avec SEO dynamique, H1 spécifique et JSON-LD.
+- URLs bateaux par slug sans accents ni caractères spéciaux, avec fallback ID.
+- Pages admin/propriétaire/légales en `noindex`.
+- Suppression compte implémentée en soft delete/anonymisation.
+- Calendrier de réservation clarifié : disponible, indisponible, sélectionné, aujourd'hui.
+- Scripts de tests API, couverture, validation DB, validation déploiement et k6.
+
+## Commandes de validation
+
+```powershell
+npm run build
+npm run test
+npm run test:coverage
+npm run test:e2e
+npm run validate:db
+npm run validate:deploy
+```
+
+## Tests de charge k6
+
+```powershell
+npm run load:constant
+npm run load:spike
+npm run load:stress
+npm run load:bookings
+npm run load:payments
+```
+
+Les scénarios lourds 10 000 utilisateurs pendant 24h et 1 000 à 50 000 utilisateurs sont documentés dans `load-tests/README.md`. Ils ne doivent pas être lancés sur un poste local ou un hébergement gratuit.
+
+## Limite SEO MVP
+
+SailingLoc reste une SPA React. Les métadonnées dynamiques améliorent le rendu navigateur, mais le HTML source initial ne sera pas équivalent à du SSR. Pour une vraie production SEO, prévoir Next.js/SSR ou prerendering des pages publiques.
+
 Pour tester le parcours :
 
 1. Créer une réservation avec un compte locataire.

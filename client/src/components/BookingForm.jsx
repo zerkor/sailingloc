@@ -30,6 +30,9 @@ const BookingForm = ({ boat }) => {
       iso,
       label: date.getDate(),
       unavailable: unavailableSet.has(iso),
+      today: index === 0,
+      rangeStart: startDate === iso,
+      rangeEnd: endDate === iso,
       selected: startDate && endDate && iso >= startDate && iso <= endDate,
     };
   });
@@ -140,12 +143,31 @@ const BookingForm = ({ boat }) => {
               {calendarDays.map((day) => (
                 <div
                   key={day.iso}
-                  title={day.unavailable ? 'Indisponible' : 'Disponible'}
-                  className={day.unavailable ? 'is-unavailable' : day.selected ? 'is-selected' : ''}
+                  title={day.unavailable ? 'Indisponible' : day.selected ? 'Sélectionné' : 'Disponible'}
+                  className={[
+                    day.unavailable ? 'is-unavailable' : '',
+                    day.selected ? 'is-selected' : '',
+                    day.rangeStart ? 'is-range-start' : '',
+                    day.rangeEnd ? 'is-range-end' : '',
+                    day.today ? 'is-today' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                 >
                   {day.label}
                 </div>
               ))}
+            </div>
+            <div className="booking-calendar__legend" aria-label="Légende du calendrier">
+              <span>
+                <i className="is-available" /> Disponible
+              </span>
+              <span>
+                <i className="is-unavailable" /> Indisponible
+              </span>
+              <span>
+                <i className="is-selected" /> Sélectionné
+              </span>
             </div>
           </div>
 
@@ -170,7 +192,7 @@ const BookingForm = ({ boat }) => {
           )}
 
           <ErrorMessage message={error} />
-          {unavailableRange && <ErrorMessage message="Ce bateau est indisponible sur au moins une des dates sélectionnées." />}
+          {unavailableRange && <ErrorMessage message="Certaines dates sélectionnées ne sont pas disponibles." />}
 
           <button
             type="submit"

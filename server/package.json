@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "seed": "node src/seed/seed.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js",
+    "test:coverage": "node --experimental-test-coverage --test --test-concurrency=1 tests/*.test.js",
     "test:admin": "node --test tests/admin.test.js",
+    "validate:db": "node scripts/validate-db-connection.js",
     "lint": "eslint \"src/**/*.js\" \"tests/**/*.js\"",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\""

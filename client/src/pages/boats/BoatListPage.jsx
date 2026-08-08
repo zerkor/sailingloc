@@ -6,6 +6,7 @@ import BoatCard from '../../components/BoatCard';
 import Breadcrumb from '../../components/Breadcrumb';
 import FilterSidebar from '../../components/FilterSidebar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import SEO from '../../components/SEO';
 import { getBoats } from '../../services/boatService';
 
 const BoatListPage = () => {
@@ -67,6 +68,11 @@ const BoatListPage = () => {
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
+      <SEO
+        title="Bateaux à louer — SailingLoc"
+        description="Découvrez les bateaux disponibles à la location sur SailingLoc : voiliers, catamarans, bateaux à moteur et semi-rigides."
+        canonical="/boats"
+      />
       <div
         className="relative overflow-hidden px-4 py-12 sm:px-6 sm:py-14 lg:px-10 xl:px-14"
         style={{ background: 'linear-gradient(135deg, #07192E 0%, #155374 100%)' }}

@@ -1,6 +1,22 @@
 const asyncHandler = require('../utils/asyncHandler');
 const Boat = require('../models/Boat');
 const Booking = require('../models/Booking');
+const slugify = require('../utils/slugify');
+
+const isMongoId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
+
+const generateUniqueBoatSlug = async ({ title, location, currentBoatId }) => {
+  const baseSlug = slugify(`${title} ${location}`) || `bateau-${Date.now()}`;
+  let candidate = baseSlug;
+  let suffix = 2;
+
+  while (await Boat.exists({ slug: candidate, ...(currentBoatId ? { _id: { $ne: currentBoatId } } : {}) })) {
+    candidate = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+};
 
 const getBoats = asyncHandler(async (req, res) => {
   const {
@@ -67,13 +83,25 @@ const getBoatById = asyncHandler(async (req, res) => {
 });
 
 const getBoatBySlug = asyncHandler(async (req, res) => {
-  const match = req.params.slug.match(/[a-f\d]{24}$/i);
-  if (!match) {
+  const identifier = req.params.slug;
+  const boat = await Boat.findOne(isMongoId(identifier) ? { _id: identifier } : { slug: identifier }).populate(
+    'owner',
+    'firstName lastName'
+  );
+
+  if (!boat) {
     res.status(404);
     throw new Error('Boat not found');
   }
-  req.params.id = match[0];
-  return getBoatById(req, res);
+  if (boat.status !== 'approved') {
+    const isOwner = req.user && req.user._id.toString() === boat.owner._id.toString();
+    const isAdmin = req.user && req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      res.status(404);
+      throw new Error('Boat not found');
+    }
+  }
+  res.json(boat);
 });
 
 const createBoat = asyncHandler(async (req, res) => {
@@ -94,6 +122,7 @@ const createBoat = asyncHandler(async (req, res) => {
   const boat = await Boat.create({
     owner: req.user._id,
     title,
+    slug: await generateUniqueBoatSlug({ title, location }),
     type,
     description,
     location,
@@ -138,6 +167,13 @@ const updateBoat = asyncHandler(async (req, res) => {
   fields.forEach((f) => {
     if (req.body[f] !== undefined) boat[f] = req.body[f];
   });
+  if (req.body.title !== undefined || req.body.location !== undefined || !boat.slug) {
+    boat.slug = await generateUniqueBoatSlug({
+      title: boat.title,
+      location: boat.location,
+      currentBoatId: boat._id,
+    });
+  }
   if (boat.status === 'rejected' && req.user.role !== 'admin') boat.status = 'pending';
   const updated = await boat.save();
   res.json(updated);

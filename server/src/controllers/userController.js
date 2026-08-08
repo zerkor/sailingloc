@@ -16,8 +16,32 @@ const updateProfile = asyncHandler(async (req, res) => {
 });
 
 const deleteAccount = asyncHandler(async (req, res) => {
-  await User.findByIdAndDelete(req.user._id);
-  res.json({ message: 'Account deleted successfully' });
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  if (user.role === 'admin') {
+    const activeAdmins = await User.countDocuments({ role: 'admin', isActive: true });
+    if (activeAdmins <= 1) {
+      res.status(400);
+      throw new Error('Impossible de supprimer le dernier administrateur actif');
+    }
+  }
+
+  user.isActive = false;
+  user.email = `deleted_user_${user._id}@deleted.local`;
+  user.firstName = 'Utilisateur';
+  user.lastName = 'supprimé';
+  user.phone = '';
+  user.marketingConsent = false;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  user.anonymizedAt = new Date();
+  await user.save();
+
+  res.json({ message: 'Compte désactivé et anonymisé avec succès' });
 });
 
 module.exports = { getProfile, updateProfile, deleteAccount };
