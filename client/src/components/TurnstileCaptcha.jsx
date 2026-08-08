@@ -34,7 +34,14 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
   const containerId = useId().replace(/:/g, '');
   const containerRef = useRef(null);
   const widgetRef = useRef(null);
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
   const [status, setStatus] = useState(siteKey ? 'loading' : 'disabled');
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+    onExpireRef.current = onExpire;
+  }, [onExpire, onVerify]);
 
   useEffect(() => {
     if (!siteKey || !containerRef.current) return undefined;
@@ -48,22 +55,22 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
           theme: 'light',
           callback: (token) => {
             setStatus('verified');
-            onVerify(token);
+            onVerifyRef.current(token);
           },
           'expired-callback': () => {
             setStatus('expired');
-            onExpire?.();
+            onExpireRef.current?.();
           },
           'error-callback': (code) => {
             if (code) console.warn('Cloudflare Turnstile error:', code);
             setStatus('error');
-            onExpire?.();
+            onExpireRef.current?.();
           },
         });
       })
       .catch(() => {
         setStatus('error');
-        onExpire?.();
+        onExpireRef.current?.();
       });
 
     return () => {
@@ -72,7 +79,7 @@ const TurnstileCaptcha = ({ onVerify, onExpire, required = true, label = 'Vérif
         window.turnstile.remove(widgetRef.current);
       }
     };
-  }, [onExpire, onVerify]);
+  }, []);
 
   if (!siteKey) return null;
 
