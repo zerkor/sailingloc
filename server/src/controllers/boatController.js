@@ -4,6 +4,15 @@ const Booking = require('../models/Booking');
 const slugify = require('../utils/slugify');
 
 const isMongoId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
+const boatListCache = new Map();
+const BOAT_LIST_CACHE_TTL_MS = Number(process.env.BOAT_LIST_CACHE_TTL_MS || 30_000);
+const BOAT_LIST_CACHE_ENABLED = process.env.NODE_ENV === 'production';
+const PUBLIC_BOAT_FIELDS =
+  'owner title slug type description location port pricePerDay capacity length engine skipperAvailable equipments images unavailableDates status averageRating createdAt';
+
+const clearBoatListCache = () => {
+  boatListCache.clear();
+};
 
 const generateUniqueBoatSlug = async ({ title, location, currentBoatId }) => {
   const baseSlug = slugify(`${title} ${location}`) || `bateau-${Date.now()}`;
@@ -31,7 +40,16 @@ const getBoats = asyncHandler(async (req, res) => {
     page = 1,
     limit = 12,
   } = req.query;
+  const cacheKey = JSON.stringify(req.query || {});
+  const cached = BOAT_LIST_CACHE_ENABLED ? boatListCache.get(cacheKey) : null;
+  if (cached && cached.expiresAt > Date.now()) {
+    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=30');
+    return res.json(cached.payload);
+  }
+
   const filter = { status: 'approved' };
+  const numericPage = Math.max(Number(page) || 1, 1);
+  const numericLimit = Math.min(Math.max(Number(limit) || 12, 1), 50);
   if (location) filter.location = { $regex: location, $options: 'i' };
   if (type) filter.type = type;
   if (minPrice || maxPrice) {
@@ -55,14 +73,23 @@ const getBoats = asyncHandler(async (req, res) => {
     }
   }
 
-  const total = await Boat.countDocuments(filter);
-  const boats = await Boat.find(filter)
-    .populate('owner', 'firstName lastName')
-    .skip((page - 1) * limit)
-    .limit(Number(limit))
-    .sort({ createdAt: -1 });
+  const [total, boats] = await Promise.all([
+    Boat.countDocuments(filter),
+    Boat.find(filter)
+      .select(PUBLIC_BOAT_FIELDS)
+      .populate('owner', 'firstName lastName')
+      .skip((numericPage - 1) * numericLimit)
+      .limit(numericLimit)
+      .sort({ createdAt: -1 })
+      .lean(),
+  ]);
 
-  res.json({ boats, total, page: Number(page), pages: Math.ceil(total / limit) });
+  const payload = { boats, total, page: numericPage, pages: Math.ceil(total / numericLimit) };
+  if (BOAT_LIST_CACHE_ENABLED) {
+    boatListCache.set(cacheKey, { payload, expiresAt: Date.now() + BOAT_LIST_CACHE_TTL_MS });
+  }
+  res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=30');
+  res.json(payload);
 });
 
 const getBoatById = asyncHandler(async (req, res) => {
@@ -136,6 +163,7 @@ const createBoat = asyncHandler(async (req, res) => {
     images,
     status: 'pending',
   });
+  clearBoatListCache();
   res.status(201).json(boat);
 });
 
@@ -176,6 +204,7 @@ const updateBoat = asyncHandler(async (req, res) => {
   }
   if (boat.status === 'rejected' && req.user.role !== 'admin') boat.status = 'pending';
   const updated = await boat.save();
+  clearBoatListCache();
   res.json(updated);
 });
 
@@ -190,6 +219,7 @@ const deleteBoat = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to delete this boat');
   }
   await boat.deleteOne();
+  clearBoatListCache();
   res.json({ message: 'Boat removed' });
 });
 

@@ -118,6 +118,9 @@ app.use(
 const limiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
   max: Number(process.env.RATE_LIMIT_MAX || 200),
+  skip: (req) =>
+    req.method === 'GET' &&
+    (req.path === '/api/health' || req.path === '/api/boats' || req.path.startsWith('/api/boats/slug/')),
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);

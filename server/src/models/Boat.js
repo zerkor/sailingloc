@@ -24,6 +24,9 @@ const boatSchema = new mongoose.Schema(
 );
 
 boatSchema.index({ status: 1, location: 1, type: 1, pricePerDay: 1, capacity: 1 });
+boatSchema.index({ status: 1, createdAt: -1 });
+boatSchema.index({ status: 1, type: 1, createdAt: -1 });
+boatSchema.index({ status: 1, pricePerDay: 1, createdAt: -1 });
 boatSchema.index({ owner: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Boat', boatSchema);
