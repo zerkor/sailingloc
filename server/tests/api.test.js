@@ -554,6 +554,55 @@ test('Reviews API: tenant reviews a completed booking and admin approves the rev
   assert.equal(updatedBoat.averageRating, 5);
 });
 
+test('Reviews API: latest public reviews are ordered by most recent approval update', async () => {
+  const owner = await createUser({ email: 'owner-latest@sailingloc.test', role: 'owner' });
+  const tenant = await createUser({ email: 'tenant-latest@sailingloc.test', role: 'tenant' });
+  const boat = await createApprovedBoat(owner._id, { title: 'Latest Review Boat' });
+
+  const oldReview = await Review.create({
+    boat: boat._id,
+    booking: new mongoose.Types.ObjectId(),
+    author: tenant._id,
+    rating: 4,
+    comment: 'Avis deja approuve plus ancien.',
+    status: 'approved',
+  });
+  const recentlyApprovedReview = await Review.create({
+    boat: boat._id,
+    booking: new mongoose.Types.ObjectId(),
+    author: tenant._id,
+    rating: 5,
+    comment: 'Avis approuve recemment a afficher en premier.',
+    status: 'approved',
+  });
+  await Review.updateOne(
+    { _id: oldReview._id },
+    {
+      $set: {
+        createdAt: new Date('2026-01-01T10:00:00.000Z'),
+        updatedAt: new Date('2026-01-01T10:00:00.000Z'),
+      },
+    },
+    { timestamps: false }
+  );
+  await Review.updateOne(
+    { _id: recentlyApprovedReview._id },
+    {
+      $set: {
+        createdAt: new Date('2026-01-01T09:00:00.000Z'),
+        updatedAt: new Date('2026-01-02T10:00:00.000Z'),
+      },
+    },
+    { timestamps: false }
+  );
+
+  const response = await request(app).get('/api/reviews/latest?limit=2').expect(200);
+
+  assert.equal(response.body.length, 2);
+  assert.equal(response.body[0]._id, recentlyApprovedReview._id.toString());
+  assert.equal(response.body[1]._id, oldReview._id.toString());
+});
+
 test('Contact API: stores message and triggers transactional email flow', async () => {
   const response = await request(app)
     .post('/api/contact')

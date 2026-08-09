@@ -45,10 +45,11 @@ const getLatestReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({ status: 'approved' })
     .populate('author', 'firstName lastName')
     .populate('boat', 'title slug location')
-    .sort({ createdAt: -1 })
+    .sort({ updatedAt: -1, createdAt: -1 })
     .limit(limit)
     .lean();
 
+  res.set('Cache-Control', 'no-store');
   res.json(reviews);
 });
 
