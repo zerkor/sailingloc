@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Lock, Send, ShieldCheck, Star } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, Lock, Send, ShieldCheck, Star } from 'lucide-react';
 import { createBooking } from '../services/bookingService';
 import { calculatePrice, getMinDate, isRangeUnavailable } from '../utils/bookingUtils';
 import { formatPrice } from '../utils/formatPrice';
@@ -12,6 +12,10 @@ const BookingForm = ({ boat }) => {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const date = new Date();
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -22,20 +26,84 @@ const BookingForm = ({ boat }) => {
   const unavailableSet = new Set(
     (boat.unavailableDates || []).map((date) => new Date(date).toISOString().slice(0, 10))
   );
-  const calendarDays = Array.from({ length: 21 }, (_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() + index);
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const monthLabel = calendarMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const calendarStart = new Date(calendarMonth);
+  const firstWeekday = (calendarStart.getUTCDay() + 6) % 7;
+  calendarStart.setUTCDate(calendarStart.getUTCDate() - firstWeekday);
+  const calendarDays = Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(calendarStart);
+    date.setUTCDate(calendarStart.getUTCDate() + index);
     const iso = date.toISOString().slice(0, 10);
+    const past = iso < minDate;
+    const unavailable = unavailableSet.has(iso);
     return {
       iso,
-      label: date.getDate(),
-      unavailable: unavailableSet.has(iso),
-      today: index === 0,
+      label: date.getUTCDate(),
+      unavailable,
+      past,
+      disabled: unavailable || past,
+      outsideMonth: date.getUTCMonth() !== calendarMonth.getUTCMonth(),
+      today: iso === todayIso,
       rangeStart: startDate === iso,
       rangeEnd: endDate === iso,
       selected: startDate && endDate && iso >= startDate && iso <= endDate,
+      inRange: startDate && endDate && iso > startDate && iso < endDate,
     };
   });
+  const rangeSelectionHint = startDate && !endDate ? "Selectionnez une date d'arrivee." : '';
+
+  const changeCalendarMonth = (direction) => {
+    setCalendarMonth((current) => {
+      const next = new Date(current);
+      next.setUTCMonth(next.getUTCMonth() + direction);
+      return next;
+    });
+  };
+
+  const handleDateClick = (day) => {
+    if (day.disabled) return;
+    setError('');
+
+    if (!startDate || (startDate && endDate) || day.iso <= startDate) {
+      setStartDate(day.iso);
+      setEndDate('');
+      return;
+    }
+
+    if (isRangeUnavailable(startDate, day.iso, boat.unavailableDates)) {
+      setEndDate('');
+      setError('Certaines dates de cette periode ne sont pas disponibles.');
+      return;
+    }
+
+    setEndDate(day.iso);
+  };
+
+  const handleStartDateChange = (value) => {
+    setError('');
+    setStartDate(value);
+    if (endDate && value >= endDate) setEndDate('');
+    if (value) {
+      const next = new Date(value);
+      setCalendarMonth(new Date(Date.UTC(next.getUTCFullYear(), next.getUTCMonth(), 1)));
+    }
+  };
+
+  const handleEndDateChange = (value) => {
+    setError('');
+    if (startDate && value && value <= startDate) {
+      setStartDate(value);
+      setEndDate('');
+      return;
+    }
+    if (value && isRangeUnavailable(startDate, value, boat.unavailableDates)) {
+      setEndDate('');
+      setError('Certaines dates de cette periode ne sont pas disponibles.');
+      return;
+    }
+    setEndDate(value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,7 +185,7 @@ const BookingForm = ({ boat }) => {
                 type="date"
                 value={startDate}
                 min={minDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => handleStartDateChange(e.target.value)}
                 required
               />
             </label>
@@ -128,7 +196,7 @@ const BookingForm = ({ boat }) => {
                 type="date"
                 value={endDate}
                 min={startDate || minDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleEndDateChange(e.target.value)}
                 required
               />
             </label>
@@ -137,15 +205,40 @@ const BookingForm = ({ boat }) => {
           <div className="booking-calendar">
             <div className="booking-calendar__head">
               <span>Disponibilités</span>
-              <small>21 prochains jours</small>
+              <div className="booking-calendar__month">
+                <button type="button" onClick={() => changeCalendarMonth(-1)} aria-label="Mois precedent">
+                  <ChevronLeft size={15} />
+                </button>
+                <small>{monthLabel}</small>
+                <button type="button" onClick={() => changeCalendarMonth(1)} aria-label="Mois suivant">
+                  <ChevronRight size={15} />
+                </button>
+              </div>
+            </div>
+            <div className="booking-calendar__weekdays" aria-hidden="true">
+              {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((weekday, index) => (
+                <span key={`${weekday}-${index}`}>{weekday}</span>
+              ))}
             </div>
             <div className="booking-calendar__grid" aria-label="Calendrier de disponibilité">
               {calendarDays.map((day) => (
-                <div
+                <button
+                  type="button"
                   key={day.iso}
-                  title={day.unavailable ? 'Indisponible' : day.selected ? 'Sélectionné' : 'Disponible'}
+                  onClick={() => handleDateClick(day)}
+                  title={day.disabled ? 'Indisponible' : day.selected ? 'Sélectionné' : 'Disponible'}
+                  aria-label={`${day.label} - ${
+                    day.disabled ? 'indisponible' : day.selected ? 'sélectionné' : 'disponible'
+                  }`}
+                  aria-selected={Boolean(day.selected || day.rangeStart || day.rangeEnd)}
+                  aria-pressed={Boolean(day.selected || day.rangeStart || day.rangeEnd)}
+                  disabled={day.disabled}
                   className={[
+                    'booking-calendar__day',
+                    day.outsideMonth ? 'is-outside-month' : '',
                     day.unavailable ? 'is-unavailable' : '',
+                    day.past ? 'is-past' : '',
+                    day.inRange ? 'is-in-range' : '',
                     day.selected ? 'is-selected' : '',
                     day.rangeStart ? 'is-range-start' : '',
                     day.rangeEnd ? 'is-range-end' : '',
@@ -154,8 +247,8 @@ const BookingForm = ({ boat }) => {
                     .filter(Boolean)
                     .join(' ')}
                 >
-                  {day.label}
-                </div>
+                  <span>{day.label}</span>
+                </button>
               ))}
             </div>
             <div className="booking-calendar__legend" aria-label="Légende du calendrier">
@@ -170,6 +263,8 @@ const BookingForm = ({ boat }) => {
               </span>
             </div>
           </div>
+
+          {rangeSelectionHint && <p className="booking-calendar__hint">{rangeSelectionHint}</p>}
 
           {priceCalc && (
             <div className="booking-summary">

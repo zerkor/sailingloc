@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const slugify = require('../utils/slugify');
 
 const isMongoId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
+const ACTIVE_BOOKING_STATUSES = ['pending', 'accepted', 'confirmed'];
 const boatListCache = new Map();
 const BOAT_LIST_CACHE_TTL_MS = Number(process.env.BOAT_LIST_CACHE_TTL_MS || 30_000);
 const BOAT_LIST_CACHE_ENABLED = process.env.NODE_ENV === 'production';
@@ -12,6 +13,45 @@ const PUBLIC_BOAT_FIELDS =
 
 const clearBoatListCache = () => {
   boatListCache.clear();
+};
+
+const toDateOnly = (date) => {
+  const value = new Date(date);
+  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+};
+
+const expandDateRange = (startDate, endDate) => {
+  const dates = [];
+  const cursor = toDateOnly(startDate);
+  const end = toDateOnly(endDate);
+
+  while (cursor < end) {
+    dates.push(cursor.toISOString());
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return dates;
+};
+
+const withBookedUnavailableDates = async (boat) => {
+  const plainBoat = typeof boat.toObject === 'function' ? boat.toObject() : boat;
+  const bookings = await Booking.find({
+    boat: plainBoat._id,
+    status: { $in: ACTIVE_BOOKING_STATUSES },
+    endDate: { $gt: new Date() },
+  })
+    .select('startDate endDate')
+    .lean();
+
+  const unavailableDates = new Set((plainBoat.unavailableDates || []).map((date) => new Date(date).toISOString()));
+  bookings.forEach((booking) => {
+    expandDateRange(booking.startDate, booking.endDate).forEach((date) => unavailableDates.add(date));
+  });
+
+  return {
+    ...plainBoat,
+    unavailableDates: [...unavailableDates],
+  };
 };
 
 const generateUniqueBoatSlug = async ({ title, location, currentBoatId }) => {
@@ -106,7 +146,7 @@ const getBoatById = asyncHandler(async (req, res) => {
       throw new Error('Boat not found');
     }
   }
-  res.json(boat);
+  res.json(await withBookedUnavailableDates(boat));
 });
 
 const getBoatBySlug = asyncHandler(async (req, res) => {
@@ -128,7 +168,7 @@ const getBoatBySlug = asyncHandler(async (req, res) => {
       throw new Error('Boat not found');
     }
   }
-  res.json(boat);
+  res.json(await withBookedUnavailableDates(boat));
 });
 
 const createBoat = asyncHandler(async (req, res) => {

@@ -15,12 +15,29 @@ const runDemoSeedIfNeeded = async () => {
 
   if (!forceSeed && !seedIfEmpty) return;
 
-  const [adminExists, approvedBoatCount] = await Promise.all([
-    User.exists({ email: 'admin@sailingloc.fr', role: 'admin', isActive: true }),
+  const [demoAdmin, approvedBoatCount] = await Promise.all([
+    User.findOne({ email: 'admin@sailingloc.fr' }),
     Boat.countDocuments({ status: 'approved' }),
   ]);
+  const adminCredentialsValid =
+    demoAdmin &&
+    demoAdmin.role === 'admin' &&
+    demoAdmin.isActive &&
+    (await demoAdmin.matchPassword('Admin123!'));
 
-  const shouldSeed = forceSeed || !adminExists || approvedBoatCount === 0;
+  if (demoAdmin && !adminCredentialsValid && process.env.DEMO_REPAIR_ADMIN !== 'false') {
+    demoAdmin.firstName = 'Admin';
+    demoAdmin.lastName = 'SailingLoc';
+    demoAdmin.role = 'admin';
+    demoAdmin.isActive = true;
+    demoAdmin.password = 'Admin123!';
+    demoAdmin.privacyConsent = true;
+    demoAdmin.privacyConsentAt = demoAdmin.privacyConsentAt || new Date();
+    await demoAdmin.save();
+    console.log('Demo admin repaired: admin@sailingloc.fr / Admin123!');
+  }
+
+  const shouldSeed = forceSeed || !demoAdmin || approvedBoatCount === 0;
   if (!shouldSeed) {
     console.log('Demo seed skipped: demo admin and approved boats already exist');
     return;

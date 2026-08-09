@@ -19,8 +19,7 @@ export const getMinDate = () => {
 
 const toDateOnly = (date) => {
   const value = new Date(date);
-  value.setHours(0, 0, 0, 0);
-  return value;
+  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
 };
 
 export const isRangeUnavailable = (startDate, endDate, unavailableDates = []) => {

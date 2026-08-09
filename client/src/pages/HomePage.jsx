@@ -17,6 +17,7 @@ import {
 import BoatGrid from '../components/BoatGrid';
 import SEO from '../components/SEO';
 import { getBoats } from '../services/boatService';
+import { getLatestReviews } from '../services/reviewService';
 
 const STATS = [
   ['1 200+', 'home.stats.boats'],
@@ -116,6 +117,7 @@ const HeroSearchBar = () => {
 const HomePage = () => {
   const { t } = useTranslation();
   const [featuredBoats, setFeaturedBoats] = useState([]);
+  const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -127,6 +129,28 @@ const HomePage = () => {
       .catch(() => setFeaturedBoats([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    getLatestReviews({ limit: 3 })
+      .then(({ data }) => setLatestReviews(Array.isArray(data) ? data : []))
+      .catch(() => setLatestReviews([]));
+  }, []);
+
+  const displayedReviews =
+    latestReviews.length > 0
+      ? latestReviews.map((review) => ({
+          id: review._id,
+          name: `${review.author?.firstName || 'Locataire'} ${review.author?.lastName?.charAt(0) || ''}.`.trim(),
+          comment: review.comment,
+          rating: review.rating,
+          boatTitle: review.boat?.title,
+        }))
+      : REVIEWS.map(([name, textKey]) => ({
+          id: name,
+          name,
+          comment: t(textKey),
+          rating: 5,
+        }));
 
   return (
     <div className="home-shell">
@@ -204,18 +228,24 @@ const HomePage = () => {
           <span className="sec-eyebrow">{t('home.reviewsEyebrow')}</span>
           <h2>{t('home.reviewsTitle')}</h2>
           <div className="home-review-grid">
-            {REVIEWS.map(([name, textKey]) => (
-              <article key={name} className="home-review-card">
+            {displayedReviews.map((review) => (
+              <article key={review.id} className="home-review-card">
                 <div className="home-stars" aria-label={t('home.reviewAria')}>
                   {Array.from({ length: 5 }, (_, index) => (
-                    <Star key={index} size={14} fill="#F4A01A" color="#F4A01A" />
+                    <Star
+                      key={index}
+                      size={14}
+                      fill={index < review.rating ? '#F4A01A' : 'none'}
+                      color="#F4A01A"
+                    />
                   ))}
                 </div>
-                <p>{t(textKey)}</p>
+                <p>{review.comment}</p>
                 <div className="home-review-user">
-                  <span>{name.slice(0, 1)}</span>
-                  <strong>{name}</strong>
+                  <span>{review.name.slice(0, 1)}</span>
+                  <strong>{review.name}</strong>
                 </div>
+                {review.boatTitle && <small className="home-review-boat">{review.boatTitle}</small>}
               </article>
             ))}
           </div>

@@ -40,4 +40,16 @@ const getBoatReviews = asyncHandler(async (req, res) => {
   res.json(reviews);
 });
 
-module.exports = { createReview, getBoatReviews };
+const getLatestReviews = asyncHandler(async (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 3, 1), 6);
+  const reviews = await Review.find({ status: 'approved' })
+    .populate('author', 'firstName lastName')
+    .populate('boat', 'title slug location')
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
+
+  res.json(reviews);
+});
+
+module.exports = { createReview, getBoatReviews, getLatestReviews };
