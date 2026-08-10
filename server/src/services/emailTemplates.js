@@ -132,7 +132,7 @@ const boatApproved = ({ owner, boat }) =>
       'Elle est maintenant visible par les utilisateurs.',
     ],
     ctaLabel: 'Voir mon annonce',
-    ctaUrl: `${emailConfig.clientUrl}/boats/${boat._id}`,
+    ctaUrl: `${emailConfig.clientUrl}/boats/${boat.slug || boat._id}`,
   });
 
 const boatRejected = ({ owner, boat, reason }) =>
