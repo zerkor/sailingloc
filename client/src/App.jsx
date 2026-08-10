@@ -97,25 +97,25 @@ function App() {
               <Route
                 path="/my-bookings"
                 element={
-                  <ProtectedRoute>
+                  <RoleRoute roles={['tenant']}>
                     <MyBookingsPage />
-                  </ProtectedRoute>
+                  </RoleRoute>
                 }
               />
               <Route
                 path="/payment/success"
                 element={
-                  <ProtectedRoute>
+                  <RoleRoute roles={['tenant']}>
                     <PaymentSuccess />
-                  </ProtectedRoute>
+                  </RoleRoute>
                 }
               />
               <Route
                 path="/payment/cancel"
                 element={
-                  <ProtectedRoute>
+                  <RoleRoute roles={['tenant']}>
                     <PaymentCancel />
-                  </ProtectedRoute>
+                  </RoleRoute>
                 }
               />
 
