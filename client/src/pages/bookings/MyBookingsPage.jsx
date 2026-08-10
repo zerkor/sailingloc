@@ -30,7 +30,7 @@ const MyBookingsPage = () => {
       setError('');
     } catch (err) {
       setBookings([]);
-      setError(err.response?.data?.message || 'Impossible de charger vos réservations pour le moment.');
+      setError(err.response?.data?.message || 'Impossible de charger vos reservations pour le moment.');
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ const MyBookingsPage = () => {
 
   const handleCancel = async (id) => {
     if (
-      !(await requestApproval('Annuler cette réservation ?', {
+      !(await requestApproval('Annuler cette reservation ?', {
         title: 'Annulation',
         variant: 'danger',
         confirmLabel: 'Annuler',
@@ -52,7 +52,7 @@ const MyBookingsPage = () => {
     try {
       await cancelBooking(id);
       fetchBookings();
-      toast('Réservation annulée.', 'success');
+      toast('Reservation annulee.', 'success');
     } catch (err) {
       toast(err.response?.data?.message || "Erreur lors de l'annulation.", 'error');
     }
@@ -68,7 +68,7 @@ const MyBookingsPage = () => {
       }
       await payBooking(id);
       await fetchBookings();
-      toast('Paiement simulé avec succès.', 'success');
+      toast('Paiement simule avec succes.', 'success');
     } catch (err) {
       const message =
         err.response?.status === 503
@@ -87,9 +87,9 @@ const MyBookingsPage = () => {
   };
 
   const paymentLabel = (paymentStatus) => {
-    if (paymentStatus === 'paid') return 'Payé';
-    if (paymentStatus === 'refunded') return 'Remboursé';
-    return 'Non payé';
+    if (paymentStatus === 'paid') return 'Paye';
+    if (paymentStatus === 'refunded') return 'Rembourse';
+    return 'Non paye';
   };
   const getBookingBoat = (booking) => booking?.boat || {};
   const getBookingBoatTitle = (booking) => getBookingBoat(booking).title || 'Bateau indisponible';
@@ -98,42 +98,42 @@ const MyBookingsPage = () => {
     return boat.slug || boat._id ? `/boats/${boat.slug || boat._id}` : '/boats';
   };
 
-  if (loading) return <LoadingSpinner text="Chargement de vos réservations..." />;
+  if (loading) return <LoadingSpinner text="Chargement de vos reservations..." />;
   if (user?.role && user.role !== 'tenant') {
     return <Navigate to={user.role === 'owner' ? '/owner/bookings' : '/admin/bookings'} replace />;
   }
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
-      <SEO title="Mes réservations — SailingLoc" description="Espace privé des réservations SailingLoc." noIndex />
+      <SEO title="Mes reservations - SailingLoc" description="Espace prive des reservations SailingLoc." noIndex />
       <div className="container-max section-padding">
         <h1
           className="mb-8"
           style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 800, color: '#07192E' }}
         >
-          Mes réservations
+          Mes reservations
         </h1>
 
         {error ? (
           <div className="rounded-2xl bg-white p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
             <h2 className="mb-2 text-lg font-bold" style={{ color: '#07192E' }}>
-              Réservations indisponibles
+              Reservations indisponibles
             </h2>
             <p className="mb-5 text-sm" style={{ color: '#8896A8' }}>
               {error}
             </p>
             <button type="button" onClick={fetchBookings} className="btn-primary">
-              Réessayer
+              Reessayer
             </button>
           </div>
         ) : bookings.length === 0 ? (
           <div className="text-center py-20">
             <CalendarDays size={48} className="mx-auto mb-4" color="#00C6E0" />
             <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>
-              Aucune réservation
+              Aucune reservation
             </h3>
             <p className="text-sm mb-6" style={{ color: '#8896A8' }}>
-              Vous n'avez pas encore effectué de réservation.
+              Vous n'avez pas encore effectue de reservation.
             </p>
             <Link to="/boats" className="btn-primary">
               Explorer les bateaux
@@ -176,7 +176,7 @@ const MyBookingsPage = () => {
                     <span className="inline-flex items-center gap-1.5">
                       <CalendarDays size={14} /> {formatDate(booking.startDate)} au {formatDate(booking.endDate)}
                     </span>
-                    {Number(booking.numberOfDays || 0) > 0 && (<> &nbsp;·&nbsp; {Number(booking.numberOfDays)} jour{Number(booking.numberOfDays) > 1 ? 's' : ''}</>)}
+                    {Number(booking.numberOfDays || 0) > 0 && (<> &nbsp;-&nbsp; {Number(booking.numberOfDays)} jour{Number(booking.numberOfDays) > 1 ? 's' : ''}</>)}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-between gap-3">
