@@ -26,16 +26,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://dsp-dev-o24a-g6-fr.onrender.com/login</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://dsp-dev-o24a-g6-fr.onrender.com/register</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://dsp-dev-o24a-g6-fr.onrender.com/legal/mentions-legales</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, KeyRound } from 'lucide-react';
 import { resetPassword } from '../../services/authService';
+import SEO from '../../components/SEO';
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -40,6 +41,11 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-16" style={{ background: '#F7F5F2' }}>
+      <SEO
+        title="Réinitialisation du mot de passe — SailingLoc"
+        description="Page privée de création d'un nouveau mot de passe SailingLoc."
+        noIndex
+      />
       <div className="w-full max-w-md">
         <Link to="/" className="block mb-10">
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#07192E' }}>

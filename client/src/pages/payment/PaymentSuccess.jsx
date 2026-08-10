@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Loader2, Ship, XCircle } from 'lucide-react';
 import { confirmStripeCheckoutSession } from '../../services/paymentService';
+import SEO from '../../components/SEO';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -35,6 +36,7 @@ const PaymentSuccess = () => {
 
   return (
     <section className="section-padding" style={{ background: '#F7F5F2', minHeight: '70vh' }}>
+      <SEO title="Confirmation de paiement — SailingLoc" description="Page privée de confirmation de paiement SailingLoc." noIndex />
       <div className="container-max">
         <div
           className="bg-white rounded-2xl p-8 max-w-2xl mx-auto text-center"

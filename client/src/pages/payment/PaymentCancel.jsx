@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { XCircle } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const PaymentCancel = () => {
   const [searchParams] = useSearchParams();
@@ -7,6 +8,7 @@ const PaymentCancel = () => {
 
   return (
     <section className="section-padding" style={{ background: '#F7F5F2', minHeight: '70vh' }}>
+      <SEO title="Paiement annulé — SailingLoc" description="Page privée de paiement annulé SailingLoc." noIndex />
       <div className="container-max">
         <div className="bg-white rounded-2xl p-8 max-w-2xl mx-auto text-center" style={{ boxShadow: '0 18px 48px rgba(7,25,46,0.12)' }}>
           <XCircle size={48} className="mx-auto mb-4" color="#dc2626" />

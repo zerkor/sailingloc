@@ -5,6 +5,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import { useAuth } from '../../context/AuthContext';
 import { login } from '../../services/authService';
 import TurnstileCaptcha, { isTurnstileConfigured } from '../../components/TurnstileCaptcha';
+import SEO from '../../components/SEO';
 
 const EyeIcon = ({ open }) =>
   open ? (
@@ -87,6 +88,11 @@ const LoginPage = () => {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      <SEO
+        title="Connexion — SailingLoc"
+        description="Connexion à un compte SailingLoc locataire, propriétaire ou administrateur."
+        noIndex
+      />
       <div className="flex items-center justify-center px-6 py-16" style={{ background: '#F7F5F2' }}>
         <div className="w-full max-w-md">
           <Link to="/" className="mb-10 block">

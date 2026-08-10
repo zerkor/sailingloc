@@ -5,6 +5,7 @@ import { updateProfile, deleteAccount } from '../../services/authService';
 import ErrorMessage from '../../components/ErrorMessage';
 import { CheckCircle2 } from 'lucide-react';
 import { useUiFeedback } from '../../components/ToastProvider';
+import SEO from '../../components/SEO';
 
 const roleLabels = {
   tenant: 'Locataire',
@@ -64,6 +65,7 @@ const ProfilePage = () => {
 
   return (
     <div className="container-max section-padding max-w-2xl" style={{ minHeight: '80vh' }}>
+      <SEO title="Mon profil — SailingLoc" description="Espace privé de gestion du profil SailingLoc." noIndex />
       <h1
         className="mb-8"
         style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 800, color: '#07192E' }}

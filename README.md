@@ -5,6 +5,7 @@ Plateforme full-stack de location de bateaux entre particuliers, avec espaces vi
 ## Fonctionnalités
 
 - Catalogue public avec filtres, fiches bateaux et avis.
+- Optimisations SEO MVP : titres/metas dynamiques, fiches bateaux avec slugs, robots.txt, sitemap.xml et pages privees en noindex.
 - Mot de passe oublie avec token hashe en base et envoi Brevo configurable.
 - Authentification JWT avec rôles `tenant`, `owner`, `admin`.
 - Réservations, acceptation propriétaire, paiement simulé et intégration Stripe Checkout optionnelle.
@@ -71,6 +72,12 @@ LOG_LEVEL=debug
 ```
 
 Pour la production, voir `.env.production.example` et [docs/PRODUCTION.md](docs/PRODUCTION.md).
+
+## SEO / SSR
+
+SailingLoc est une SPA React/Vite rendue cote client. Le projet ne met pas en place un vrai SSR : le HTML source initial contient principalement le conteneur React, puis le contenu est rendu par JavaScript.
+
+Des mitigations SEO ont ete mises en place pour le MVP : `react-helmet-async`, titles/metas par page, fiches bateaux avec slugs, JSON-LD, `robots.txt`, `sitemap.xml` et `noindex` sur les zones privees. Voir [docs/SEO.md](docs/SEO.md) et [docs/SEO_SSR_AUDIT.md](docs/SEO_SSR_AUDIT.md).
 
 ## Brevo API sur Render
 

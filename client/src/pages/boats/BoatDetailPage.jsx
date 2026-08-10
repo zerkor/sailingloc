@@ -83,7 +83,14 @@ const BoatDetailPage = () => {
       .catch(() => setRelatedBoats([]));
   }, [boat]);
 
-  if (loading) return <LoadingSpinner text="Chargement du bateau..." />;
+  if (loading) {
+    return (
+      <>
+        <SEO title="Chargement du bateau — SailingLoc" description="Chargement de la fiche bateau SailingLoc." noIndex />
+        <LoadingSpinner text="Chargement du bateau..." />
+      </>
+    );
+  }
 
   if (error || !boat) {
     return (
@@ -123,11 +130,11 @@ const BoatDetailPage = () => {
       areaServed: boat.location,
     },
     aggregateRating:
-      boat.averageRating > 0
+      boat.averageRating > 0 && reviewCount > 0
         ? {
             '@type': 'AggregateRating',
             ratingValue: boat.averageRating,
-            reviewCount: reviewCount || 1,
+            reviewCount,
           }
         : undefined,
   };

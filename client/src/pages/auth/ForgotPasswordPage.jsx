@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, MailCheck, Send } from 'lucide-react';
 import { forgotPassword } from '../../services/authService';
+import SEO from '../../components/SEO';
 
 const HERO = 'https://images.unsplash.com/photo-1548793428-9e9e1e37e84c?w=900&q=85&auto=format&fit=crop';
 
@@ -29,6 +30,11 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+      <SEO
+        title="Mot de passe oublié — SailingLoc"
+        description="Demande privée de réinitialisation du mot de passe SailingLoc."
+        noIndex
+      />
       <div className="flex items-center justify-center px-6 py-16" style={{ background: '#F7F5F2' }}>
         <div className="w-full max-w-md">
           <Link to="/" className="block mb-10">

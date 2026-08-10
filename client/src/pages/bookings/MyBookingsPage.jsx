@@ -11,6 +11,7 @@ import { formatPrice } from '../../utils/formatPrice';
 import Modal from '../../components/Modal';
 import { useUiFeedback } from '../../components/ToastProvider';
 import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
+import SEO from '../../components/SEO';
 
 const MyBookingsPage = () => {
   const { toast, requestApproval } = useUiFeedback();
@@ -90,6 +91,7 @@ const MyBookingsPage = () => {
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
+      <SEO title="Mes réservations — SailingLoc" description="Espace privé des réservations SailingLoc." noIndex />
       <div className="container-max section-padding">
         <h1
           className="mb-8"

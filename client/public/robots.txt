@@ -4,6 +4,11 @@ Disallow: /admin/
 Disallow: /owner/
 Disallow: /profile
 Disallow: /my-bookings
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /payment
 Disallow: /api/
 
 Sitemap: https://dsp-dev-o24a-g6-fr.onrender.com/sitemap.xml

@@ -6,6 +6,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import { useAuth } from '../../context/AuthContext';
 import { register } from '../../services/authService';
 import TurnstileCaptcha, { isTurnstileConfigured } from '../../components/TurnstileCaptcha';
+import SEO from '../../components/SEO';
 
 const HERO = '/images/hero-boat.jpeg';
 
@@ -65,6 +66,11 @@ const RegisterPage = () => {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      <SEO
+        title="Inscription — SailingLoc"
+        description="Créer un compte SailingLoc locataire ou propriétaire pour accéder aux fonctionnalités privées."
+        noIndex
+      />
       <div className="flex items-center justify-center px-6 py-12" style={{ background: '#F7F5F2' }}>
         <div className="w-full max-w-md">
           <Link to="/" className="mb-8 block">
