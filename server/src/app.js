@@ -120,7 +120,11 @@ const limiter = rateLimit({
   max: Number(process.env.RATE_LIMIT_MAX || 200),
   skip: (req) =>
     req.method === 'GET' &&
-    (req.path === '/api/health' || req.path === '/api/boats' || req.path.startsWith('/api/boats/slug/')),
+    (req.path === '/health' ||
+      req.path === '/boats' ||
+      req.path.startsWith('/boats/') ||
+      req.originalUrl === '/api/health' ||
+      req.originalUrl.startsWith('/api/boats')),
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);

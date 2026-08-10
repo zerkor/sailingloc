@@ -263,6 +263,16 @@ test('Boats API: backfills missing slugs on legacy public boats', async () => {
   assert.equal(savedBoat.slug, 'sun-odyssey-349-marseille');
 });
 
+test('Public health and boats endpoints bypass global API rate limit', async () => {
+  const owner = await createUser({ email: 'owner-rate-limit@sailingloc.test', role: 'owner' });
+  await createApprovedBoat(owner._id, { title: 'Rate Limit Boat', location: 'Toulon' });
+
+  for (let index = 0; index < 12; index += 1) {
+    await request(app).get('/api/health').expect(200);
+    await request(app).get('/api/boats?limit=6').expect(200);
+  }
+});
+
 test('Boats API: filters out boats unavailable for selected dates', async () => {
   const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
   const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });

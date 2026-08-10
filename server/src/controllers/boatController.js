@@ -7,7 +7,7 @@ const { ensureUniqueBoatSlug } = require('../utils/ensureUniqueSlug');
 const isMongoId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
 const ACTIVE_BOOKING_STATUSES = ['pending', 'accepted', 'confirmed'];
 const boatListCache = new Map();
-const BOAT_LIST_CACHE_TTL_MS = Number(process.env.BOAT_LIST_CACHE_TTL_MS || 30_000);
+const BOAT_LIST_CACHE_TTL_MS = Number(process.env.BOAT_LIST_CACHE_TTL_MS || 120_000);
 const BOAT_LIST_CACHE_ENABLED = process.env.NODE_ENV === 'production';
 const PUBLIC_BOAT_FIELDS =
   'owner title slug type description location port pricePerDay capacity length engine skipperAvailable equipments images unavailableDates status averageRating createdAt';
@@ -58,6 +58,16 @@ const withBookedUnavailableDates = async (boat) => {
 const generateUniqueBoatSlug = ({ title, location, currentBoatId }) =>
   ensureUniqueBoatSlug(buildBoatSlug(title, location), currentBoatId);
 
+const createCacheKey = (query = {}) =>
+  JSON.stringify(
+    Object.keys(query)
+      .sort()
+      .reduce((normalized, key) => {
+        normalized[key] = query[key];
+        return normalized;
+      }, {})
+  );
+
 const ensureBoatHasSlug = async (boat) => {
   if (!boat || boat.slug) return boat;
 
@@ -90,10 +100,10 @@ const getBoats = asyncHandler(async (req, res) => {
     page = 1,
     limit = 12,
   } = req.query;
-  const cacheKey = JSON.stringify(req.query || {});
+  const cacheKey = createCacheKey(req.query || {});
   const cached = BOAT_LIST_CACHE_ENABLED ? boatListCache.get(cacheKey) : null;
   if (cached && cached.expiresAt > Date.now()) {
-    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=30');
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     return res.json(cached.payload);
   }
 
@@ -139,7 +149,7 @@ const getBoats = asyncHandler(async (req, res) => {
   if (BOAT_LIST_CACHE_ENABLED) {
     boatListCache.set(cacheKey, { payload, expiresAt: Date.now() + BOAT_LIST_CACHE_TTL_MS });
   }
-  res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=30');
+  res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
   res.json(payload);
 });
 
