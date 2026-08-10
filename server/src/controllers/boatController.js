@@ -58,6 +58,25 @@ const withBookedUnavailableDates = async (boat) => {
 const generateUniqueBoatSlug = ({ title, location, currentBoatId }) =>
   ensureUniqueBoatSlug(buildBoatSlug(title, location), currentBoatId);
 
+const ensureBoatHasSlug = async (boat) => {
+  if (!boat || boat.slug) return boat;
+
+  const slug = await generateUniqueBoatSlug({
+    title: boat.title,
+    location: boat.location,
+    currentBoatId: boat._id,
+  });
+
+  await Boat.updateOne({ _id: boat._id, $or: [{ slug: { $exists: false } }, { slug: '' }, { slug: null }] }, { slug });
+
+  if (typeof boat.toObject === 'function') {
+    boat.slug = slug;
+    return boat;
+  }
+
+  return { ...boat, slug };
+};
+
 const getBoats = asyncHandler(async (req, res) => {
   const {
     location,
@@ -115,7 +134,8 @@ const getBoats = asyncHandler(async (req, res) => {
       .lean(),
   ]);
 
-  const payload = { boats, total, page: numericPage, pages: Math.ceil(total / numericLimit) };
+  const boatsWithSlugs = await Promise.all(boats.map((boat) => ensureBoatHasSlug(boat)));
+  const payload = { boats: boatsWithSlugs, total, page: numericPage, pages: Math.ceil(total / numericLimit) };
   if (BOAT_LIST_CACHE_ENABLED) {
     boatListCache.set(cacheKey, { payload, expiresAt: Date.now() + BOAT_LIST_CACHE_TTL_MS });
   }
@@ -142,7 +162,8 @@ const getBoatByIdentifier = asyncHandler(async (req, res) => {
       throw new Error('Boat not found');
     }
   }
-  res.json(await withBookedUnavailableDates(boat));
+  const boatWithSlug = await ensureBoatHasSlug(boat);
+  res.json(await withBookedUnavailableDates(boatWithSlug));
 });
 
 const createBoat = asyncHandler(async (req, res) => {

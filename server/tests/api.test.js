@@ -244,6 +244,25 @@ test('Boats API: accepts persisted data URL images for owner uploads', async () 
   assert.equal(response.body.images[0], imageDataUrl);
 });
 
+test('Boats API: backfills missing slugs on legacy public boats', async () => {
+  const owner = await createUser({ email: 'owner-legacy-slug@sailingloc.test', role: 'owner' });
+  const legacyBoat = await createApprovedBoat(owner._id, {
+    title: 'Sun Odyssey 349',
+    location: 'Marseille',
+  });
+
+  assert.equal(legacyBoat.slug, undefined);
+
+  const listing = await request(app).get('/api/boats').expect(200);
+  assert.equal(listing.body.boats[0].slug, 'sun-odyssey-349-marseille');
+
+  const detail = await request(app).get(`/api/boats/${legacyBoat._id}`).expect(200);
+  assert.equal(detail.body.slug, 'sun-odyssey-349-marseille');
+
+  const savedBoat = await Boat.findById(legacyBoat._id).lean();
+  assert.equal(savedBoat.slug, 'sun-odyssey-349-marseille');
+});
+
 test('Boats API: filters out boats unavailable for selected dates', async () => {
   const owner = await createUser({ email: 'owner@sailingloc.test', role: 'owner' });
   const tenant = await createUser({ email: 'tenant@sailingloc.test', role: 'tenant' });
