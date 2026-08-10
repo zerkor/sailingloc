@@ -80,7 +80,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
               <Route path="/boats" element={<BoatListPage />} />
-              <Route path="/boats/:id" element={<BoatDetailPage />} />
+              <Route path="/boats/:identifier" element={<BoatDetailPage />} />
               <Route path="/bateaux/:slug" element={<BoatDetailPage />} />
               <Route path="/legal/:slug" element={<LegalPage />} />
               <Route path="/mvp-limitations" element={<MvpLimitationsPage />} />

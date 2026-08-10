@@ -1,5 +1,7 @@
 const Boat = require('../models/Boat');
 const User = require('../models/User');
+const { buildBoatSlug } = require('../utils/slugify');
+const { ensureUniqueBoatSlug } = require('../utils/ensureUniqueSlug');
 
 const catalog = [
   ['Sun Odyssey 349', 'sailboat', 'Marseille', 'Vieux-Port de Marseille', 250, 6, 10.3, 'Yanmar 21cv', true, '/images/boats/sailboat/sun-odyssey-349.jpg'],
@@ -56,6 +58,7 @@ const repairBoats = async () => {
     const payload = {
       owner: owner._id,
       title,
+      slug: await ensureUniqueBoatSlug(buildBoatSlug(title, location)),
       type,
       description: `${title} disponible à la location entre particuliers. Bateau vérifié, équipé et prêt pour naviguer depuis ${location}.`,
       location,
@@ -87,6 +90,9 @@ const repairBoats = async () => {
         images: existing.images?.length ? existing.images : payload.images,
         status: existing.status || 'approved',
       });
+      if (!existing.slug) {
+        existing.slug = await ensureUniqueBoatSlug(buildBoatSlug(existing.title, existing.location), existing._id);
+      }
       await existing.save();
       updated.push(existing.title);
     } else {

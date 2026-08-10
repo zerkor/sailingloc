@@ -40,6 +40,8 @@ Le projet ne pretend donc pas avoir un vrai SSR. Les corrections appliquees sont
   - exemple : `/boats/hanse-455-marseille`.
   - les anciennes URLs par identifiant restent compatibles.
 - Slugs sans accents ni caracteres speciaux via `server/src/utils/slugify.js`.
+- Script de backfill pour les annonces existantes : `cd server && npm run backfill:slugs`.
+- Script de generation sitemap avec les bateaux approuves : `cd server && npm run generate:sitemap`.
 - Pages admin, proprietaire, profil, reservations, paiement et authentification en `noindex`.
 - `robots.txt` avec exclusion du back-office et des pages privees.
 - `sitemap.xml` avec les pages publiques indexables.

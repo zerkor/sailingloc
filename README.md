@@ -79,6 +79,22 @@ SailingLoc est une SPA React/Vite rendue cote client. Le projet ne met pas en pl
 
 Des mitigations SEO ont ete mises en place pour le MVP : `react-helmet-async`, titles/metas par page, fiches bateaux avec slugs, JSON-LD, `robots.txt`, `sitemap.xml` et `noindex` sur les zones privees. Voir [docs/SEO.md](docs/SEO.md) et [docs/SEO_SSR_AUDIT.md](docs/SEO_SSR_AUDIT.md).
 
+Les fiches bateaux publiques utilisent des URLs lisibles :
+
+```text
+/boats/hanse-455-marseille
+```
+
+Les anciennes URLs par identifiant MongoDB restent acceptées par l'API et redirigent côté frontend vers le slug quand il existe.
+
+Commandes utiles après import ou correction de données :
+
+```powershell
+cd server
+npm run backfill:slugs
+npm run generate:sitemap
+```
+
 ## Brevo API sur Render
 
 Les emails transactionnels SailingLoc utilisent Brevo API par défaut sur Render, car l'API HTTPS passe par le port 443 et évite les timeouts SMTP possibles sur certains hébergements. SMTP reste disponible en fallback avec `EMAIL_MODE=smtp`. Les identifiants ne doivent jamais être écrits dans le code ni envoyés au frontend.

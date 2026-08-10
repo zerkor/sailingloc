@@ -137,7 +137,7 @@ const MyBookingsPage = () => {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
                     <Link
-                      to={`/boats/${booking.boat?._id}`}
+                      to={`/boats/${booking.boat?.slug || booking.boat?._id}`}
                       className="font-bold text-lg hover:underline"
                       style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
                     >

@@ -24,6 +24,7 @@
     "load:stress": "k6 run load-tests/stress-test.js",
     "load:bookings": "k6 run load-tests/api-bookings.js",
     "load:payments": "k6 run load-tests/api-payments.js",
+    "load:compare": "node scripts/compare-load-tests.mjs",
     "server:install": "npm --prefix server install",
     "server:start": "npm --prefix server start",
     "client:install": "npm --prefix client install",

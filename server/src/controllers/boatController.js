@@ -1,7 +1,8 @@
 const asyncHandler = require('../utils/asyncHandler');
 const Boat = require('../models/Boat');
 const Booking = require('../models/Booking');
-const slugify = require('../utils/slugify');
+const { buildBoatSlug } = require('../utils/slugify');
+const { ensureUniqueBoatSlug } = require('../utils/ensureUniqueSlug');
 
 const isMongoId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
 const ACTIVE_BOOKING_STATUSES = ['pending', 'accepted', 'confirmed'];
@@ -54,18 +55,8 @@ const withBookedUnavailableDates = async (boat) => {
   };
 };
 
-const generateUniqueBoatSlug = async ({ title, location, currentBoatId }) => {
-  const baseSlug = slugify(`${title} ${location}`) || `bateau-${Date.now()}`;
-  let candidate = baseSlug;
-  let suffix = 2;
-
-  while (await Boat.exists({ slug: candidate, ...(currentBoatId ? { _id: { $ne: currentBoatId } } : {}) })) {
-    candidate = `${baseSlug}-${suffix}`;
-    suffix += 1;
-  }
-
-  return candidate;
-};
+const generateUniqueBoatSlug = ({ title, location, currentBoatId }) =>
+  ensureUniqueBoatSlug(buildBoatSlug(title, location), currentBoatId);
 
 const getBoats = asyncHandler(async (req, res) => {
   const {
@@ -132,25 +123,8 @@ const getBoats = asyncHandler(async (req, res) => {
   res.json(payload);
 });
 
-const getBoatById = asyncHandler(async (req, res) => {
-  const boat = await Boat.findById(req.params.id).populate('owner', 'firstName lastName');
-  if (!boat) {
-    res.status(404);
-    throw new Error('Boat not found');
-  }
-  if (boat.status !== 'approved') {
-    const isOwner = req.user && req.user._id.toString() === boat.owner._id.toString();
-    const isAdmin = req.user && req.user.role === 'admin';
-    if (!isOwner && !isAdmin) {
-      res.status(404);
-      throw new Error('Boat not found');
-    }
-  }
-  res.json(await withBookedUnavailableDates(boat));
-});
-
-const getBoatBySlug = asyncHandler(async (req, res) => {
-  const identifier = req.params.slug;
+const getBoatByIdentifier = asyncHandler(async (req, res) => {
+  const identifier = req.params.identifier || req.params.slug || req.params.id;
   const boat = await Boat.findOne(isMongoId(identifier) ? { _id: identifier } : { slug: identifier }).populate(
     'owner',
     'firstName lastName'
@@ -161,7 +135,7 @@ const getBoatBySlug = asyncHandler(async (req, res) => {
     throw new Error('Boat not found');
   }
   if (boat.status !== 'approved') {
-    const isOwner = req.user && req.user._id.toString() === boat.owner._id.toString();
+    const isOwner = req.user && boat.owner && req.user._id.toString() === boat.owner._id.toString();
     const isAdmin = req.user && req.user.role === 'admin';
     if (!isOwner && !isAdmin) {
       res.status(404);
@@ -268,4 +242,13 @@ const getOwnerBoats = asyncHandler(async (req, res) => {
   res.json(boats);
 });
 
-module.exports = { getBoats, getBoatById, getBoatBySlug, createBoat, updateBoat, deleteBoat, getOwnerBoats };
+module.exports = {
+  getBoats,
+  getBoatById: getBoatByIdentifier,
+  getBoatBySlug: getBoatByIdentifier,
+  getBoatByIdentifier,
+  createBoat,
+  updateBoat,
+  deleteBoat,
+  getOwnerBoats,
+};

@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const {
   getBoats,
-  getBoatById,
   getBoatBySlug,
+  getBoatByIdentifier,
   createBoat,
   updateBoat,
   deleteBoat,
@@ -17,7 +17,7 @@ const { mongoId, pagination, boatRules, updateBoatRules } = require('../middlewa
 router.get('/', pagination, validate, getBoats);
 router.get('/owner/my-boats', protect, requireRole('owner', 'admin'), getOwnerBoats);
 router.get('/slug/:slug', optionalProtect, getBoatBySlug);
-router.get('/:id', optionalProtect, mongoId(), validate, getBoatById);
+router.get('/:identifier', optionalProtect, getBoatByIdentifier);
 router.post('/', protect, requireRole('owner', 'admin'), boatRules, validate, createBoat);
 router.put('/:id', protect, requireRole('owner', 'admin'), mongoId(), updateBoatRules, validate, updateBoat);
 router.delete('/:id', protect, requireRole('owner', 'admin'), mongoId(), validate, deleteBoat);

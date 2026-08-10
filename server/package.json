@@ -11,6 +11,8 @@
     "test:coverage": "node --experimental-test-coverage --test --test-concurrency=1 tests/*.test.js",
     "test:admin": "node --test tests/admin.test.js",
     "validate:db": "node scripts/validate-db-connection.js",
+    "backfill:slugs": "node scripts/backfill-boat-slugs.js",
+    "generate:sitemap": "node scripts/generate-sitemap.js",
     "lint": "eslint \"src/**/*.js\" \"tests/**/*.js\"",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\""

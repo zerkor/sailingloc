@@ -130,7 +130,7 @@ const OwnerBoatsPage = () => {
 
                 <div className="flex flex-wrap gap-2">
                   <Link
-                    to={`/boats/${boat._id}`}
+                    to={`/boats/${boat.slug || boat._id}`}
                     className="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-[#EDF1F5]"
                     style={{ borderColor: 'rgba(7,25,46,0.15)', color: '#07192E' }}
                   >

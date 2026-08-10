@@ -9,6 +9,7 @@ const OwnerDocument = require('../models/OwnerDocument');
 const Notification = require('../models/Notification');
 const Report = require('../models/Report');
 const AdminActionLog = require('../models/AdminActionLog');
+const { buildBoatSlug } = require('../utils/slugify');
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -651,6 +652,19 @@ const seed = async () => {
       )
     );
 
+    const usedBoatSlugs = new Set();
+    const reserveSeedSlug = (title, location) => {
+      const baseSlug = buildBoatSlug(title, location);
+      let candidate = baseSlug;
+      let suffix = 2;
+      while (usedBoatSlugs.has(candidate)) {
+        candidate = `${baseSlug}-${suffix}`;
+        suffix += 1;
+      }
+      usedBoatSlugs.add(candidate);
+      return candidate;
+    };
+
     const boats = await Boat.insertMany(
       boatBlueprints.map((boat, index) => {
         const [title, type, location, port, pricePerDay, capacity, length, engine, skipperAvailable, intro] = boat;
@@ -658,6 +672,7 @@ const seed = async () => {
         return {
           owner: owners[index % owners.length]._id,
           title,
+          slug: reserveSeedSlug(title, location),
           type,
           description: `${intro} Entretien suivi, inventaire vérifié et équipement adapté à la zone de navigation de ${location}.`,
           location,

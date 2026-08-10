@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Anchor,
   BadgeCheck,
@@ -21,7 +21,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import ReviewList from '../../components/ReviewList';
 import SEO from '../../components/SEO';
 import Breadcrumb from '../../components/Breadcrumb';
-import { getBoatById, getBoatBySlug, getBoats } from '../../services/boatService';
+import { getBoatByIdentifier, getBoats } from '../../services/boatService';
 import { getBoatReviews } from '../../services/reviewService';
 import { FALLBACK_BOAT_IMAGE, getBoatImages } from '../../utils/boatImages';
 import { formatPrice } from '../../utils/formatPrice';
@@ -46,7 +46,8 @@ const FeatureItem = ({ icon: Icon, label, value, tone = 'aqua' }) => (
 );
 
 const BoatDetailPage = () => {
-  const { id, slug } = useParams();
+  const { identifier, id, slug } = useParams();
+  const navigate = useNavigate();
   const [boat, setBoat] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [relatedBoats, setRelatedBoats] = useState([]);
@@ -57,13 +58,16 @@ const BoatDetailPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const identifier = slug || id;
-        const isId = /^[a-f\d]{24}$/i.test(identifier || '');
-        const boatRes = isId ? await getBoatById(identifier) : await getBoatBySlug(identifier);
+        const routeIdentifier = identifier || slug || id;
+        const isId = /^[a-f\d]{24}$/i.test(routeIdentifier || '');
+        const boatRes = await getBoatByIdentifier(routeIdentifier);
         const boatData = boatRes.data;
         const reviewsRes = boatData?._id ? await getBoatReviews(boatData._id) : { data: [] };
         setBoat(boatData);
         setReviews(reviewsRes.data || []);
+        if (isId && boatData?.slug) {
+          navigate(`/boats/${boatData.slug}`, { replace: true });
+        }
       } catch {
         setError('Impossible de charger ce bateau.');
       } finally {
@@ -71,7 +75,7 @@ const BoatDetailPage = () => {
       }
     };
     fetchData();
-  }, [id, slug]);
+  }, [identifier, id, slug, navigate]);
 
   useEffect(() => {
     if (!boat) return;

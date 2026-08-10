@@ -25,6 +25,8 @@ const ContactMessage = require('../src/models/ContactMessage');
 const NewsletterSubscriber = require('../src/models/NewsletterSubscriber');
 const { uploadRoot } = require('../src/middleware/uploadMiddleware');
 const { confirmStripePayment } = require('../src/controllers/paymentController');
+const slugify = require('../src/utils/slugify');
+const { buildBoatSlug } = require('../src/utils/slugify');
 
 let mongoServer;
 
@@ -198,6 +200,7 @@ test('Boats API: owner creates a pending boat and admin approves it for public l
     .expect(201);
 
   assert.equal(createResponse.body.status, 'pending');
+  assert.equal(createResponse.body.slug, 'dufour-390-brest');
 
   const hiddenListing = await request(app).get('/api/boats').expect(200);
   assert.equal(hiddenListing.body.boats.length, 0);
@@ -210,6 +213,13 @@ test('Boats API: owner creates a pending boat and admin approves it for public l
   const publicListing = await request(app).get('/api/boats').expect(200);
   assert.equal(publicListing.body.boats.length, 1);
   assert.equal(publicListing.body.boats[0].title, 'Dufour 390');
+  assert.equal(publicListing.body.boats[0].slug, 'dufour-390-brest');
+
+  const slugDetail = await request(app).get('/api/boats/dufour-390-brest').expect(200);
+  assert.equal(slugDetail.body._id, createResponse.body._id);
+
+  const idDetail = await request(app).get(`/api/boats/${createResponse.body._id}`).expect(200);
+  assert.equal(idDetail.body.slug, 'dufour-390-brest');
 });
 
 test('Boats API: accepts persisted data URL images for owner uploads', async () => {
@@ -650,4 +660,10 @@ test('Newsletter API: subscribes a public email and updates existing user consen
 
   const updatedTenant = await User.findById(tenant._id);
   assert.equal(updatedTenant.marketingConsent, true);
+});
+
+test('slugify creates SEO-safe boat URLs', () => {
+  assert.equal(slugify('Évasion Bleue à Marseille !'), 'evasion-bleue-a-marseille');
+  assert.equal(slugify('  Bateau---VIP / Côte d’Azur  '), 'bateau-vip-cote-d-azur');
+  assert.equal(buildBoatSlug('Hanse 455', 'Vieux Port de Marseille'), 'hanse-455-vieux-port-de-marseille');
 });

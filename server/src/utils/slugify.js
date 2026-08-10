@@ -1,11 +1,18 @@
-const slugify = (value) =>
-  String(value || '')
+const slugify = (value) => {
+  const slug = String(value || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/\b(a|au|aux|de|du|des|la|le|les)\b/g, ' ')
+    .replace(/[’']/g, '-')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/-{2,}/g, '-')
     .replace(/^-+|-+$/g, '');
 
+  return slug || 'bateau';
+};
+
+const buildBoatSlug = (title, location) => slugify(`${title || ''} ${location || ''}`);
+
 module.exports = slugify;
+module.exports.slugify = slugify;
+module.exports.buildBoatSlug = buildBoatSlug;
