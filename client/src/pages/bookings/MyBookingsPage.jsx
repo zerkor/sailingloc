@@ -1,5 +1,5 @@
-ï»¿import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { CalendarDays, CreditCard, FileText, MessageSquareText } from 'lucide-react';
 import { getTenantBookings, cancelBooking, payBooking } from '../../services/bookingService';
 import { createStripeCheckoutSession } from '../../services/paymentService';
@@ -12,20 +12,25 @@ import Modal from '../../components/Modal';
 import { useUiFeedback } from '../../components/ToastProvider';
 import { FALLBACK_BOAT_IMAGE, getBoatImage } from '../../utils/boatImages';
 import SEO from '../../components/SEO';
+import { useAuth } from '../../context/AuthContext';
 
 const MyBookingsPage = () => {
   const { toast, requestApproval } = useUiFeedback();
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [reviewBooking, setReviewBooking] = useState(null);
   const [payingBookingId, setPayingBookingId] = useState(null);
 
   const fetchBookings = async () => {
     try {
       const { data } = await getTenantBookings();
-      setBookings(data || []);
-    } catch {
+      setBookings(Array.isArray(data) ? data : []);
+      setError('');
+    } catch (err) {
       setBookings([]);
+      setError(err.response?.data?.message || 'Impossible de charger vos réservations pour le moment.');
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,7 @@ const MyBookingsPage = () => {
 
   const handleCancel = async (id) => {
     if (
-      !(await requestApproval('Annuler cette rÃ©servation ?', {
+      !(await requestApproval('Annuler cette réservation ?', {
         title: 'Annulation',
         variant: 'danger',
         confirmLabel: 'Annuler',
@@ -47,7 +52,7 @@ const MyBookingsPage = () => {
     try {
       await cancelBooking(id);
       fetchBookings();
-      toast('RÃ©servation annulÃ©e.', 'success');
+      toast('Réservation annulée.', 'success');
     } catch (err) {
       toast(err.response?.data?.message || "Erreur lors de l'annulation.", 'error');
     }
@@ -63,7 +68,7 @@ const MyBookingsPage = () => {
       }
       await payBooking(id);
       await fetchBookings();
-      toast('Paiement simulÃ© avec succÃ¨s.', 'success');
+      toast('Paiement simulé avec succès.', 'success');
     } catch (err) {
       const message =
         err.response?.status === 503
@@ -82,32 +87,53 @@ const MyBookingsPage = () => {
   };
 
   const paymentLabel = (paymentStatus) => {
-    if (paymentStatus === 'paid') return 'PayÃ©';
-    if (paymentStatus === 'refunded') return 'RemboursÃ©';
-    return 'Non payÃ©';
+    if (paymentStatus === 'paid') return 'Payé';
+    if (paymentStatus === 'refunded') return 'Remboursé';
+    return 'Non payé';
+  };
+  const getBookingBoat = (booking) => booking?.boat || {};
+  const getBookingBoatTitle = (booking) => getBookingBoat(booking).title || 'Bateau indisponible';
+  const getBookingBoatPath = (booking) => {
+    const boat = getBookingBoat(booking);
+    return boat.slug || boat._id ? `/boats/${boat.slug || boat._id}` : '/boats';
   };
 
-  if (loading) return <LoadingSpinner text="Chargement de vos rÃ©servations..." />;
+  if (loading) return <LoadingSpinner text="Chargement de vos réservations..." />;
+  if (user?.role && user.role !== 'tenant') {
+    return <Navigate to={user.role === 'owner' ? '/owner/bookings' : '/admin/bookings'} replace />;
+  }
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh' }}>
-      <SEO title="Mes rÃ©servations â€” SailingLoc" description="Espace privÃ© des rÃ©servations SailingLoc." noIndex />
+      <SEO title="Mes réservations — SailingLoc" description="Espace privé des réservations SailingLoc." noIndex />
       <div className="container-max section-padding">
         <h1
           className="mb-8"
           style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 800, color: '#07192E' }}
         >
-          Mes rÃ©servations
+          Mes réservations
         </h1>
 
-        {bookings.length === 0 ? (
+        {error ? (
+          <div className="rounded-2xl bg-white p-8" style={{ boxShadow: '0 4px 24px rgba(7,25,46,0.08)' }}>
+            <h2 className="mb-2 text-lg font-bold" style={{ color: '#07192E' }}>
+              Réservations indisponibles
+            </h2>
+            <p className="mb-5 text-sm" style={{ color: '#8896A8' }}>
+              {error}
+            </p>
+            <button type="button" onClick={fetchBookings} className="btn-primary">
+              Réessayer
+            </button>
+          </div>
+        ) : bookings.length === 0 ? (
           <div className="text-center py-20">
             <CalendarDays size={48} className="mx-auto mb-4" color="#00C6E0" />
             <h3 className="text-xl font-bold mb-2" style={{ color: '#07192E' }}>
-              Aucune rÃ©servation
+              Aucune réservation
             </h3>
             <p className="text-sm mb-6" style={{ color: '#8896A8' }}>
-              Vous n'avez pas encore effectuÃ© de rÃ©servation.
+              Vous n'avez pas encore effectué de réservation.
             </p>
             <Link to="/boats" className="btn-primary">
               Explorer les bateaux
@@ -124,8 +150,8 @@ const MyBookingsPage = () => {
                 {/* Image */}
                 <div className="sm:w-32 h-24 sm:h-28 rounded-xl overflow-hidden flex-shrink-0">
                   <img
-                    src={getBoatImage(booking.boat)}
-                    alt={booking.boat?.title}
+                    src={getBoatImage(getBookingBoat(booking))}
+                    alt={getBookingBoatTitle(booking)}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.src = FALLBACK_BOAT_IMAGE;
@@ -137,20 +163,20 @@ const MyBookingsPage = () => {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
                     <Link
-                      to={`/boats/${booking.boat?.slug || booking.boat?._id}`}
+                      to={getBookingBoatPath(booking)}
                       className="font-bold text-lg hover:underline"
                       style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
                     >
-                      {booking.boat?.title || 'Bateau supprimÃ©'}
+                      {getBookingBoatTitle(booking)}
                     </Link>
                     <StatusBadge status={booking.status} />
                   </div>
 
                   <p className="text-sm mb-3" style={{ color: '#8896A8' }}>
                     <span className="inline-flex items-center gap-1.5">
-                      <CalendarDays size={14} /> {formatDate(booking.startDate)} â†’ {formatDate(booking.endDate)}
+                      <CalendarDays size={14} /> {formatDate(booking.startDate)} au {formatDate(booking.endDate)}
                     </span>
-                    &nbsp;Â·&nbsp; {booking.numberOfDays} jour{booking.numberOfDays > 1 ? 's' : ''}
+                    {Number(booking.numberOfDays || 0) > 0 && (<> &nbsp;·&nbsp; {Number(booking.numberOfDays)} jour{Number(booking.numberOfDays) > 1 ? 's' : ''}</>)}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -159,7 +185,7 @@ const MyBookingsPage = () => {
                         className="text-xl font-bold"
                         style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
                       >
-                        {formatPrice(booking.totalPrice)}
+                        {formatPrice(Number(booking.totalPrice || 0))}
                       </span>
                       <span
                         className="text-xs ml-2 px-2 py-0.5 rounded-full"
