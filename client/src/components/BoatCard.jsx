@@ -161,17 +161,20 @@ const BoatCard = ({ boat }) => {
           </div>
         )}
 
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
-          <div>
-            <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}>
+        <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <span
+              className="text-lg font-bold sm:text-xl"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#07192E' }}
+            >
               {formatPrice(boat.pricePerDay)}
             </span>
             <span className="ml-1 text-sm" style={{ color: '#8896A8' }}>
               {t('common.perDay')}
             </span>
           </div>
-          <span className="shrink-0 rounded-full bg-navy-900 px-4 py-2 text-xs font-bold text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900">
-            <span className="inline-flex items-center gap-1">
+          <span className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-full bg-navy-900 px-4 py-2 text-center text-xs font-bold leading-none text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900 sm:w-auto">
+            <span className="inline-flex min-w-0 items-center justify-center gap-1 whitespace-nowrap">
               Voir le bateau <ArrowRight size={13} />
             </span>
           </span>
