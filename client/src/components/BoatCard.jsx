@@ -107,7 +107,7 @@ const BoatCard = ({ boat }) => {
         )}
       </div>
 
-      <div className="flex min-h-[250px] flex-col p-5">
+      <div className="flex min-h-[280px] flex-col p-5">
         <div className="mb-1 text-[10px] font-bold uppercase tracking-[1.5px]" style={{ color: '#00C6E0' }}>
           <span className="inline-flex items-center gap-1.5">
             <MapPin size={12} /> {boat.port || boat.location}
@@ -161,7 +161,7 @@ const BoatCard = ({ boat }) => {
           </div>
         )}
 
-        <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 pt-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <span
               className="text-lg font-bold sm:text-xl"
@@ -173,7 +173,7 @@ const BoatCard = ({ boat }) => {
               {t('common.perDay')}
             </span>
           </div>
-          <span className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-full bg-navy-900 px-4 py-2 text-center text-xs font-bold leading-none text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900 sm:w-auto">
+          <span className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-full bg-navy-900 px-4 py-2 text-center text-xs font-bold leading-none text-white transition-all duration-200 group-hover:bg-cyan-500 group-hover:text-navy-900 lg:w-auto">
             <span className="inline-flex min-w-0 items-center justify-center gap-1 whitespace-nowrap">
               Voir le bateau <ArrowRight size={13} />
             </span>
